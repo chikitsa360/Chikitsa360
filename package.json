@@ -8,6 +8,8 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
+    "test": "turbo run test",
+    "check-translations": "turbo run check-translations",
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\" --ignore-path .gitignore"
   },

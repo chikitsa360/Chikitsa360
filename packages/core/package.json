@@ -7,10 +7,16 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@chikitsa360/typescript-config": "workspace:*",
-    "typescript": "^5.8.3"
+    "@vitest/coverage-v8": "^2.1.9",
+    "typescript": "^5.8.3",
+    "vitest": "^2.1.9"
   }
 }

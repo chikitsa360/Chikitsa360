@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9; --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-text-2: #475569; --c-text-3: #94A3B8;
+    --c-danger: #EF4444; --c-danger-light: #FEF2F2;
+    --c-warning: #F59E0B; --c-warning-light: #FFFBEB;
+    --c-success: #10B981; --c-success-light: #ECFDF5;
+    --sidebar-w: 240px; --topbar-h: 56px;
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--c-border); }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { margin-left: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .sidebar-nav { padding: 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin-bottom: 2px; font-size: 13.5px; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 24px; }
+
+  /* Summary cards */
+  .summary-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+  .summary-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 16px 18px; }
+  .summary-label { font-size: 12px; color: var(--c-text-3); font-weight: 500; }
+  .summary-value { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 24px; font-weight: 700; color: var(--c-text); margin-top: 4px; }
+  .summary-sub { font-size: 12px; color: var(--c-text-3); margin-top: 4px; }
+  .summary-sub.up { color: var(--c-success); }
+  .summary-sub.warn { color: var(--c-warning); }
+
+  /* Filter bar */
+  .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .search-wrap { position: relative; flex: 1; max-width: 300px; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-text-3); width: 15px; height: 15px; }
+  .search-input { width: 100%; height: 36px; padding: 0 12px 0 34px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13.5px; background: var(--c-card); outline: none; color: var(--c-text); }
+  .search-input:focus { border-color: var(--c-primary); }
+  .filter-select { height: 36px; padding: 0 28px 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; color: var(--c-text-2); background: var(--c-card); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+
+  /* Table */
+  .card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th { padding: 11px 16px; font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; text-align: left; background: var(--c-bg); border-bottom: 1px solid var(--c-border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--c-border); cursor: pointer; transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #FAFBFF; }
+  td { padding: 13px 16px; font-size: 13.5px; vertical-align: middle; }
+
+  .inv-id { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 12px; font-weight: 700; color: var(--c-text-3); }
+  .patient-cell { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .patient-name { font-size: 13.5px; font-weight: 600; color: var(--c-text); }
+  .patient-meta { font-size: 11.5px; color: var(--c-text-3); margin-top: 1px; }
+  .amount { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 700; color: var(--c-text); }
+  .amount-due { color: var(--c-danger); }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-paid { background: var(--c-success-light); color: var(--c-success); }
+  .badge-partial { background: var(--c-warning-light); color: #92400E; }
+  .badge-unpaid { background: var(--c-danger-light); color: var(--c-danger); }
+  .badge-draft { background: var(--c-bg); color: var(--c-text-3); border: 1px solid var(--c-border); }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .date-cell { font-size: 13px; color: var(--c-text-2); }
+  .method-tag { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-sm); padding: 2px 8px; font-size: 12px; color: var(--c-text-2); }
+  .row-actions { display: flex; gap: 4px; opacity: 0; }
+  tr:hover .row-actions { opacity: 1; }
+  .row-act { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .row-act:hover { border-color: var(--c-primary); color: var(--c-primary); }
+  .pagination { display: flex; align-items: center; gap: 4px; padding: 14px 16px; border-top: 1px solid var(--c-border); }
+  .page-info { font-size: 13px; color: var(--c-text-3); margin-right: auto; }
+  .page-btn { width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; color: var(--c-text-2); }
+  .page-btn.active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); font-weight: 700; }
+  .overdue-row { background: #FFFBEB !important; }
+  .overdue-row:hover { background: #FEF3C7 !important; }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="logo-mark">C</div><span class="logo-text">Chikitsa360</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>Doctors</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer"><div class="user-row"><div class="avatar-sm">SR</div><div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div></div></div>
+</aside>
+<header class="topbar">
+  <span class="topbar-title">Billing & Invoices</span>
+  <div class="topbar-right">
+    <div class="icon-btn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    <button class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Invoice
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:13px;">SR</div>
+  </div>
+</header>
+<main class="main">
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="summary-label">Revenue This Month</div>
+      <div class="summary-value">₹1,24,500</div>
+      <div class="summary-sub up">↑ 18% vs last month</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Outstanding</div>
+      <div class="summary-value" style="color:var(--c-warning);">₹18,200</div>
+      <div class="summary-sub warn">6 invoices pending</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Invoices This Month</div>
+      <div class="summary-value">84</div>
+      <div class="summary-sub up">↑ 12 more than last month</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-label">Avg Invoice Value</div>
+      <div class="summary-value">₹1,482</div>
+      <div class="summary-sub">Per consultation</div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" type="text" placeholder="Search patient or invoice ID…" />
+    </div>
+    <select class="filter-select">
+      <option>This Month</option>
+      <option>Last Month</option>
+      <option>Last 3 Months</option>
+      <option>Custom Range</option>
+    </select>
+    <select class="filter-select">
+      <option>All Statuses</option>
+      <option>Paid</option>
+      <option>Partial</option>
+      <option>Unpaid</option>
+      <option>Draft</option>
+    </select>
+    <select class="filter-select">
+      <option>All Payment Methods</option>
+      <option>Cash</option>
+      <option>UPI</option>
+      <option>Card</option>
+    </select>
+    <div style="margin-left:auto;">
+      <button style="background:transparent;border:1px solid var(--c-border);border-radius:var(--radius-md);padding:0 12px;height:36px;font-size:12.5px;color:var(--c-text-2);cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox" /></th>
+          <th>Invoice ID</th>
+          <th>Patient</th>
+          <th>Date</th>
+          <th>Services</th>
+          <th>Total Amount</th>
+          <th>Paid</th>
+          <th>Due</th>
+          <th>Method</th>
+          <th>Status</th>
+          <th style="width:80px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" checked /></td>
+          <td><div class="inv-id">INV-2024-0342</div></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:#FDE8FF;color:#9333EA;">AN</div><div><div class="patient-name">Anjali Nair</div><div class="patient-meta">14 Jun · Dr. Mehta</div></div></div></td>
+          <td><div class="date-cell">14 Jun 2025</div></td>
+          <td><span style="font-size:12.5px;color:var(--c-text-2);">Consultation + BP Check</span></td>
+          <td><span class="amount">₹800</span></td>
+          <td><span class="amount" style="color:var(--c-success);">₹800</span></td>
+          <td><span style="color:var(--c-text-3);font-size:13px;">—</span></td>
+          <td><span class="method-tag">UPI</span></td>
+          <td><span class="badge badge-paid"><span class="badge-dot"></span>Paid</span></td>
+          <td><div class="row-actions"><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="inv-id">INV-2024-0341</div></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:var(--c-primary-light);color:var(--c-primary);">RK</div><div><div class="patient-name">Ramesh Kumar</div><div class="patient-meta">14 Jun · Dr. Mehta</div></div></div></td>
+          <td><div class="date-cell">14 Jun 2025</div></td>
+          <td><span style="font-size:12.5px;color:var(--c-text-2);">Consultation + Lab Tests</span></td>
+          <td><span class="amount">₹2,400</span></td>
+          <td><span class="amount" style="color:var(--c-success);">₹1,000</span></td>
+          <td><span class="amount amount-due">₹1,400</span></td>
+          <td><span class="method-tag">Cash</span></td>
+          <td><span class="badge badge-partial"><span class="badge-dot"></span>Partial</span></td>
+          <td><div class="row-actions"><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div></div></td>
+        </tr>
+        <tr class="overdue-row">
+          <td><input type="checkbox" /></td>
+          <td><div class="inv-id">INV-2024-0330</div></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:#FEF3C7;color:#92400E;">VJ</div><div><div class="patient-name">Vijay Joshi</div><div class="patient-meta">10 Jun · Dr. Mehta</div></div></div></td>
+          <td><div class="date-cell" style="color:var(--c-warning);">10 Jun 2025 ⚠</div></td>
+          <td><span style="font-size:12.5px;color:var(--c-text-2);">Cardio Consultation</span></td>
+          <td><span class="amount">₹1,500</span></td>
+          <td><span class="amount" style="color:var(--c-text-3);">₹0</span></td>
+          <td><span class="amount amount-due">₹1,500</span></td>
+          <td><span class="method-tag">—</span></td>
+          <td><span class="badge badge-unpaid"><span class="badge-dot"></span>Overdue</span></td>
+          <td><div class="row-actions"><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="inv-id">INV-2024-0325</div></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:var(--c-secondary-light);color:var(--c-secondary);">SP</div><div><div class="patient-name">Sunita Patil</div><div class="patient-meta">9 Jun · Dr. Iyer</div></div></div></td>
+          <td><div class="date-cell">9 Jun 2025</div></td>
+          <td><span style="font-size:12.5px;color:var(--c-text-2);">Derma Consultation</span></td>
+          <td><span class="amount">₹1,200</span></td>
+          <td><span class="amount" style="color:var(--c-success);">₹1,200</span></td>
+          <td><span style="color:var(--c-text-3);font-size:13px;">—</span></td>
+          <td><span class="method-tag">Card</span></td>
+          <td><span class="badge badge-paid"><span class="badge-dot"></span>Paid</span></td>
+          <td><div class="row-actions"><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="inv-id">INV-2024-0318</div></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:#FEE2E2;color:var(--c-danger);">PD</div><div><div class="patient-name">Pradeep Desai</div><div class="patient-meta">8 Jun · Dr. Sharma</div></div></div></td>
+          <td><div class="date-cell">8 Jun 2025</div></td>
+          <td><span style="font-size:12.5px;color:var(--c-text-2);">Ortho + X-Ray</span></td>
+          <td><span class="amount">₹3,200</span></td>
+          <td><span class="amount" style="color:var(--c-success);">₹3,200</span></td>
+          <td><span style="color:var(--c-text-3);font-size:13px;">—</span></td>
+          <td><span class="method-tag">UPI</span></td>
+          <td><span class="badge badge-paid"><span class="badge-dot"></span>Paid</span></td>
+          <td><div class="row-actions"><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div></div></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" /></td>
+          <td><div class="inv-id">INV-2024-0310</div></td>
+          <td><div class="patient-cell"><div class="avatar" style="background:#F3F0FF;color:#7C3AED;">MG</div><div><div class="patient-name">Meena Gupta</div><div class="patient-meta">7 Jun · Dr. Iyer</div></div></div></td>
+          <td><div class="date-cell">7 Jun 2025</div></td>
+          <td><span style="font-size:12.5px;color:var(--c-text-2);">New Consultation</span></td>
+          <td><span class="amount">₹900</span></td>
+          <td><span class="amount" style="color:var(--c-text-3);">₹0</span></td>
+          <td><span class="amount amount-due">₹900</span></td>
+          <td><span class="method-tag">—</span></td>
+          <td><span class="badge badge-draft"><span class="badge-dot"></span>Draft</span></td>
+          <td><div class="row-actions"><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div><div class="row-act"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span class="page-info">Showing 1–6 of 84 invoices</span>
+      <div class="page-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="page-btn active">1</div>
+      <div class="page-btn">2</div>
+      <div class="page-btn">3</div>
+      <span style="color:var(--c-text-3);">…</span>
+      <div class="page-btn">14</div>
+      <div class="page-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

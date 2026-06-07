@@ -2,8 +2,9 @@
 story: 1.1
 epic: 1
 title: Core Stack Installation & Database Schema
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b38e545265d7e7f04c6f5009c2dfbbdd15c
 requirements:
   arch: [ARCH-1, ARCH-4, ARCH-5, ARCH-6, ARCH-7, ARCH-12, ARCH-14]
   compliance: [CR-4, CR-5, CR-8, CR-12, CR-14]

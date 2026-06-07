@@ -1,0 +1,75 @@
+/*
+ * Design tokens — supplementary CSS custom properties.
+ * Brand color tokens (--color-primary, etc.) come from the branding system
+ * injected in layout.tsx. These tokens add semantic design system values.
+ */
+
+:root {
+  /* Radius scale */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadow */
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-dropdown: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  /* Semantic color aliases (map to branding vars) */
+  --color-bg: var(--color-background, 255 255 255);
+  --color-surface: var(--color-muted, 249 250 251);
+  --color-text-primary: var(--color-foreground, 17 24 39);
+  --color-text-secondary: var(--color-muted-foreground, 107 114 128);
+
+  /* Additional palette tokens not in branding system */
+  --color-teal: 0 184 169;
+  --color-cyan: 79 217 255;
+  --color-success: 34 197 94;
+  --color-warning: 245 158 11;
+  --color-error: 239 68 68;
+  --color-info: 59 130 246;
+
+  /* Sidebar dimensions */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 64px;
+
+  /* Header height */
+  --header-height: 56px;
+
+  /* Bottom tab bar height (mobile) */
+  --bottom-tab-height: 56px;
+
+  /* Transition durations */
+  --transition-fast: 100ms;
+  --transition-normal: 200ms;
+  --transition-slow: 300ms;
+}
+
+/* ── Skeleton shimmer animation ──────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--color-surface)) 25%,
+    rgb(var(--color-border)) 50%,
+    rgb(var(--color-surface)) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* ── Focus ring ───────────────────────────────────────────────────────────── */
+.focus-ring {
+  outline: 2px solid rgb(var(--color-primary));
+  outline-offset: 2px;
+}

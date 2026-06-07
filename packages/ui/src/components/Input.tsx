@@ -44,8 +44,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
               'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-0 focus:border-transparent',
               'disabled:cursor-not-allowed disabled:opacity-50',
               error && 'border-red-500 focus:ring-red-500',
-              leftIcon && 'pl-10',
-              rightIcon && 'pr-10',
+              !!leftIcon && 'pl-10',
+              !!rightIcon && 'pr-10',
               className
             )}
             aria-describedby={

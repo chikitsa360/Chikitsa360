@@ -2,8 +2,9 @@
 story: 1.3
 epic: 1
 title: Design System & Application Layout Shell
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b38e545265d7e7f04c6f5009c2dfbbdd15c
 requirements:
   nfr: [NFR-15, NFR-16]
   ux: [UX-DR1, UX-DR2, UX-DR3, UX-DR6, UX-DR9, UX-DR10, UX-DR11, UX-DR12, UX-DR16, UX-DR17, UX-DR30, UX-DR31, UX-DR32, UX-DR39, UX-DR40]

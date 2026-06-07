@@ -2,8 +2,9 @@
 story: 1.4
 epic: 1
 title: Phone OTP Authentication
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b38e545265d7e7f04c6f5009c2dfbbdd15c
 requirements:
   functional: [FR-34]
   arch: [ARCH-2]

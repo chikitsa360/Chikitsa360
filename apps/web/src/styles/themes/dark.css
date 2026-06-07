@@ -1,0 +1,19 @@
+/*
+ * Dark theme token overrides.
+ * Applied when <html data-theme="dark"> is set.
+ */
+
+[data-theme='dark'] {
+  --color-background: 10 10 15;
+  --color-foreground: 248 250 252;
+  --color-muted: 17 24 39;
+  --color-muted-foreground: 148 163 184;
+  --color-border: 30 41 59;
+  --color-ring: var(--color-primary);
+
+  /* Surface overrides */
+  --color-bg: 10 10 15;
+  --color-surface: 17 24 39;
+  --color-text-primary: 248 250 252;
+  --color-text-secondary: 148 163 184;
+}

@@ -1,0 +1,93 @@
+{
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "appointments": "Appointments",
+    "patients": "Patients",
+    "doctors": "Doctors",
+    "prescriptions": "Prescriptions",
+    "billing": "Billing",
+    "reports": "Reports",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login.title": "Wapas aaye hain!",
+    "login.subtitle": "Apne clinic portal mein sign in karein",
+    "login.phone.label": "Mobile Number",
+    "login.phone.placeholder": "10-digit mobile number enter karein",
+    "login.otp.label": "OTP enter karein",
+    "login.otp.placeholder": "6-digit code",
+    "login.send-otp": "OTP bhejein",
+    "login.verify": "Verify karein",
+    "login.sending": "Bhej rahe hain...",
+    "login.verifying": "Verify ho raha hai...",
+    "login.otp-sent": "+91 XXXXXX{last4} pe code bheja gaya",
+    "login.otp-resend": "Code nahi aaya? OTP dubara bhejein",
+    "login.otp-resend-in": "OTP {seconds}s mein dubara bhejein",
+    "login.change-number": "Number badlein",
+    "login.error.invalid-phone": "Valid 10-digit Indian mobile number enter karein",
+    "login.error.invalid-otp": "OTP galat hai. {remaining} attempts bache hain.",
+    "login.error.locked": "Bahut zyada attempts. {minutes} minute baad try karein.",
+    "login.error.expired": "OTP expire ho gaya. Naya code maangein.",
+    "login.error.generic": "Kuch gadbad ho gayi. Dobara try karein."
+  },
+  "common": {
+    "save": "Save karein",
+    "cancel": "Cancel",
+    "confirm": "Confirm karein",
+    "delete": "Delete karein",
+    "remove": "Hataein",
+    "invite": "Invite karein",
+    "loading": "Load ho raha hai...",
+    "back": "Wapas",
+    "close": "Band karein",
+    "empty.no-data": "Is period ke liye koi data nahi",
+    "error.generic": "Kuch gadbad ho gayi. Dobara try karein.",
+    "error.unauthorized": "Aapko yeh karne ki permission nahi hai.",
+    "error.not-found": "Requested resource nahi mila."
+  },
+  "staff": {
+    "title": "Staff Management",
+    "invite-button": "Staff ko Invite karein",
+    "invite-title": "Staff Member ko Invite karein",
+    "invite-phone-label": "Mobile Number",
+    "invite-role-label": "Role",
+    "invite-role-placeholder": "Role select karein",
+    "invite-submit": "Invite bhejein",
+    "invite-success": "{phone} pe invite bheja gaya",
+    "invite-limit-reached": "{plan} plan pe Doctor limit poori ho gayi. Zyada Doctors ke liye upgrade karein.",
+    "remove-title": "Staff Member Hataein",
+    "remove-confirm": "{name} ko {clinic} se hataein? Unka access turant band ho jaayega.",
+    "remove-submit": "Hataein",
+    "roles.OWNER": "Owner",
+    "roles.DOCTOR": "Doctor",
+    "roles.RECEPTIONIST": "Receptionist",
+    "status.active": "Active",
+    "status.pending": "Pending",
+    "invite-expired": "Yeh invitation expire ho gaya. Apne Clinic Owner se dobara bhejwaein."
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark",
+    "high-contrast": "High Contrast"
+  },
+  "language": {
+    "label": "Bhasha",
+    "en": "English",
+    "hi": "हिंदी"
+  },
+  "user-menu": {
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "settings": {
+    "title": "Settings",
+    "clinic-profile": "Clinic Profile",
+    "working-hours": "Working Hours",
+    "doctors": "Doctors",
+    "staff": "Staff",
+    "whatsapp": "WhatsApp",
+    "notifications": "Notifications",
+    "data-export": "Data Export",
+    "language": "Bhasha"
+  }
+}

@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Public schema models ───────────────────────────────────────────────────
+
+enum UserRole {
+  OWNER
+  DOCTOR
+  RECEPTIONIST
+}
+
+enum ClinicPlan {
+  STARTER
+  GROWTH
+  PRO
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
+
+model Clinic {
+  id            String      @id @default(uuid())
+  name          String
+  slug          String      @unique
+  plan          ClinicPlan  @default(STARTER)
+  trialEndsAt   DateTime?   @map("trial_ends_at")
+  onboardingComplete Boolean @default(false) @map("onboarding_complete")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  users         User[]
+  staffInvites  StaffInvite[]
+
+  @@map("clinics")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  phone     String    @unique
+  name      String?
+  role      UserRole
+  clinicId  String?   @map("clinic_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  clinic    Clinic?   @relation(fields: [clinicId], references: [id])
+
+  @@map("users")
+}
+
+model Session {
+  id                String   @id @default(uuid())
+  userId            String   @map("user_id")
+  expiresAt         DateTime @map("expires_at")
+  deviceFingerprint String?  @map("device_fingerprint")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  @@map("sessions")
+}
+
+model OtpAttempt {
+  id          String    @id @default(uuid())
+  phone       String    @unique
+  attempts    Int       @default(0)
+  lockedUntil DateTime? @map("locked_until")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("otp_attempts")
+}
+
+model StaffInvite {
+  id        String       @id @default(uuid())
+  clinicId  String       @map("clinic_id")
+  phone     String
+  role      UserRole
+  token     String       @unique
+  status    InviteStatus @default(PENDING)
+  expiresAt DateTime     @map("expires_at")
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  clinic    Clinic       @relation(fields: [clinicId], references: [id])
+
+  @@map("staff_invites")
+}

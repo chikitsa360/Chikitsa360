@@ -2,8 +2,9 @@
 story: 1.2
 epic: 1
 title: i18n Infrastructure & CI/CD Pipeline
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b38e545265d7e7f04c6f5009c2dfbbdd15c
 requirements:
   arch: [ARCH-3, ARCH-8, ARCH-11]
   nfr: [NFR-12, NFR-13, NFR-25]

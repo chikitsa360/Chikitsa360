@@ -1,0 +1,23 @@
+/*
+ * High contrast theme token overrides — WCAG 2.1 AA minimum (4.5:1 normal text, 3:1 large text).
+ * Applied when <html data-theme="high-contrast"> is set.
+ */
+
+[data-theme='high-contrast'] {
+  --color-background: 255 255 255;
+  --color-foreground: 0 0 0;
+  --color-muted: 240 240 240;
+  --color-muted-foreground: 40 40 40;
+  --color-border: 0 0 0;
+  --color-primary: 0 70 200;
+  --color-ring: 0 70 200;
+
+  --color-bg: 255 255 255;
+  --color-surface: 240 240 240;
+  --color-text-primary: 0 0 0;
+  --color-text-secondary: 40 40 40;
+
+  --color-success: 0 100 50;
+  --color-warning: 120 80 0;
+  --color-error: 180 0 0;
+}
