@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chikitsa360 — New Appointment</title>
+<style>
+:root {
+  --c-primary: #0A6EFF; --c-primary-light: rgba(10,110,255,0.08); --c-secondary: #00B8A9;
+  --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-fg: #0F172A; --c-muted: #F1F5F9;
+  --c-muted-fg: #64748B; --c-border: #E2E8F0; --c-success: #10B981;
+  --c-warning: #F59E0B; --c-destructive: #EF4444;
+  --sidebar-w: 240px; --topbar-h: 56px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-full: 9999px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--c-bg); color: var(--c-fg); font-size: 14px; height: 100vh; overflow: hidden; display: flex; }
+
+/* SIDEBAR (collapsed) */
+.sidebar { width: var(--sidebar-w); height: 100vh; background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; flex-shrink: 0; opacity: 0.4; }
+.sidebar-header { padding: 0 16px; height: var(--topbar-h); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--c-border); }
+.sidebar-logo { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; }
+.sidebar-clinic-name { font-size: 13px; font-weight: 600; color: var(--c-fg); }
+.nav-item { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--c-muted-fg); margin-bottom: 1px; margin: 4px 8px; }
+.nav-item.active { background: var(--c-primary-light); color: var(--c-primary); }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; position: relative; }
+.topbar { height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; flex-shrink: 0; }
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--c-fg); letter-spacing: -0.01em; flex: 1; }
+
+/* MODAL OVERLAY */
+.overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.35); display: flex; align-items: center; justify-content: center; z-index: 10; }
+.modal { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-xl); width: 680px; max-width: 95vw; display: flex; flex-direction: column; max-height: 90vh; box-shadow: 0 24px 48px rgba(0,0,0,0.12); }
+.modal-header { padding: 20px 24px 0; display: flex; align-items: center; gap: 12px; }
+.modal-title { font-size: 17px; font-weight: 700; color: var(--c-fg); letter-spacing: -0.01em; flex: 1; }
+.modal-close { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: var(--c-muted); border: none; border-radius: var(--radius-md); cursor: pointer; color: var(--c-muted-fg); }
+.modal-close:hover { background: var(--c-border); }
+
+/* STEPPER */
+.stepper { display: flex; align-items: center; padding: 20px 24px 16px; gap: 0; }
+.step { display: flex; align-items: center; gap: 8px; flex: 1; }
+.step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.step-done .step-circle { background: var(--c-success); color: white; }
+.step-active .step-circle { background: var(--c-primary); color: white; }
+.step-pending .step-circle { background: var(--c-muted); color: var(--c-muted-fg); }
+.step-label { font-size: 12px; font-weight: 600; }
+.step-done .step-label { color: var(--c-success); }
+.step-active .step-label { color: var(--c-primary); }
+.step-pending .step-label { color: var(--c-muted-fg); }
+.step-line { flex: 1; height: 1px; background: var(--c-border); margin: 0 8px; }
+.step-line.done { background: var(--c-success); }
+
+/* MODAL CONTENT */
+.modal-body { padding: 0 24px 24px; overflow-y: auto; flex: 1; }
+
+/* STEP 2 — Doctor + Time */
+.section-label { font-size: 11px; font-weight: 600; color: var(--c-muted-fg); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+.doctor-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+.doctor-card { border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 14px 12px; cursor: pointer; transition: border-color 0.15s; }
+.doctor-card:hover { border-color: rgba(10,110,255,0.3); }
+.doctor-card.selected { border-color: var(--c-primary); background: var(--c-primary-light); }
+.doc-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(10,110,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; color: var(--c-primary); margin-bottom: 8px; }
+.doc-name { font-size: 13px; font-weight: 600; color: var(--c-fg); }
+.doc-spec { font-size: 11px; color: var(--c-muted-fg); margin-top: 2px; }
+.doc-slots { font-size: 11px; color: var(--c-success); margin-top: 6px; font-weight: 500; }
+
+/* TIME PICKER */
+.time-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.time-nav { display: flex; align-items: center; gap: 8px; }
+.time-nav-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--c-border); border-radius: var(--radius-md); cursor: pointer; background: var(--c-card); color: var(--c-muted-fg); }
+.time-period-label { font-size: 13px; font-weight: 600; color: var(--c-fg); }
+.next-available-link { font-size: 12px; color: var(--c-primary); cursor: pointer; font-weight: 500; }
+.time-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.time-day { text-align: center; }
+.time-day-label { font-size: 10px; font-weight: 600; color: var(--c-muted-fg); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.time-day-date { font-size: 12px; font-weight: 600; color: var(--c-fg); margin-bottom: 6px; }
+.time-day-date.today { color: var(--c-primary); }
+.slot { height: 28px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; margin-bottom: 4px; cursor: pointer; }
+.slot-available { background: rgba(10,110,255,0.07); border: 1px solid rgba(10,110,255,0.2); color: var(--c-primary); }
+.slot-available:hover { background: rgba(10,110,255,0.15); }
+.slot-selected { background: var(--c-primary); color: white; border: 1px solid var(--c-primary); }
+.slot-booked { background: var(--c-muted); color: var(--c-muted-fg); border: 1px solid var(--c-border); cursor: not-allowed; font-size: 10px; }
+.slot-empty { height: 28px; margin-bottom: 4px; }
+
+/* MODAL FOOTER */
+.modal-footer { padding: 14px 24px; border-top: 1px solid var(--c-border); display: flex; align-items: center; justify-content: space-between; }
+.footer-left { display: flex; align-items: center; gap: 10px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; font-family: var(--font); cursor: pointer; }
+.btn-primary { background: var(--c-primary); color: white; }
+.btn-secondary { background: transparent; border: 1px solid var(--c-border); color: var(--c-fg); }
+.btn-ghost { background: transparent; color: var(--c-muted-fg); border: none; }
+.selected-summary { font-size: 13px; color: var(--c-fg); }
+.selected-summary strong { font-weight: 600; color: var(--c-primary); }
+
+/* STEP INDICATOR BEHIND MODAL for context */
+.content-behind { flex: 1; overflow-y: auto; padding: 24px; filter: blur(2px); opacity: 0.3; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR (dimmed) -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">C3</div>
+    <div><div class="sidebar-clinic-name">Mehta Clinic</div></div>
+  </div>
+  <div style="padding:8px;">
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</div>
+    <div class="nav-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Appointments</div>
+    <div class="nav-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Appointments</div>
+  </div>
+  <!-- background content -->
+  <div class="content-behind">
+    <div style="height:200px;background:#fff;border:1px solid #E2E8F0;border-radius:12px;"></div>
+  </div>
+
+  <!-- MODAL OVERLAY -->
+  <div class="overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Book Appointment</div>
+        <button class="modal-close">✕</button>
+      </div>
+
+      <!-- STEPPER -->
+      <div class="stepper">
+        <div class="step step-done">
+          <div class="step-circle">✓</div>
+          <div class="step-label">Patient</div>
+        </div>
+        <div class="step-line done"></div>
+        <div class="step step-active">
+          <div class="step-circle">2</div>
+          <div class="step-label">Doctor & Time</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step step-pending">
+          <div class="step-circle">3</div>
+          <div class="step-label">Confirm</div>
+        </div>
+      </div>
+
+      <!-- STEP CONTEXT -->
+      <div style="padding: 0 24px 12px; display:flex; align-items:center; gap:10px;">
+        <div style="width:32px;height:32px;border-radius:50%;background:#00B8A9;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;">AN</div>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#0F172A;">Anjali Nair</div>
+          <div style="font-size:11px;color:#64748B;">32F · Follow-up · +91 98765 43210</div>
+        </div>
+        <span style="margin-left:auto;font-size:11px;color:#0A6EFF;cursor:pointer;font-weight:500;">Change</span>
+      </div>
+
+      <div style="height:1px;background:#E2E8F0;margin: 0 24px;"></div>
+
+      <div class="modal-body" style="padding-top:16px;">
+        <!-- DOCTOR SELECTION -->
+        <div class="section-label">Select Doctor</div>
+        <div class="doctor-grid">
+          <div class="doctor-card selected">
+            <div class="doc-avatar">AM</div>
+            <div class="doc-name">Dr. Arjun Mehta</div>
+            <div class="doc-spec">General Medicine</div>
+            <div class="doc-slots">8 slots today</div>
+          </div>
+          <div class="doctor-card">
+            <div class="doc-avatar" style="background:rgba(0,184,169,0.1);color:#00B8A9;">PS</div>
+            <div class="doc-name">Dr. Priya Sharma</div>
+            <div class="doc-spec">Dermatology</div>
+            <div class="doc-slots">3 slots today</div>
+          </div>
+          <div class="doctor-card">
+            <div class="doc-avatar" style="background:rgba(139,92,246,0.1);color:#8B5CF6;">RP</div>
+            <div class="doc-name">Dr. Rahul Patel</div>
+            <div class="doc-spec">Orthopaedics</div>
+            <div class="doc-slots" style="color:#F59E0B;">1 slot today</div>
+          </div>
+        </div>
+
+        <!-- TIME PICKER -->
+        <div class="time-header">
+          <div class="section-label" style="margin:0;">Available Slots — Dr. Arjun Mehta</div>
+          <div class="time-nav">
+            <button class="time-nav-btn">←</button>
+            <span class="time-period-label">16–22 Jun 2026</span>
+            <button class="time-nav-btn">→</button>
+          </div>
+          <span class="next-available-link">Next available →</span>
+        </div>
+
+        <div class="time-grid">
+          <!-- Mon 16 -->
+          <div class="time-day">
+            <div class="time-day-label">Mon</div>
+            <div class="time-day-date today">16</div>
+            <div class="slot slot-booked">9:00</div>
+            <div class="slot slot-booked">9:30</div>
+            <div class="slot slot-available">10:00</div>
+            <div class="slot slot-selected">10:30</div>
+            <div class="slot slot-booked">11:00</div>
+            <div class="slot slot-available">11:30</div>
+            <div class="slot slot-booked">2:00</div>
+            <div class="slot slot-available">2:30</div>
+          </div>
+          <!-- Tue 17 -->
+          <div class="time-day">
+            <div class="time-day-label">Tue</div>
+            <div class="time-day-date">17</div>
+            <div class="slot slot-available">9:00</div>
+            <div class="slot slot-available">9:30</div>
+            <div class="slot slot-available">10:00</div>
+            <div class="slot slot-booked">10:30</div>
+            <div class="slot slot-available">11:00</div>
+            <div class="slot slot-booked">11:30</div>
+            <div class="slot slot-available">2:00</div>
+            <div class="slot slot-available">2:30</div>
+          </div>
+          <!-- Wed 18 -->
+          <div class="time-day">
+            <div class="time-day-label">Wed</div>
+            <div class="time-day-date">18</div>
+            <div class="slot slot-booked">9:00</div>
+            <div class="slot slot-booked">9:30</div>
+            <div class="slot slot-booked">10:00</div>
+            <div class="slot slot-booked">10:30</div>
+            <div class="slot slot-available">11:00</div>
+            <div class="slot slot-available">11:30</div>
+            <div class="slot slot-available">2:00</div>
+            <div class="slot slot-booked">2:30</div>
+          </div>
+          <!-- Thu 19 -->
+          <div class="time-day">
+            <div class="time-day-label">Thu</div>
+            <div class="time-day-date">19</div>
+            <div class="slot slot-available">9:00</div>
+            <div class="slot slot-booked">9:30</div>
+            <div class="slot slot-available">10:00</div>
+            <div class="slot slot-available">10:30</div>
+            <div class="slot slot-booked">11:00</div>
+            <div class="slot slot-available">11:30</div>
+            <div class="slot slot-booked">2:00</div>
+            <div class="slot slot-available">2:30</div>
+          </div>
+          <!-- Fri 20 -->
+          <div class="time-day">
+            <div class="time-day-label">Fri</div>
+            <div class="time-day-date">20</div>
+            <div class="slot slot-available">9:00</div>
+            <div class="slot slot-available">9:30</div>
+            <div class="slot slot-booked">10:00</div>
+            <div class="slot slot-available">10:30</div>
+            <div class="slot slot-available">11:00</div>
+            <div class="slot slot-booked">11:30</div>
+            <div class="slot slot-available">2:00</div>
+            <div class="slot slot-available">2:30</div>
+          </div>
+          <!-- Sat 21 -->
+          <div class="time-day">
+            <div class="time-day-label">Sat</div>
+            <div class="time-day-date">21</div>
+            <div class="slot slot-available">9:00</div>
+            <div class="slot slot-booked">9:30</div>
+            <div class="slot slot-booked">10:00</div>
+            <div class="slot slot-available">10:30</div>
+            <div class="slot slot-empty"></div>
+            <div class="slot slot-empty"></div>
+            <div class="slot slot-empty"></div>
+            <div class="slot slot-empty"></div>
+          </div>
+          <!-- Sun 22 -->
+          <div class="time-day">
+            <div class="time-day-label">Sun</div>
+            <div class="time-day-date">22</div>
+            <div style="font-size:11px;color:#94A3B8;text-align:center;margin-top:4px;">Closed</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="footer-left">
+          <button class="btn btn-secondary">← Back</button>
+          <div class="selected-summary">
+            <strong>Mon 16 Jun, 10:30am</strong> · Dr. Arjun Mehta · 30 min
+          </div>
+        </div>
+        <button class="btn btn-primary">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

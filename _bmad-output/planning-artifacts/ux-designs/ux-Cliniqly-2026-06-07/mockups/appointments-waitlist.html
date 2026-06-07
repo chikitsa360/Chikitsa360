@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointments — Waitlist — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF;
+    --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9;
+    --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC;
+    --c-card: #FFFFFF;
+    --c-border: #E2E8F0;
+    --c-text: #0F172A;
+    --c-text-2: #475569;
+    --c-text-3: #94A3B8;
+    --c-danger: #EF4444;
+    --c-warning: #F59E0B;
+    --c-success: #10B981;
+    --sidebar-w: 240px;
+    --topbar-h: 56px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--c-border); }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { margin-left: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .sidebar-nav { padding: 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin-bottom: 2px; font-size: 13.5px; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--c-primary); color: #fff; border-radius: 10px; font-size: 10px; font-weight: 700; padding: 1px 6px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-outline { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+  .btn-outline:hover { background: var(--c-bg); }
+
+  .view-tabs { display: flex; background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
+  .view-tab { padding: 5px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--c-text-2); cursor: pointer; }
+  .view-tab.active { background: var(--c-card); color: var(--c-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); display: flex; flex-direction: column; height: calc(100vh - var(--topbar-h)); }
+
+  /* Info bar */
+  .info-bar { background: #FFFBEB; border-bottom: 1px solid #FDE68A; padding: 10px 24px; display: flex; align-items: center; gap: 10px; font-size: 13px; color: #92400E; flex-shrink: 0; }
+  .info-bar svg { width: 16px; height: 16px; color: var(--c-warning); flex-shrink: 0; }
+
+  /* Content layout */
+  .waitlist-layout { flex: 1; display: grid; grid-template-columns: 1fr 320px; overflow: hidden; }
+
+  /* Queue panel */
+  .queue-panel { border-right: 1px solid var(--c-border); display: flex; flex-direction: column; overflow: hidden; }
+  .queue-header { padding: 14px 20px; background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .queue-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 700; }
+  .queue-date { font-size: 12px; color: var(--c-text-3); }
+  .queue-count { background: var(--c-warning); color: #fff; border-radius: 20px; font-size: 12px; font-weight: 700; padding: 2px 9px; margin-left: auto; }
+  .queue-scroll { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+
+  /* Waitlist card */
+  .waitlist-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 14px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; position: relative; transition: all .15s; }
+  .waitlist-card:hover { border-color: var(--c-primary); box-shadow: 0 2px 8px rgba(10,110,255,.08); }
+  .waitlist-card.selected { border-color: var(--c-primary); background: var(--c-primary-light); }
+  .waitlist-card.urgent { border-left: 3px solid var(--c-danger); padding-left: 11px; }
+
+  /* Position number */
+  .queue-pos { width: 28px; height: 28px; border-radius: 50%; background: var(--c-bg); border: 2px solid var(--c-border); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-text-2); flex-shrink: 0; }
+  .queue-pos.pos-1 { background: #FEF3C7; border-color: var(--c-warning); color: #92400E; }
+  .queue-pos.pos-2 { background: #FEE2E2; border-color: #FCA5A5; color: var(--c-danger); }
+
+  /* Patient info */
+  .wl-patient { flex: 1; min-width: 0; }
+  .wl-patient-name { font-size: 14px; font-weight: 600; color: var(--c-text); }
+  .wl-patient-meta { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+  .wl-reason { font-size: 12.5px; color: var(--c-text-2); margin-top: 6px; background: var(--c-bg); border-radius: var(--radius-sm); padding: 4px 8px; display: inline-block; }
+  .wl-wait-time { font-size: 12px; font-weight: 700; margin-top: 6px; }
+  .wl-wait-time.short { color: var(--c-success); }
+  .wl-wait-time.medium { color: var(--c-warning); }
+  .wl-wait-time.long { color: var(--c-danger); }
+
+  /* Arrived badge */
+  .arrived-badge { background: var(--c-success-light); color: var(--c-success); border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 4px; }
+  .waiting-badge { background: #FEF3C7; color: #92400E; border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 700; }
+
+  /* Source icon */
+  .src { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+  .src-wa { background: #D1FAE5; color: #065F46; }
+  .src-m { background: var(--c-bg); color: var(--c-text-3); border: 1px solid var(--c-border); }
+
+  /* Time added */
+  .time-added { font-size: 11px; color: var(--c-text-3); white-space: nowrap; }
+
+  /* Action buttons on card */
+  .wl-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .wl-action-btn { padding: 4px 10px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); font-size: 12px; cursor: pointer; color: var(--c-text-2); display: flex; align-items: center; gap: 4px; }
+  .wl-action-btn:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
+  .wl-action-btn.primary { background: var(--c-primary); color: #fff; border-color: var(--c-primary); font-weight: 600; }
+  .wl-action-btn.danger { color: var(--c-danger); }
+  .wl-action-btn.danger:hover { border-color: var(--c-danger); background: #FEF2F2; }
+
+  /* Right slot panel */
+  .slot-panel { display: flex; flex-direction: column; overflow: hidden; }
+  .slot-header { padding: 14px 20px; background: var(--c-card); border-bottom: 1px solid var(--c-border); flex-shrink: 0; }
+  .slot-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .slot-subtitle { font-size: 12px; color: var(--c-text-3); }
+  .slot-scroll { flex: 1; overflow-y: auto; padding: 12px 16px; }
+
+  /* Doctor group */
+  .doctor-group { margin-bottom: 16px; }
+  .doctor-group-header { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: var(--c-bg); border-radius: var(--radius-md); margin-bottom: 6px; }
+  .doctor-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--c-secondary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-secondary); flex-shrink: 0; }
+  .doctor-name { font-size: 13px; font-weight: 600; color: var(--c-text); }
+  .doctor-slots { font-size: 12px; color: var(--c-text-3); margin-left: auto; }
+
+  /* Slot grid */
+  .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .slot { padding: 7px 8px; border-radius: var(--radius-sm); text-align: center; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid transparent; }
+  .slot.available { background: #ECFDF5; color: var(--c-success); border-color: #A7F3D0; }
+  .slot.available:hover { border-color: var(--c-success); }
+  .slot.booked { background: var(--c-bg); color: var(--c-text-3); border-color: var(--c-border); cursor: not-allowed; }
+  .slot.selected { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+
+  /* Assign slot footer */
+  .assign-footer { padding: 12px 16px; border-top: 1px solid var(--c-border); background: var(--c-card); flex-shrink: 0; }
+  .assign-summary { font-size: 12.5px; color: var(--c-text-2); margin-bottom: 8px; }
+  .assign-summary strong { color: var(--c-text); }
+  .assign-btn { width: 100%; background: var(--c-primary); color: #fff; border: none; border-radius: var(--radius-md); padding: 10px; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .assign-btn:hover { background: #0058CC; }
+
+  /* Add to waitlist button */
+  .add-wl-btn { width: 100%; background: transparent; border: 1px dashed var(--c-border); color: var(--c-text-2); border-radius: var(--radius-md); padding: 12px; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .add-wl-btn:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
+
+  /* Capacity bar */
+  .cap-bar-wrap { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 10px; }
+  .cap-bar-label { font-size: 11px; font-weight: 600; color: var(--c-text-3); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .cap-bar-track { height: 6px; background: var(--c-border); border-radius: 3px; overflow: hidden; }
+  .cap-bar-fill { height: 100%; background: var(--c-warning); border-radius: 3px; width: 75%; }
+  .cap-bar-fill.danger { background: var(--c-danger); }
+  .cap-bar-fill.ok { background: var(--c-success); }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Chikitsa360</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments<span class="nav-badge">12</span></div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>Doctors</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row"><div class="avatar-sm">SR</div><div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div></div>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <span class="topbar-title">Appointments</span>
+  <div class="view-tabs">
+    <div class="view-tab">Calendar</div>
+    <div class="view-tab">Agenda</div>
+    <div class="view-tab active">Waitlist</div>
+  </div>
+  <div class="topbar-right">
+    <div class="icon-btn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    <button class="btn btn-outline" style="font-size:12.5px;">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add to Waitlist
+    </button>
+    <button class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Appointment
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:13px;">SR</div>
+  </div>
+</header>
+
+<main class="main">
+  <!-- Info bar -->
+  <div class="info-bar">
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Today's slots are 75% full (18/24). 5 patients on waitlist. 3 slots still available across doctors.
+  </div>
+
+  <div class="waitlist-layout">
+    <!-- Queue panel (left) -->
+    <div class="queue-panel">
+      <div class="queue-header">
+        <div>
+          <div class="queue-title">Today's Waitlist</div>
+          <div class="queue-date">Saturday, 14 Jun 2025</div>
+        </div>
+        <div class="queue-count">5 waiting</div>
+      </div>
+
+      <div class="queue-scroll">
+        <button class="add-wl-btn" style="margin-bottom:8px;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Walk-in to Waitlist
+        </button>
+
+        <!-- Card 1 - selected/urgent -->
+        <div class="waitlist-card urgent selected">
+          <div class="queue-pos pos-1">1</div>
+          <div class="wl-patient">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <div class="wl-patient-name">Rohit Kapoor</div>
+              <span class="arrived-badge">
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Arrived
+              </span>
+            </div>
+            <div class="wl-patient-meta">Male · 45 yrs · Walk-in · Added 10:15 AM</div>
+            <div class="wl-reason">Chest pain / shortness of breath</div>
+            <div class="wl-wait-time long">Waiting 18 min — Urgent</div>
+            <div class="wl-actions">
+              <button class="wl-action-btn primary">Assign Slot</button>
+              <button class="wl-action-btn">View</button>
+              <button class="wl-action-btn danger">Remove</button>
+            </div>
+          </div>
+          <div class="src src-m">M</div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="waitlist-card">
+          <div class="queue-pos pos-2">2</div>
+          <div class="wl-patient">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <div class="wl-patient-name">Deepa Reddy</div>
+              <span class="arrived-badge">
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                Arrived
+              </span>
+            </div>
+            <div class="wl-patient-meta">Female · 29 yrs · Walk-in · Added 10:22 AM</div>
+            <div class="wl-reason">Fever + headache since 2 days</div>
+            <div class="wl-wait-time medium">Waiting 10 min</div>
+            <div class="wl-actions">
+              <button class="wl-action-btn primary">Assign Slot</button>
+              <button class="wl-action-btn">View</button>
+              <button class="wl-action-btn danger">Remove</button>
+            </div>
+          </div>
+          <div class="src src-m">M</div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="waitlist-card">
+          <div class="queue-pos" style="background:#EEF2FF;color:#4338CA;border-color:#A5B4FC;">3</div>
+          <div class="wl-patient">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <div class="wl-patient-name">Nisha Verma</div>
+              <span class="waiting-badge">Waiting</span>
+            </div>
+            <div class="wl-patient-meta">Female · 36 yrs · WhatsApp Slot Request</div>
+            <div class="wl-reason">Skin rash follow-up (Dr. Iyer)</div>
+            <div class="wl-wait-time short">Just added · 10:28 AM</div>
+            <div class="wl-actions">
+              <button class="wl-action-btn primary">Assign Slot</button>
+              <button class="wl-action-btn">View</button>
+              <button class="wl-action-btn danger">Remove</button>
+            </div>
+          </div>
+          <div class="src src-wa">W</div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="waitlist-card">
+          <div class="queue-pos">4</div>
+          <div class="wl-patient">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <div class="wl-patient-name">Arjun Pillai</div>
+              <span class="waiting-badge">Waiting</span>
+            </div>
+            <div class="wl-patient-meta">Male · 62 yrs · WhatsApp Slot Request</div>
+            <div class="wl-reason">Monthly BP check</div>
+            <div class="wl-wait-time short">Added 10:31 AM</div>
+            <div class="wl-actions">
+              <button class="wl-action-btn primary">Assign Slot</button>
+              <button class="wl-action-btn">View</button>
+              <button class="wl-action-btn danger">Remove</button>
+            </div>
+          </div>
+          <div class="src src-wa">W</div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="waitlist-card">
+          <div class="queue-pos">5</div>
+          <div class="wl-patient">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <div class="wl-patient-name">Sudha Bhat</div>
+              <span class="waiting-badge">Waiting</span>
+            </div>
+            <div class="wl-patient-meta">Female · 50 yrs · Scheduled follow-up</div>
+            <div class="wl-reason">Post-surgery checkup</div>
+            <div class="wl-wait-time short">Added 10:41 AM</div>
+            <div class="wl-actions">
+              <button class="wl-action-btn primary">Assign Slot</button>
+              <button class="wl-action-btn">View</button>
+              <button class="wl-action-btn danger">Remove</button>
+            </div>
+          </div>
+          <div class="src src-m">M</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Slot assignment panel (right) -->
+    <div class="slot-panel">
+      <div class="slot-header">
+        <div class="slot-title">Assign Slot — Rohit Kapoor</div>
+        <div class="slot-subtitle">Select an available slot to book immediately</div>
+      </div>
+      <div class="slot-scroll">
+        <!-- Capacity bar -->
+        <div class="cap-bar-wrap">
+          <div class="cap-bar-label">
+            <span>Today's capacity</span>
+            <span style="font-weight:700;color:var(--c-warning);">18 / 24 booked (75%)</span>
+          </div>
+          <div class="cap-bar-track"><div class="cap-bar-fill"></div></div>
+        </div>
+
+        <!-- Dr. Mehta slots -->
+        <div class="doctor-group">
+          <div class="doctor-group-header">
+            <div class="doctor-avatar">AM</div>
+            <div class="doctor-name">Dr. Arjun Mehta</div>
+            <div class="doctor-slots">1 slot free</div>
+          </div>
+          <div class="slot-grid">
+            <div class="slot booked">9:00 AM</div>
+            <div class="slot booked">9:30 AM</div>
+            <div class="slot booked">10:00 AM</div>
+            <div class="slot booked">10:30 AM</div>
+            <div class="slot selected">11:00 AM</div>
+            <div class="slot booked">11:30 AM</div>
+            <div class="slot booked">2:00 PM</div>
+            <div class="slot booked">2:30 PM</div>
+            <div class="slot booked">3:00 PM</div>
+          </div>
+        </div>
+
+        <!-- Dr. Iyer slots -->
+        <div class="doctor-group">
+          <div class="doctor-group-header">
+            <div class="doctor-avatar" style="background:#FDE8FF;color:#9333EA;">PI</div>
+            <div class="doctor-name">Dr. Priya Iyer</div>
+            <div class="doctor-slots">2 slots free</div>
+          </div>
+          <div class="slot-grid">
+            <div class="slot booked">9:00 AM</div>
+            <div class="slot booked">9:30 AM</div>
+            <div class="slot available">11:00 AM</div>
+            <div class="slot available">11:30 AM</div>
+            <div class="slot booked">2:00 PM</div>
+            <div class="slot booked">2:30 PM</div>
+          </div>
+        </div>
+
+        <!-- Dr. Sharma slots -->
+        <div class="doctor-group">
+          <div class="doctor-group-header">
+            <div class="doctor-avatar" style="background:#FEF3C7;color:#92400E;">RS</div>
+            <div class="doctor-name">Dr. Rakesh Sharma</div>
+            <div class="doctor-slots">All booked</div>
+          </div>
+          <div class="slot-grid">
+            <div class="slot booked">9:00 AM</div>
+            <div class="slot booked">9:30 AM</div>
+            <div class="slot booked">10:00 AM</div>
+            <div class="slot booked">10:30 AM</div>
+            <div class="slot booked">11:00 AM</div>
+            <div class="slot booked">11:30 AM</div>
+          </div>
+        </div>
+      </div>
+      <div class="assign-footer">
+        <div class="assign-summary">
+          Assigning <strong>Rohit Kapoor</strong> to <strong>11:00 AM · Dr. Arjun Mehta</strong>
+        </div>
+        <button class="assign-btn">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirm &amp; Book Slot
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

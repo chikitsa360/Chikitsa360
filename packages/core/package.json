@@ -1,5 +1,5 @@
 {
-  "name": "@cliniqly/core",
+  "name": "@chikitsa360/core",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@cliniqly/typescript-config": "workspace:*",
+    "@chikitsa360/typescript-config": "workspace:*",
     "typescript": "^5.8.3"
   }
 }

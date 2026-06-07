@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Appointments — Agenda View — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF;
+    --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9;
+    --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC;
+    --c-card: #FFFFFF;
+    --c-border: #E2E8F0;
+    --c-text: #0F172A;
+    --c-text-2: #475569;
+    --c-text-3: #94A3B8;
+    --c-danger: #EF4444;
+    --c-warning: #F59E0B;
+    --c-success: #10B981;
+    --sidebar-w: 240px;
+    --topbar-h: 56px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--c-border); }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { margin-left: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .sidebar-nav { padding: 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin-bottom: 2px; font-size: 13.5px; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--c-primary); color: #fff; border-radius: 10px; font-size: 10px; font-weight: 700; padding: 1px 6px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+
+  /* View tabs */
+  .view-tabs { display: flex; background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
+  .view-tab { padding: 5px 12px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--c-text-2); cursor: pointer; white-space: nowrap; }
+  .view-tab.active { background: var(--c-card); color: var(--c-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); display: flex; flex-direction: column; height: calc(100vh - var(--topbar-h)); }
+
+  /* Toolbar */
+  .toolbar { padding: 12px 24px; background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+  .date-nav { display: flex; align-items: center; gap: 8px; }
+  .date-nav-btn { width: 30px; height: 30px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .date-nav-btn:hover { background: var(--c-bg); }
+  .date-range { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 700; color: var(--c-text); cursor: pointer; padding: 4px 10px; border-radius: var(--radius-md); }
+  .date-range:hover { background: var(--c-bg); }
+  .today-btn { padding: 4px 10px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); font-size: 13px; cursor: pointer; color: var(--c-text-2); }
+  .today-btn:hover { background: var(--c-bg); }
+  .filter-select { height: 32px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; color: var(--c-text-2); background: var(--c-card); cursor: pointer; padding-right: 24px; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+
+  /* Stats strip */
+  .stats-strip { display: flex; gap: 0; border-bottom: 1px solid var(--c-border); background: var(--c-card); flex-shrink: 0; }
+  .stat-item { flex: 1; padding: 10px 16px; border-right: 1px solid var(--c-border); text-align: center; }
+  .stat-item:last-child { border-right: none; }
+  .stat-num { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; color: var(--c-text); }
+  .stat-label { font-size: 11px; color: var(--c-text-3); margin-top: 1px; }
+  .stat-num.blue { color: var(--c-primary); }
+  .stat-num.green { color: var(--c-success); }
+  .stat-num.orange { color: var(--c-warning); }
+  .stat-num.red { color: var(--c-danger); }
+
+  /* Agenda scroll area */
+  .agenda-scroll { flex: 1; overflow-y: auto; padding: 16px 24px; }
+
+  /* Day group */
+  .day-group { margin-bottom: 24px; }
+  .day-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; position: sticky; top: 0; background: var(--c-bg); padding: 4px 0 4px; z-index: 10; }
+  .day-label { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13.5px; font-weight: 700; color: var(--c-text-2); white-space: nowrap; }
+  .day-label.today { color: var(--c-primary); }
+  .day-date-chip { background: var(--c-primary); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+  .day-line { flex: 1; height: 1px; background: var(--c-border); }
+  .day-count { font-size: 12px; color: var(--c-text-3); white-space: nowrap; }
+
+  /* Appointment row */
+  .appt-row { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 14px 16px; display: flex; align-items: center; gap: 14px; margin-bottom: 8px; cursor: pointer; transition: all .15s; position: relative; }
+  .appt-row:hover { border-color: var(--c-primary); box-shadow: 0 2px 8px rgba(10,110,255,.08); }
+  .appt-row.completed { opacity: .7; }
+  .appt-row.in-progress { border-left: 3px solid var(--c-secondary); padding-left: 13px; }
+  .appt-row.upcoming { border-left: 3px solid var(--c-primary); padding-left: 13px; }
+  .appt-row.overdue { border-left: 3px solid var(--c-danger); padding-left: 13px; }
+
+  /* Time column */
+  .appt-time { width: 80px; flex-shrink: 0; }
+  .appt-time-start { font-size: 14px; font-weight: 700; color: var(--c-text); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .appt-time-dur { font-size: 11px; color: var(--c-text-3); margin-top: 2px; }
+
+  /* Patient info */
+  .appt-patient { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; }
+  .patient-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .patient-avatar.female { background: #FDE8FF; color: #9333EA; }
+  .patient-avatar.male { background: var(--c-primary-light); color: var(--c-primary); }
+  .appt-patient-info { min-width: 0; }
+  .appt-patient-name { font-size: 14px; font-weight: 600; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .appt-patient-meta { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+
+  /* Doctor badge */
+  .doctor-chip { background: var(--c-secondary-light); color: var(--c-secondary); border-radius: 20px; padding: 3px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+
+  /* Type tag */
+  .type-tag { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-sm); padding: 3px 8px; font-size: 12px; color: var(--c-text-2); white-space: nowrap; }
+
+  /* Status badge */
+  .status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .status-scheduled { background: var(--c-primary-light); color: var(--c-primary); }
+  .status-completed { background: #ECFDF5; color: var(--c-success); }
+  .status-cancelled { background: #FEE2E2; color: var(--c-danger); }
+  .status-no-show { background: #FEF3C7; color: #92400E; }
+  .status-in-progress { background: var(--c-secondary-light); color: var(--c-secondary); }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  /* Row actions (hover) */
+  .row-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; }
+  .appt-row:hover .row-actions { opacity: 1; }
+  .row-action-btn { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); font-size: 11px; }
+  .row-action-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+  /* Source icon */
+  .source-icon { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .source-wa { background: #D1FAE5; color: #065F46; }
+  .source-web { background: var(--c-primary-light); color: var(--c-primary); }
+  .source-manual { background: var(--c-bg); color: var(--c-text-3); border: 1px solid var(--c-border); }
+
+  /* Current time indicator */
+  .current-time-indicator { display: flex; align-items: center; gap: 8px; margin: 4px 0; }
+  .current-time-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--c-danger); flex-shrink: 0; }
+  .current-time-line { flex: 1; height: 2px; background: var(--c-danger); opacity: .4; }
+  .current-time-label { font-size: 11px; color: var(--c-danger); font-weight: 700; white-space: nowrap; }
+
+  /* Empty day */
+  .empty-day { padding: 16px; background: var(--c-card); border: 1px dashed var(--c-border); border-radius: var(--radius-md); text-align: center; color: var(--c-text-3); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Chikitsa360</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments<span class="nav-badge">12</span></div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>Doctors</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row"><div class="avatar-sm">SR</div><div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div></div>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <span class="topbar-title">Appointments</span>
+  <div class="view-tabs">
+    <div class="view-tab">Calendar</div>
+    <div class="view-tab active">Agenda</div>
+    <div class="view-tab">Waitlist</div>
+  </div>
+  <div class="topbar-right">
+    <div class="icon-btn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    <button class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Appointment
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:13px;">SR</div>
+  </div>
+</header>
+
+<main class="main">
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="date-nav">
+      <div class="date-nav-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></div>
+      <div class="date-range">14 Jun — 20 Jun 2025</div>
+      <div class="date-nav-btn"><svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>
+    <button class="today-btn">Today</button>
+    <div style="flex:1;"></div>
+    <select class="filter-select">
+      <option>All Doctors</option>
+      <option>Dr. Arjun Mehta</option>
+      <option>Dr. Priya Iyer</option>
+      <option>Dr. Rakesh Sharma</option>
+    </select>
+    <select class="filter-select">
+      <option>All Statuses</option>
+      <option>Scheduled</option>
+      <option>Completed</option>
+      <option>Cancelled</option>
+      <option>No Show</option>
+    </select>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num blue">28</div><div class="stat-label">This Week</div></div>
+    <div class="stat-item"><div class="stat-num green">14</div><div class="stat-label">Completed</div></div>
+    <div class="stat-item"><div class="stat-num blue">9</div><div class="stat-label">Remaining</div></div>
+    <div class="stat-item"><div class="stat-num orange">2</div><div class="stat-label">No-Shows</div></div>
+    <div class="stat-item"><div class="stat-num red">3</div><div class="stat-label">Cancelled</div></div>
+  </div>
+
+  <!-- Agenda scroll -->
+  <div class="agenda-scroll">
+
+    <!-- Saturday June 14 — TODAY -->
+    <div class="day-group">
+      <div class="day-header">
+        <span class="day-label today">Saturday</span>
+        <span class="day-date-chip">14 Jun · Today</span>
+        <div class="day-line"></div>
+        <span class="day-count">6 appointments</span>
+      </div>
+
+      <!-- Completed rows -->
+      <div class="appt-row completed">
+        <div class="appt-time"><div class="appt-time-start">9:00 AM</div><div class="appt-time-dur">30 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar male">RK</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Ramesh Kumar</div>
+            <div class="appt-patient-meta">Male · 48 yrs · Follow-up</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Mehta</div>
+        <div class="source-icon source-wa" title="WhatsApp">W</div>
+        <span class="status-badge status-completed"><span class="status-dot"></span>Completed</span>
+        <div class="row-actions">
+          <div class="row-action-btn" title="View">
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="appt-row completed">
+        <div class="appt-time"><div class="appt-time-start">9:30 AM</div><div class="appt-time-dur">30 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar female">SP</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Sunita Patil</div>
+            <div class="appt-patient-meta">Female · 35 yrs · New Consultation</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Iyer</div>
+        <div class="source-icon source-web" title="Web">W</div>
+        <span class="status-badge status-completed"><span class="status-dot"></span>Completed</span>
+        <div class="row-actions"><div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div>
+      </div>
+
+      <!-- Current time indicator -->
+      <div class="current-time-indicator">
+        <div class="current-time-dot"></div>
+        <span class="current-time-label">10:27 AM — Now</span>
+        <div class="current-time-line"></div>
+      </div>
+
+      <!-- In progress -->
+      <div class="appt-row in-progress">
+        <div class="appt-time"><div class="appt-time-start">10:30 AM</div><div class="appt-time-dur">30 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar female">AN</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Anjali Nair</div>
+            <div class="appt-patient-meta">Female · 32 yrs · Follow-up · Hypertension</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Mehta</div>
+        <div class="source-icon source-wa" title="WhatsApp">W</div>
+        <span class="status-badge status-in-progress"><span class="status-dot"></span>In Progress</span>
+        <div class="row-actions"><div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div>
+      </div>
+
+      <!-- Upcoming -->
+      <div class="appt-row upcoming">
+        <div class="appt-time"><div class="appt-time-start">11:00 AM</div><div class="appt-time-dur">15 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar male">VJ</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Vijay Joshi</div>
+            <div class="appt-patient-meta">Male · 55 yrs · Check-up</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Mehta</div>
+        <div class="source-icon source-manual" title="Manual">M</div>
+        <span class="status-badge status-scheduled"><span class="status-dot"></span>Scheduled</span>
+        <div class="row-actions">
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+        </div>
+      </div>
+
+      <div class="appt-row">
+        <div class="appt-time"><div class="appt-time-start">2:00 PM</div><div class="appt-time-dur">30 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar female">MG</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Meena Gupta</div>
+            <div class="appt-patient-meta">Female · 28 yrs · New Consultation</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Iyer</div>
+        <div class="source-icon source-wa">W</div>
+        <span class="status-badge status-scheduled"><span class="status-dot"></span>Scheduled</span>
+        <div class="row-actions">
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+        </div>
+      </div>
+
+      <div class="appt-row" style="opacity:.6;">
+        <div class="appt-time"><div class="appt-time-start">3:30 PM</div><div class="appt-time-dur">30 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar male">PD</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Pradeep Desai</div>
+            <div class="appt-patient-meta">Male · 42 yrs · Follow-up</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Sharma</div>
+        <div class="source-icon source-wa">W</div>
+        <span class="status-badge status-no-show" style="background:#FEF3C7;color:#92400E;"><span class="status-dot"></span>No Show</span>
+        <div class="row-actions"><div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div></div>
+      </div>
+    </div>
+
+    <!-- Sunday June 15 — CLOSED -->
+    <div class="day-group">
+      <div class="day-header">
+        <span class="day-label" style="color:var(--c-text-3);">Sunday</span>
+        <span style="font-size:12px;color:var(--c-text-3);background:var(--c-bg);border:1px solid var(--c-border);border-radius:20px;padding:2px 10px;font-weight:600;">15 Jun</span>
+        <div class="day-line"></div>
+        <span class="day-count" style="color:var(--c-text-3);">Clinic closed</span>
+      </div>
+      <div class="empty-day">No appointments — clinic is closed on Sundays</div>
+    </div>
+
+    <!-- Monday June 16 -->
+    <div class="day-group">
+      <div class="day-header">
+        <span class="day-label">Monday</span>
+        <span style="font-size:12px;color:var(--c-text-2);background:var(--c-card);border:1px solid var(--c-border);border-radius:20px;padding:2px 10px;font-weight:600;">16 Jun</span>
+        <div class="day-line"></div>
+        <span class="day-count">4 appointments</span>
+      </div>
+
+      <div class="appt-row upcoming">
+        <div class="appt-time"><div class="appt-time-start">9:00 AM</div><div class="appt-time-dur">30 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar male">AS</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Amit Sharma</div>
+            <div class="appt-patient-meta">Male · 39 yrs · Dental Check</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Mehta</div>
+        <div class="source-icon source-wa">W</div>
+        <span class="status-badge status-scheduled"><span class="status-dot"></span>Scheduled</span>
+        <div class="row-actions">
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+        </div>
+      </div>
+
+      <div class="appt-row upcoming" style="border-left-color:var(--c-border);padding-left:16px;">
+        <div class="appt-time"><div class="appt-time-start">10:00 AM</div><div class="appt-time-dur">45 min</div></div>
+        <div class="appt-patient">
+          <div class="patient-avatar female">KN</div>
+          <div class="appt-patient-info">
+            <div class="appt-patient-name">Kavita Nambiar</div>
+            <div class="appt-patient-meta">Female · 52 yrs · New Consultation</div>
+          </div>
+        </div>
+        <div class="doctor-chip">Dr. Iyer</div>
+        <div class="source-icon source-web">W</div>
+        <span class="status-badge status-scheduled"><span class="status-dot"></span>Scheduled</span>
+        <div class="row-actions">
+          <div class="row-action-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

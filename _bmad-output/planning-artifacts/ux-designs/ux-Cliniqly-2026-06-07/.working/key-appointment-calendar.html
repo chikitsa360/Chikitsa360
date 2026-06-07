@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chikitsa360 — Appointment Calendar</title>
+<style>
+/*
+  Key Screen: Appointment Calendar — Week View
+  Spine sections: Component Patterns (Calendar, Appointment Booking), IA (Appointments surface),
+  Key Flows (Flow 1 — booking, Flow 4 — bulk reminders), Interaction Primitives (drag-drop).
+  DESIGN.md: appointment-block, appointment-slot-*, status-badge, doctor-filter tokens.
+  No JS, no network. System fonts only.
+*/
+
+:root {
+  --c-primary: #0A6EFF;
+  --c-primary-light: rgba(10,110,255,0.08);
+  --c-secondary: #00B8A9;
+  --c-bg: #F8FAFC;
+  --c-card: #FFFFFF;
+  --c-fg: #0F172A;
+  --c-muted: #F1F5F9;
+  --c-muted-fg: #64748B;
+  --c-border: #E2E8F0;
+  --c-success: #10B981;
+  --c-warning: #F59E0B;
+  --c-destructive: #EF4444;
+  --c-violet: #8B5CF6;
+  --sidebar-w: 240px;
+  --topbar-h: 56px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --doc-blue: #3B82F6;
+  --doc-teal: #00B8A9;
+  --doc-amber: #F59E0B;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--c-bg);
+  color: var(--c-fg);
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* === Sidebar (same as dashboard) === */
+.sidebar {
+  width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--c-card);
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  padding: 0 16px;
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+
+.sidebar-logo { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; }
+.sidebar-clinic-name { font-size: 13px; font-weight: 600; color: var(--c-fg); }
+.sidebar-clinic-sub { font-size: 11px; color: var(--c-muted-fg); }
+
+.nav-section { padding: 16px 12px 4px; }
+.nav-section-label { font-size: 10px; font-weight: 600; color: var(--c-muted-fg); letter-spacing: 0.06em; text-transform: uppercase; padding: 0 4px; margin-bottom: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--c-muted-fg); cursor: pointer; margin-bottom: 1px; }
+.nav-item.active { background: var(--c-primary-light); color: var(--c-primary); }
+.nav-item:hover:not(.active) { background: var(--c-muted); color: var(--c-fg); }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* === Main === */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* === Topbar === */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--c-card);
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--c-fg); letter-spacing: -0.01em; }
+.topbar-nav { display: flex; align-items: center; gap: 4px; margin-left: 12px; }
+.nav-arrow { width: 28px; height: 28px; border: 1px solid var(--c-border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-muted-fg); }
+.nav-arrow:hover { background: var(--c-muted); }
+.today-btn { height: 28px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 12px; font-weight: 500; color: var(--c-fg); background: var(--c-card); cursor: pointer; font-family: var(--font); }
+.week-label { font-size: 14px; font-weight: 600; color: var(--c-fg); margin: 0 4px; }
+
+.view-switcher { display: flex; border: 1px solid var(--c-border); border-radius: var(--radius-md); overflow: hidden; margin-left: 4px; }
+.view-btn { padding: 0 12px; height: 28px; font-size: 12px; font-weight: 500; background: var(--c-card); color: var(--c-muted-fg); cursor: pointer; font-family: var(--font); border: none; border-right: 1px solid var(--c-border); }
+.view-btn:last-child { border-right: none; }
+.view-btn.active { background: var(--c-primary); color: white; }
+.view-btn:hover:not(.active) { background: var(--c-muted); }
+
+.spacer { flex: 1; }
+.topbar-btn-primary { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px; background: var(--c-primary); color: white; border: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; cursor: pointer; font-family: var(--font); }
+.topbar-btn-outline { display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid var(--c-border); background: var(--c-card); color: var(--c-fg); border-radius: var(--radius-md); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font); }
+
+/* === Calendar Body === */
+.cal-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* === Doctor Filter Panel === */
+.doctor-panel {
+  width: 220px;
+  border-right: 1px solid var(--c-border);
+  background: var(--c-card);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.dp-section { padding: 16px 16px 8px; }
+.dp-label { font-size: 10px; font-weight: 600; color: var(--c-muted-fg); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 10px; }
+
+.doctor-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  margin-bottom: 2px;
+  border: 1.5px solid transparent;
+  transition: background 0.08s;
+}
+
+.doctor-chip:hover { background: var(--c-muted); }
+
+.doctor-chip.active {
+  border-color: rgba(10,110,255,0.2);
+  background: var(--c-primary-light);
+}
+
+.doctor-chip.active-teal {
+  border-color: rgba(0,184,169,0.2);
+  background: rgba(0,184,169,0.06);
+}
+
+.doctor-chip.active-amber {
+  border-color: rgba(245,158,11,0.2);
+  background: rgba(245,158,11,0.06);
+}
+
+.doc-color-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.doc-name { font-size: 12px; font-weight: 500; color: var(--c-fg); flex: 1; }
+.doc-count { font-size: 10px; color: var(--c-muted-fg); font-weight: 500; }
+
+.mini-cal { padding: 12px 16px; }
+.mini-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.mini-cal-title { font-size: 12px; font-weight: 600; color: var(--c-fg); }
+.mini-cal-nav { display: flex; gap: 2px; }
+.mini-cal-nav-btn { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; color: var(--c-muted-fg); }
+.mini-cal-nav-btn:hover { background: var(--c-muted); }
+.mini-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; }
+.mini-cal-day-label { text-align: center; font-size: 9px; font-weight: 600; text-transform: uppercase; color: var(--c-muted-fg); padding: 2px 0 4px; }
+.mini-cal-day { text-align: center; font-size: 11px; color: var(--c-muted-fg); padding: 3px 0; border-radius: 3px; cursor: pointer; }
+.mini-cal-day:hover { background: var(--c-muted); color: var(--c-fg); }
+.mini-cal-day.today { background: var(--c-primary); color: white; border-radius: 3px; font-weight: 600; }
+.mini-cal-day.in-week { background: var(--c-primary-light); color: var(--c-primary); font-weight: 500; }
+.mini-cal-day.other-month { opacity: 0.35; }
+
+/* === Calendar Grid === */
+.cal-grid-wrap {
+  flex: 1;
+  overflow: auto;
+  min-width: 0;
+}
+
+.cal-grid {
+  min-width: 700px;
+}
+
+/* Day header row */
+.cal-day-headers {
+  display: grid;
+  grid-template-columns: 52px repeat(6, 1fr);
+  position: sticky;
+  top: 0;
+  background: var(--c-card);
+  border-bottom: 1px solid var(--c-border);
+  z-index: 2;
+}
+
+.cal-time-gutter { border-right: 1px solid var(--c-border); }
+
+.cal-day-header {
+  padding: 10px 8px;
+  text-align: center;
+  border-right: 1px solid var(--c-border);
+}
+
+.cal-day-header:last-child { border-right: none; }
+
+.cal-day-name {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--c-muted-fg);
+  margin-bottom: 4px;
+}
+
+.cal-day-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-fg);
+  margin: 0 auto;
+}
+
+.cal-day-num.today {
+  background: var(--c-primary);
+  color: white;
+}
+
+.cal-day-count {
+  font-size: 10px;
+  color: var(--c-muted-fg);
+  margin-top: 3px;
+}
+
+/* Time grid */
+.cal-time-grid {
+  display: grid;
+  grid-template-columns: 52px repeat(6, 1fr);
+}
+
+.time-row {
+  display: contents;
+}
+
+.time-label {
+  height: 60px;
+  border-right: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-muted);
+  display: flex;
+  align-items: flex-start;
+  padding: 4px 6px 0;
+  font-size: 10px;
+  color: var(--c-muted-fg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+.time-cell {
+  height: 60px;
+  border-right: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-muted);
+  position: relative;
+  cursor: pointer;
+}
+
+.time-cell:last-child { border-right: none; }
+.time-cell:hover { background: rgba(10,110,255,0.02); }
+
+/* Current time indicator */
+.current-time-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1.5px;
+  background: var(--c-destructive);
+  z-index: 3;
+}
+
+.current-time-dot {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  background: var(--c-destructive);
+  border-radius: 50%;
+}
+
+/* Appointment blocks */
+.appt-block {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  border-radius: var(--radius-sm);
+  padding: 3px 6px;
+  font-size: 11px;
+  overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+  border-left-width: 3px;
+  border-left-style: solid;
+  transition: filter 0.1s;
+}
+
+.appt-block:hover { filter: brightness(0.95); }
+
+.appt-block-blue    { background: rgba(59,130,246,0.1);  border-left-color: var(--doc-blue);   color: #1E40AF; }
+.appt-block-teal    { background: rgba(0,184,169,0.1);   border-left-color: var(--doc-teal);   color: #0D7A70; }
+.appt-block-amber   { background: rgba(245,158,11,0.1);  border-left-color: var(--doc-amber);  color: #92400E; }
+.appt-block-violet  { background: rgba(139,92,246,0.1);  border-left-color: var(--c-violet);   color: #5B21B6; }
+.appt-block-green   { background: rgba(16,185,129,0.1);  border-left-color: var(--c-success);  color: #064E3B; }
+.appt-block-grey    { background: rgba(107,114,128,0.08); border-left-color: #9CA3AF; color: #4B5563; }
+
+.appt-block-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.appt-block-type { opacity: 0.7; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* === Right detail panel === */
+.detail-panel {
+  width: 280px;
+  border-left: 1px solid var(--c-border);
+  background: var(--c-card);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.dp-header { padding: 16px; border-bottom: 1px solid var(--c-border); }
+.dp-header-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--c-muted-fg); margin-bottom: 6px; }
+.dp-header-title { font-size: 15px; font-weight: 700; color: var(--c-fg); }
+.dp-header-sub { font-size: 12px; color: var(--c-muted-fg); margin-top: 2px; }
+
+.dp-content { padding: 16px; flex: 1; overflow-y: auto; }
+
+.dp-field { margin-bottom: 14px; }
+.dp-field-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--c-muted-fg); margin-bottom: 4px; }
+.dp-field-value { font-size: 13px; color: var(--c-fg); font-weight: 500; }
+.dp-field-value-sub { font-size: 12px; color: var(--c-muted-fg); margin-top: 2px; }
+
+.dp-patient-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--c-muted);
+  border-radius: var(--radius-md);
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.dp-patient-row:hover { background: var(--c-border); }
+
+.dp-pat-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--c-secondary); color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+.dp-pat-name { font-size: 13px; font-weight: 600; color: var(--c-fg); }
+.dp-pat-sub { font-size: 11px; color: var(--c-muted-fg); margin-top: 2px; }
+
+.status-badge { display: inline-flex; align-items: center; height: 20px; padding: 0 8px; border-radius: 9999px; font-size: 11px; font-weight: 500; gap: 4px; }
+.badge-confirmed { background: rgba(16,185,129,0.1); color: #059669; }
+.badge-waiting   { background: rgba(139,92,246,0.1); color: #7C3AED; }
+.badge-scheduled { background: rgba(59,130,246,0.1); color: #2563EB; }
+
+.dp-actions { padding: 12px 16px; border-top: 1px solid var(--c-border); display: flex; flex-direction: column; gap: 6px; }
+.dp-action-btn { width: 100%; height: 34px; border-radius: var(--radius-md); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--font); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.dp-action-primary { background: var(--c-primary); color: white; border: none; }
+.dp-action-outline { background: var(--c-card); color: var(--c-fg); border: 1px solid var(--c-border); }
+.dp-action-ghost   { background: transparent; color: var(--c-destructive); border: 1px solid rgba(239,68,68,0.2); }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">C3</div>
+    <div>
+      <div class="sidebar-clinic-name">Andheri Clinic</div>
+      <div class="sidebar-clinic-sub">Mumbai</div>
+    </div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-section-label">Main</div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Appointments
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Patients
+    </div>
+    <div class="nav-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Doctors
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-title">Appointments</div>
+    <div class="topbar-nav">
+      <div class="nav-arrow">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </div>
+      <span class="week-label">2 – 7 Jun 2026</span>
+      <div class="nav-arrow">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <button class="today-btn">Today</button>
+    </div>
+
+    <div class="view-switcher">
+      <button class="view-btn active">Week</button>
+      <button class="view-btn">Day</button>
+      <button class="view-btn">Month</button>
+      <button class="view-btn">Agenda</button>
+    </div>
+
+    <div class="spacer"></div>
+
+    <button class="topbar-btn-outline">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h13M3 8h9m-9 4h6m4 0l4-4 4 4"/></svg>
+      Waitlist (2)
+    </button>
+    <button class="topbar-btn-primary">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Appointment
+    </button>
+  </div>
+
+  <!-- Calendar Body -->
+  <div class="cal-body">
+
+    <!-- Doctor filter + mini cal -->
+    <div class="doctor-panel">
+
+      <!-- Mini Calendar -->
+      <div class="mini-cal">
+        <div class="mini-cal-header">
+          <div class="mini-cal-title">June 2026</div>
+          <div class="mini-cal-nav">
+            <div class="mini-cal-nav-btn">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            </div>
+            <div class="mini-cal-nav-btn">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="mini-cal-grid">
+          <div class="mini-cal-day-label">M</div>
+          <div class="mini-cal-day-label">T</div>
+          <div class="mini-cal-day-label">W</div>
+          <div class="mini-cal-day-label">T</div>
+          <div class="mini-cal-day-label">F</div>
+          <div class="mini-cal-day-label">S</div>
+          <div class="mini-cal-day-label">S</div>
+          <!-- Row 1 -->
+          <div class="mini-cal-day in-week">2</div>
+          <div class="mini-cal-day in-week">3</div>
+          <div class="mini-cal-day in-week">4</div>
+          <div class="mini-cal-day in-week">5</div>
+          <div class="mini-cal-day in-week">6</div>
+          <div class="mini-cal-day today">7</div>
+          <div class="mini-cal-day">8</div>
+          <!-- Row 2 -->
+          <div class="mini-cal-day">9</div>
+          <div class="mini-cal-day">10</div>
+          <div class="mini-cal-day">11</div>
+          <div class="mini-cal-day">12</div>
+          <div class="mini-cal-day">13</div>
+          <div class="mini-cal-day">14</div>
+          <div class="mini-cal-day">15</div>
+          <!-- Row 3 -->
+          <div class="mini-cal-day">16</div>
+          <div class="mini-cal-day">17</div>
+          <div class="mini-cal-day">18</div>
+          <div class="mini-cal-day">19</div>
+          <div class="mini-cal-day">20</div>
+          <div class="mini-cal-day">21</div>
+          <div class="mini-cal-day">22</div>
+          <!-- Row 4 -->
+          <div class="mini-cal-day">23</div>
+          <div class="mini-cal-day">24</div>
+          <div class="mini-cal-day">25</div>
+          <div class="mini-cal-day">26</div>
+          <div class="mini-cal-day">27</div>
+          <div class="mini-cal-day">28</div>
+          <div class="mini-cal-day">29</div>
+          <div class="mini-cal-day">30</div>
+        </div>
+      </div>
+
+      <div style="height:1px;background:var(--c-border);margin:4px 16px;"></div>
+
+      <!-- Doctor filters -->
+      <div class="dp-section">
+        <div class="dp-label">Doctors</div>
+
+        <div class="doctor-chip active">
+          <div class="doc-color-dot" style="background:var(--doc-blue);"></div>
+          <div>
+            <div class="doc-name">Dr. Rohan Patel</div>
+            <div class="doc-count">General · 10 today</div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0A6EFF" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+
+        <div class="doctor-chip active-teal">
+          <div class="doc-color-dot" style="background:var(--doc-teal);"></div>
+          <div>
+            <div class="doc-name">Dr. Kavita Iyer</div>
+            <div class="doc-count">Cardiologist · 8 today</div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#00B8A9" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+
+        <div class="doctor-chip active-amber">
+          <div class="doc-color-dot" style="background:var(--doc-amber);"></div>
+          <div>
+            <div class="doc-name">Dr. Arjun Mehta</div>
+            <div class="doc-count">General · 6 today</div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+
+      <div style="padding:8px 16px;margin-top:auto;border-top:1px solid var(--c-border);">
+        <div style="font-size:11px;color:var(--c-muted-fg);">Total this week: <strong style="color:var(--c-fg);">24 appointments</strong></div>
+      </div>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="cal-grid-wrap">
+      <div class="cal-grid">
+
+        <!-- Day headers -->
+        <div class="cal-day-headers">
+          <div class="cal-time-gutter"></div>
+
+          <div class="cal-day-header">
+            <div class="cal-day-name">Mon</div>
+            <div class="cal-day-num">2</div>
+            <div class="cal-day-count">4 appts</div>
+          </div>
+          <div class="cal-day-header">
+            <div class="cal-day-name">Tue</div>
+            <div class="cal-day-num">3</div>
+            <div class="cal-day-count">5 appts</div>
+          </div>
+          <div class="cal-day-header">
+            <div class="cal-day-name">Wed</div>
+            <div class="cal-day-num">4</div>
+            <div class="cal-day-count">3 appts</div>
+          </div>
+          <div class="cal-day-header">
+            <div class="cal-day-name">Thu</div>
+            <div class="cal-day-num">5</div>
+            <div class="cal-day-count">6 appts</div>
+          </div>
+          <div class="cal-day-header">
+            <div class="cal-day-name">Fri</div>
+            <div class="cal-day-num">6</div>
+            <div class="cal-day-count">4 appts</div>
+          </div>
+          <div class="cal-day-header" style="background:rgba(10,110,255,0.02);">
+            <div class="cal-day-name" style="color:var(--c-primary);">Sat</div>
+            <div class="cal-day-num today">7</div>
+            <div class="cal-day-count" style="color:var(--c-primary);font-weight:600;">24 appts</div>
+          </div>
+        </div>
+
+        <!-- Time grid -->
+        <div class="cal-time-grid">
+
+          <!-- 9:00 row -->
+          <div class="time-label">9 AM</div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-blue" style="top:4px;height:52px;">
+              <div class="appt-block-name">Rajesh Singh</div>
+              <div class="appt-block-type">General · 9:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-teal" style="top:4px;height:52px;">
+              <div class="appt-block-name">Meena K.</div>
+              <div class="appt-block-type">Cardio · 9:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="background:rgba(10,110,255,0.01);position:relative;">
+            <div class="appt-block appt-block-blue" style="top:4px;height:52px;">
+              <div class="appt-block-name">Rajesh Singh</div>
+              <div class="appt-block-type">General · 9:00</div>
+            </div>
+            <div class="appt-block appt-block-amber" style="top:4px;height:52px;left:35%;">
+              <div class="appt-block-name">Nisha Rao</div>
+              <div class="appt-block-type">General · 9:00</div>
+            </div>
+          </div>
+
+          <!-- 10:00 row (highlighted — current selection) -->
+          <div class="time-label">10 AM</div>
+          <div class="time-cell"></div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-teal" style="top:4px;height:52px;">
+              <div class="appt-block-name">Anita Tiwari</div>
+              <div class="appt-block-type">Cardio · 10:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-blue" style="top:4px;height:52px;">
+              <div class="appt-block-name">Suresh J.</div>
+              <div class="appt-block-type">General · 10:00</div>
+            </div>
+          </div>
+          <div class="time-cell" style="background:rgba(10,110,255,0.01);position:relative;">
+            <!-- Selected appointment (highlighted) -->
+            <div class="appt-block" style="top:4px;height:52px;left:3px;right:3px;background:#0A6EFF;border-left:3px solid #0044AA;color:white;border-radius:4px;">
+              <div class="appt-block-name" style="color:white;">Anjali Sharma</div>
+              <div class="appt-block-type" style="color:rgba(255,255,255,0.75);">General · 10:00</div>
+            </div>
+            <!-- Current time indicator at 10:15 -->
+            <div class="current-time-line" style="top:14px;">
+              <div class="current-time-dot"></div>
+            </div>
+          </div>
+
+          <!-- 11:00 row -->
+          <div class="time-label">11 AM</div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-amber" style="top:4px;height:52px;">
+              <div class="appt-block-name">Priya Kapoor</div>
+              <div class="appt-block-type">General · 11:00</div>
+            </div>
+          </div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-teal" style="top:4px;height:52px;">
+              <div class="appt-block-name">Vikram D.</div>
+              <div class="appt-block-type">Cardio · 11:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-amber" style="top:4px;height:52px;">
+              <div class="appt-block-name">Ramesh B.</div>
+              <div class="appt-block-type">General · 11:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="background:rgba(10,110,255,0.01);position:relative;">
+            <div class="appt-block appt-block-amber" style="top:4px;height:52px;">
+              <div class="appt-block-name">Priya Kapoor</div>
+              <div class="appt-block-type">General · 10:30</div>
+            </div>
+          </div>
+
+          <!-- 12:00 row -->
+          <div class="time-label">12 PM</div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-blue" style="top:4px;height:52px;">
+              <div class="appt-block-name">Anita Jain</div>
+              <div class="appt-block-type">General · 12:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-teal" style="top:4px;height:52px;">
+              <div class="appt-block-name">Kiran Shah</div>
+              <div class="appt-block-type">Cardio · 12:00</div>
+            </div>
+          </div>
+          <div class="time-cell" style="background:rgba(10,110,255,0.01);position:relative;">
+            <div class="appt-block appt-block-blue" style="top:4px;height:52px;">
+              <div class="appt-block-name">Suresh Joshi</div>
+              <div class="appt-block-type">General · 12:00</div>
+            </div>
+          </div>
+
+          <!-- 1 PM row (lunch — lighter) -->
+          <div class="time-label" style="color:var(--c-border);">1 PM</div>
+          <div class="time-cell" style="background:var(--c-muted);opacity:0.6;"></div>
+          <div class="time-cell" style="background:var(--c-muted);opacity:0.6;"></div>
+          <div class="time-cell" style="background:var(--c-muted);opacity:0.6;"></div>
+          <div class="time-cell" style="background:var(--c-muted);opacity:0.6;"></div>
+          <div class="time-cell" style="background:var(--c-muted);opacity:0.6;"></div>
+          <div class="time-cell" style="background:rgba(241,245,249,0.5);"></div>
+
+          <!-- 2 PM row -->
+          <div class="time-label">2 PM</div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-green" style="top:4px;height:52px;">
+              <div class="appt-block-name">Mohan Patil</div>
+              <div class="appt-block-type">General · 2:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-amber" style="top:4px;height:52px;">
+              <div class="appt-block-name">Deepa Singh</div>
+              <div class="appt-block-type">General · 2:00</div>
+            </div>
+          </div>
+          <div class="time-cell" style="position:relative;">
+            <div class="appt-block appt-block-teal" style="top:4px;height:52px;">
+              <div class="appt-block-name">Anita T.</div>
+              <div class="appt-block-type">Cardio · 2:00</div>
+            </div>
+          </div>
+          <div class="time-cell"></div>
+          <div class="time-cell" style="background:rgba(10,110,255,0.01);position:relative;">
+            <div class="appt-block appt-block-amber" style="top:4px;height:52px;">
+              <div class="appt-block-name">Anita Tiwari</div>
+              <div class="appt-block-type">General · 2:00</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Panel: Selected Appointment -->
+    <div class="detail-panel">
+      <div class="dp-header">
+        <div class="dp-header-label">Selected Appointment</div>
+        <div class="dp-header-title">Anjali Sharma</div>
+        <div class="dp-header-sub">Sat 7 Jun · 10:00 AM</div>
+      </div>
+
+      <div class="dp-content">
+        <div class="dp-patient-row">
+          <div class="dp-pat-avatar">AS</div>
+          <div>
+            <div class="dp-pat-name">Anjali Sharma</div>
+            <div class="dp-pat-sub">Female, 34 · Last visit 6 weeks ago</div>
+          </div>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+
+        <div class="dp-field">
+          <div class="dp-field-label">Status</div>
+          <span class="status-badge badge-confirmed">
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="#059669" stroke="none"><circle cx="12" cy="12" r="6"/></svg>
+            Confirmed
+          </span>
+        </div>
+
+        <div class="dp-field">
+          <div class="dp-field-label">Doctor</div>
+          <div class="dp-field-value" style="display:flex;align-items:center;gap:6px;">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--doc-blue);flex-shrink:0;"></div>
+            Dr. Rohan Patel
+          </div>
+          <div class="dp-field-value-sub">General Physician</div>
+        </div>
+
+        <div class="dp-field">
+          <div class="dp-field-label">Appointment Type</div>
+          <div class="dp-field-value">Follow-up</div>
+          <div class="dp-field-value-sub">Diabetes &amp; BP Review</div>
+        </div>
+
+        <div class="dp-field">
+          <div class="dp-field-label">Duration</div>
+          <div class="dp-field-value">30 minutes</div>
+          <div class="dp-field-value-sub">10:00 — 10:30 AM</div>
+        </div>
+
+        <div class="dp-field">
+          <div class="dp-field-label">Notes</div>
+          <div class="dp-field-value" style="font-weight:400;font-size:12px;color:var(--c-muted-fg);">Patient requested early morning slot. Bring previous lab reports.</div>
+        </div>
+
+        <div class="dp-field">
+          <div class="dp-field-label">WhatsApp Reminder</div>
+          <div class="dp-field-value" style="display:flex;align-items:center;gap:6px;font-size:12px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            Sent · Delivered
+          </div>
+        </div>
+      </div>
+
+      <div class="dp-actions">
+        <button class="dp-action-btn dp-action-primary">Start Consultation</button>
+        <button class="dp-action-btn dp-action-outline">Reschedule</button>
+        <button class="dp-action-btn dp-action-ghost">Cancel Appointment</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

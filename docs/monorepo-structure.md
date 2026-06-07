@@ -25,12 +25,12 @@ cliniqly/
 
 ```
 apps/web
-  ├── @cliniqly/branding   (theme resolution)
-  ├── @cliniqly/core       (shared types/utils)
-  └── @cliniqly/ui         (components)
+  ├── @chikitsa360/branding   (theme resolution)
+  ├── @chikitsa360/core       (shared types/utils)
+  └── @chikitsa360/ui         (components)
 
 packages/ui
-  └── @cliniqly/core
+  └── @chikitsa360/core
 
 packages/branding
   (no internal deps)
@@ -49,20 +49,20 @@ pnpm dev
 pnpm build
 
 # Run only the web app
-pnpm --filter @cliniqly/web dev
+pnpm --filter @chikitsa360/web dev
 
 # Type-check everything
 pnpm type-check
 
 # Run as a specific client brand
-NEXT_PUBLIC_CLIENT_ID=mediflow pnpm --filter @cliniqly/web dev
+NEXT_PUBLIC_CLIENT_ID=mediflow pnpm --filter @chikitsa360/web dev
 ```
 
 ## Adding a New App
 
 ```bash
 mkdir apps/my-new-app
-# Create apps/my-new-app/package.json with name: "@cliniqly/my-new-app"
+# Create apps/my-new-app/package.json with name: "@chikitsa360/my-new-app"
 # Add to turbo.json pipeline if needed
 ```
 
@@ -75,4 +75,4 @@ mkdir apps/my-new-app
 | Styling | Tailwind CSS v4 |
 | Language | TypeScript 5 |
 | AI context | BMAD-METHOD v6.8 |
-| Multi-tenant | CSS custom properties via `@cliniqly/branding` |
+| Multi-tenant | CSS custom properties via `@chikitsa360/branding` |

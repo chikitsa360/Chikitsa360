@@ -1,6 +1,6 @@
-# Cliniqly
+# Chikitsa360
 
-> Smarter Clinic Management — white-label SaaS platform
+> Complete Care. 360° Health Insight. — white-label SaaS platform
 
 ## Quick Start
 
@@ -8,11 +8,11 @@
 # Install dependencies
 pnpm install
 
-# Start the default brand (Cliniqly)
+# Start the default brand (Chikitsa360)
 pnpm dev
 
 # Start as a white-label client
-NEXT_PUBLIC_CLIENT_ID=mediflow pnpm --filter @cliniqly/web dev
+NEXT_PUBLIC_CLIENT_ID=mediflow pnpm --filter @chikitsa360/web dev
 ```
 
 ## Repository Structure
@@ -52,8 +52,8 @@ Start with `/bmad-help` in Claude Code to explore all 44 available skills.
 
 | Package | Path | Description |
 |---|---|---|
-| `@cliniqly/branding` | `packages/branding` | Client theme system |
-| `@cliniqly/core` | `packages/core` | Shared types & utilities |
-| `@cliniqly/ui` | `packages/ui` | React component library |
-| `@cliniqly/typescript-config` | `packages/config/typescript` | Shared TS configs |
-| `@cliniqly/eslint-config` | `packages/config/eslint` | Shared ESLint configs |
+| `@chikitsa360/branding` | `packages/branding` | Client theme system |
+| `@chikitsa360/core` | `packages/core` | Shared types & utilities |
+| `@chikitsa360/ui` | `packages/ui` | React component library |
+| `@chikitsa360/typescript-config` | `packages/config/typescript` | Shared TS configs |
+| `@chikitsa360/eslint-config` | `packages/config/eslint` | Shared ESLint configs |

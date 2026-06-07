@@ -1,14 +1,17 @@
 export type { BrandTheme, BrandColors, BrandMeta, BrandAssets, BrandTypography } from './types'
 export { cliniqlyTheme } from './themes/cliniqly'
 export { demoClientTheme } from './themes/demo-client'
+export { chikitsa360Theme } from './themes/chikitsa360'
 
 import { cliniqlyTheme } from './themes/cliniqly'
 import { demoClientTheme } from './themes/demo-client'
+import { chikitsa360Theme } from './themes/chikitsa360'
 import type { BrandTheme } from './types'
 
 const themes: Record<string, BrandTheme> = {
   cliniqly: cliniqlyTheme,
   mediflow: demoClientTheme,
+  chikitsa360: chikitsa360Theme,
 }
 
 /**

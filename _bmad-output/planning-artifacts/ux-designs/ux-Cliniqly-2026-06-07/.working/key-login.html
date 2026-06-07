@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chikitsa360 — Login</title>
+<style>
+/*
+  Key Screen: Login
+  Spine sections: Foundation (multi-tenant auth), Key Flows (session security),
+  DESIGN.md: Colors, Typography, Components.button-primary, Components.input
+  No JS, no network. Inline CSS only.
+*/
+
+/* --- Token layer (mirrors CSS custom properties from @chikitsa360/branding) --- */
+:root {
+  --color-primary: #0A6EFF;
+  --color-primary-hover: #0058CC;
+  --color-secondary: #00B8A9;
+  --color-accent: #4FD9FF;
+  --color-background: #F8FAFC;
+  --color-card: #FFFFFF;
+  --color-foreground: #0F172A;
+  --color-muted: #F1F5F9;
+  --color-muted-fg: #64748B;
+  --color-border: #E2E8F0;
+  --color-ring: #0A6EFF;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-display: system-ui, -apple-system, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-background);
+  color: var(--color-foreground);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.page {
+  display: flex;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 600px;
+  margin: 40px 24px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 0 0 1px var(--color-border);
+}
+
+/* Left brand panel */
+.brand-panel {
+  flex: 1;
+  background: linear-gradient(155deg, #0A6EFF 0%, #0044BB 50%, #003090 100%);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+
+.brand-panel::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+}
+
+.brand-panel::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  left: -40px;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: rgba(79,217,255,0.08);
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 1;
+}
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
+  letter-spacing: -0.5px;
+}
+
+.brand-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.01em;
+}
+
+.brand-tagline {
+  z-index: 1;
+}
+
+.brand-tagline h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+}
+
+.brand-tagline p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.7);
+  line-height: 1.6;
+  max-width: 320px;
+}
+
+.brand-features {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.brand-feature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+}
+
+.feature-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* Right form panel */
+.form-panel {
+  width: 440px;
+  background: var(--color-card);
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-header {
+  margin-bottom: 32px;
+}
+
+.form-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-foreground);
+  letter-spacing: -0.015em;
+  margin-bottom: 8px;
+}
+
+.form-header p {
+  font-size: 14px;
+  color: var(--color-muted-fg);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-foreground);
+  margin-bottom: 6px;
+}
+
+.input-field {
+  width: 100%;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0 12px;
+  font-size: 14px;
+  color: var(--color-foreground);
+  background: var(--color-card);
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color 0.1s;
+}
+
+.input-field:focus {
+  border-color: var(--color-ring);
+  box-shadow: 0 0 0 3px rgba(10,110,255,0.12);
+}
+
+.input-field::placeholder {
+  color: var(--color-muted-fg);
+}
+
+/* Simulated filled state */
+.input-field.filled {
+  border-color: var(--color-border);
+  background: var(--color-card);
+  color: var(--color-foreground);
+}
+
+.form-row-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.forgot-link {
+  font-size: 13px;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.btn-primary {
+  width: 100%;
+  height: 40px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-body);
+  cursor: pointer;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.divider-text {
+  font-size: 12px;
+  color: var(--color-muted-fg);
+  white-space: nowrap;
+}
+
+.sso-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.btn-sso {
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-card);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-foreground);
+  cursor: pointer;
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.form-footer {
+  margin-top: 28px;
+  text-align: center;
+}
+
+.form-footer p {
+  font-size: 12px;
+  color: var(--color-muted-fg);
+  line-height: 1.5;
+}
+
+.clinic-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--color-muted-fg);
+  font-weight: 500;
+  margin-top: 8px;
+}
+
+.clinic-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- Left: Brand Panel -->
+  <div class="brand-panel">
+    <div class="brand-logo">
+      <div class="brand-icon">C3</div>
+      <span class="brand-name">Chikitsa360</span>
+    </div>
+
+    <div class="brand-tagline">
+      <h2>A complete view of every patient's healthcare journey.</h2>
+      <p>Manage appointments, medical records, prescriptions, billing, and communications — all in one place.</p>
+    </div>
+
+    <div class="brand-features">
+      <div class="brand-feature">
+        <div class="feature-dot"></div>
+        Patient 360° profiles with full history
+      </div>
+      <div class="brand-feature">
+        <div class="feature-dot"></div>
+        Smart appointment scheduling
+      </div>
+      <div class="brand-feature">
+        <div class="feature-dot"></div>
+        EMR, prescriptions, and billing
+      </div>
+      <div class="brand-feature">
+        <div class="feature-dot"></div>
+        WhatsApp communication built in
+      </div>
+      <div class="brand-feature">
+        <div class="feature-dot"></div>
+        Multi-clinic management
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: Form Panel -->
+  <div class="form-panel">
+
+    <div class="form-header">
+      <h1>Welcome back</h1>
+      <p>Sign in to your clinic account to continue.</p>
+    </div>
+
+    <div class="form-group">
+      <label>Email address</label>
+      <input class="input-field filled" type="email" value="priya@andhericlinic.in" readonly>
+    </div>
+
+    <div class="form-group">
+      <div class="form-row-between">
+        <label>Password</label>
+        <a href="#" class="forgot-link">Forgot password?</a>
+      </div>
+      <input class="input-field" type="password" placeholder="••••••••••" style="color: #0F172A; font-size: 18px; letter-spacing: 3px;" value="••••••••" readonly>
+    </div>
+
+    <button class="btn-primary">
+      Sign in to Andheri Clinic
+    </button>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-text">or continue with</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <div class="sso-options">
+      <button class="btn-sso">
+        <!-- Google G icon approximation -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M15.68 8.18c0-.57-.05-1.12-.15-1.64H8v3.11h4.29a3.66 3.66 0 01-1.59 2.4v2h2.57c1.5-1.38 2.37-3.41 2.37-5.87z" fill="#4285F4"/>
+          <path d="M8 16c2.16 0 3.97-.72 5.29-1.94l-2.57-2a4.8 4.8 0 01-2.72.75c-2.09 0-3.86-1.41-4.49-3.3H.85v2.06A8 8 0 008 16z" fill="#34A853"/>
+          <path d="M3.51 9.51A4.81 4.81 0 013.26 8c0-.52.09-1.03.25-1.51V4.43H.85A8 8 0 000 8c0 1.29.31 2.51.85 3.57l2.66-2.06z" fill="#FBBC05"/>
+          <path d="M8 3.18a4.33 4.33 0 013.06 1.2l2.29-2.29A7.7 7.7 0 008 0 8 8 0 00.85 4.43L3.51 6.49A4.77 4.77 0 018 3.18z" fill="#EA4335"/>
+        </svg>
+        Google
+      </button>
+      <button class="btn-sso">
+        <!-- Microsoft icon approximation -->
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="0" y="0" width="7.5" height="7.5" fill="#F25022"/>
+          <rect x="8.5" y="0" width="7.5" height="7.5" fill="#7FBA00"/>
+          <rect x="0" y="8.5" width="7.5" height="7.5" fill="#00A4EF"/>
+          <rect x="8.5" y="8.5" width="7.5" height="7.5" fill="#FFB900"/>
+        </svg>
+        Microsoft
+      </button>
+    </div>
+
+    <div class="form-footer">
+      <p>You're signing into</p>
+      <div class="clinic-badge">
+        <div class="clinic-dot"></div>
+        Andheri Clinic · Mumbai
+      </div>
+      <p style="margin-top: 12px;">Not your clinic? <a href="#" style="color: var(--color-primary); font-weight: 500; text-decoration: none;">Switch clinic</a></p>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

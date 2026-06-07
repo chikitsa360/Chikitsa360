@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { cn } from '@cliniqly/core'
+import { cn } from '@chikitsa360/core'
 
 export const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (

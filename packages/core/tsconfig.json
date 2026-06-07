@@ -1,5 +1,5 @@
 {
-  "extends": "@cliniqly/typescript-config/base",
+  "extends": "@chikitsa360/typescript-config/base",
   "compilerOptions": {
     "outDir": "./dist"
   },

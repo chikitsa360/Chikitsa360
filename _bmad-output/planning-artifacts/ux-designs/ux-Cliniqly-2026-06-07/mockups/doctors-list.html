@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctors — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF;
+    --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9;
+    --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC;
+    --c-card: #FFFFFF;
+    --c-border: #E2E8F0;
+    --c-text: #0F172A;
+    --c-text-2: #475569;
+    --c-text-3: #94A3B8;
+    --c-danger: #EF4444;
+    --c-success: #10B981;
+    --sidebar-w: 240px;
+    --topbar-h: 56px;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--c-border); }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { margin-left: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .sidebar-nav { padding: 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin-bottom: 2px; font-size: 13.5px; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 24px; }
+
+  /* Filter bar */
+  .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .search-wrap { position: relative; flex: 1; max-width: 320px; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-text-3); width: 15px; height: 15px; }
+  .search-input { width: 100%; height: 36px; padding: 0 12px 0 34px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13.5px; color: var(--c-text); background: var(--c-card); outline: none; }
+  .search-input:focus { border-color: var(--c-primary); }
+  .filter-chip { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--c-border); background: var(--c-card); font-size: 13px; cursor: pointer; color: var(--c-text-2); white-space: nowrap; }
+  .filter-chip.active { background: var(--c-primary-light); color: var(--c-primary); border-color: var(--c-primary); font-weight: 600; }
+  .view-toggle { display: flex; border: 1px solid var(--c-border); border-radius: var(--radius-md); overflow: hidden; margin-left: auto; }
+  .view-toggle-btn { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-3); background: var(--c-card); }
+  .view-toggle-btn.active { background: var(--c-primary-light); color: var(--c-primary); }
+  .view-toggle-btn:first-child { border-right: 1px solid var(--c-border); }
+
+  /* Doctor card grid */
+  .doctor-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+  .doctor-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; cursor: pointer; transition: all .15s; }
+  .doctor-card:hover { border-color: var(--c-primary); box-shadow: 0 4px 16px rgba(10,110,255,.1); transform: translateY(-1px); }
+
+  .doctor-card-top { padding: 20px; display: flex; align-items: flex-start; gap: 14px; }
+  .doctor-avatar-lg { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0; }
+  .doctor-card-info { flex: 1; min-width: 0; }
+  .doctor-card-name { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 15px; font-weight: 700; color: var(--c-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .doctor-card-spec { font-size: 12.5px; color: var(--c-text-2); margin-top: 3px; }
+  .doctor-card-qual { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+
+  .status-dot-wrap { display: flex; align-items: center; gap: 5px; margin-top: 8px; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .status-dot.online { background: var(--c-success); }
+  .status-dot.offline { background: var(--c-text-3); }
+  .status-dot.busy { background: var(--c-danger); }
+  .status-text { font-size: 12px; font-weight: 500; }
+  .status-text.online { color: var(--c-success); }
+  .status-text.offline { color: var(--c-text-3); }
+  .status-text.busy { color: var(--c-danger); }
+
+  .doctor-card-stats { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--c-border); }
+  .dc-stat { padding: 12px 10px; text-align: center; border-right: 1px solid var(--c-border); }
+  .dc-stat:last-child { border-right: none; }
+  .dc-stat-num { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 18px; font-weight: 700; color: var(--c-text); }
+  .dc-stat-label { font-size: 10px; color: var(--c-text-3); margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: .05em; }
+
+  .doctor-card-footer { padding: 10px 16px; border-top: 1px solid var(--c-border); display: flex; align-items: center; gap: 8px; }
+  .schedule-tags { display: flex; gap: 4px; flex-wrap: wrap; flex: 1; }
+  .sched-tag { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: 4px; padding: 2px 6px; font-size: 11px; color: var(--c-text-2); }
+  .sched-tag.today { background: var(--c-primary-light); border-color: var(--c-primary); color: var(--c-primary); font-weight: 600; }
+  .card-action-btn { padding: 5px 12px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); font-size: 12px; color: var(--c-text-2); cursor: pointer; white-space: nowrap; }
+  .card-action-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+  /* Role badge */
+  .role-badge { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .role-owner { background: #FEF3C7; color: #92400E; }
+  .role-doctor { background: var(--c-primary-light); color: var(--c-primary); }
+  .role-visiting { background: var(--c-secondary-light); color: var(--c-secondary); }
+
+  /* Summary row at top */
+  .summary-row { display: flex; gap: 12px; margin-bottom: 20px; }
+  .summary-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 14px 18px; flex: 1; display: flex; align-items: center; gap: 12px; }
+  .summary-icon { width: 38px; height: 38px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .summary-num { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; color: var(--c-text); }
+  .summary-label { font-size: 12px; color: var(--c-text-3); margin-top: 1px; }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Chikitsa360</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>Doctors</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row"><div class="avatar-sm">SR</div><div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div></div>
+  </div>
+</aside>
+
+<!-- Topbar -->
+<header class="topbar">
+  <span class="topbar-title">Doctors & Staff</span>
+  <div class="topbar-right">
+    <div class="icon-btn"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+    <button class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Add Doctor
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:13px;">SR</div>
+  </div>
+</header>
+
+<main class="main">
+  <!-- Summary row -->
+  <div class="summary-row">
+    <div class="summary-card">
+      <div class="summary-icon" style="background:var(--c-primary-light);">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--c-primary)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+      <div><div class="summary-num">4</div><div class="summary-label">Total Doctors</div></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon" style="background:var(--c-success-light,#ECFDF5);">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--c-success)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div><div class="summary-num" style="color:var(--c-success);">3</div><div class="summary-label">On Duty Today</div></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon" style="background:var(--c-secondary-light);">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="var(--c-secondary)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      </div>
+      <div><div class="summary-num" style="color:var(--c-secondary);">28</div><div class="summary-label">Appts This Week</div></div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-icon" style="background:#FEF3C7;">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#92400E" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div><div class="summary-num" style="color:#92400E;">₹3.2L</div><div class="summary-label">Revenue This Month</div></div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" type="text" placeholder="Search by name or speciality…" />
+    </div>
+    <div class="filter-chip active">All</div>
+    <div class="filter-chip">On Duty</div>
+    <div class="filter-chip">Full-time</div>
+    <div class="filter-chip">Visiting</div>
+    <div class="view-toggle">
+      <div class="view-toggle-btn active">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      <div class="view-toggle-btn">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doctor grid -->
+  <div class="doctor-grid">
+
+    <!-- Dr. Arjun Mehta -->
+    <div class="doctor-card">
+      <div class="doctor-card-top">
+        <div class="doctor-avatar-lg" style="background:var(--c-primary-light);color:var(--c-primary);">AM</div>
+        <div class="doctor-card-info">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div class="doctor-card-name">Dr. Arjun Mehta</div>
+            <span class="role-badge role-doctor">Doctor</span>
+          </div>
+          <div class="doctor-card-spec">General Physician</div>
+          <div class="doctor-card-qual">MBBS, MD — 12 yrs exp.</div>
+          <div class="status-dot-wrap">
+            <div class="status-dot online"></div>
+            <span class="status-text online">On Duty — In Consultation</span>
+          </div>
+        </div>
+      </div>
+      <div class="doctor-card-stats">
+        <div class="dc-stat"><div class="dc-stat-num">8</div><div class="dc-stat-label">Today</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">42</div><div class="dc-stat-label">This Month</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">1,204</div><div class="dc-stat-label">All Time</div></div>
+      </div>
+      <div class="doctor-card-footer">
+        <div class="schedule-tags">
+          <span class="sched-tag today">Mon–Sat</span>
+          <span class="sched-tag">9AM–1PM</span>
+          <span class="sched-tag">2PM–5PM</span>
+        </div>
+        <button class="card-action-btn">View Profile</button>
+      </div>
+    </div>
+
+    <!-- Dr. Priya Iyer -->
+    <div class="doctor-card">
+      <div class="doctor-card-top">
+        <div class="doctor-avatar-lg" style="background:#FDE8FF;color:#9333EA;">PI</div>
+        <div class="doctor-card-info">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div class="doctor-card-name">Dr. Priya Iyer</div>
+            <span class="role-badge role-doctor">Doctor</span>
+          </div>
+          <div class="doctor-card-spec">Dermatologist</div>
+          <div class="doctor-card-qual">MBBS, MD (Derma) — 8 yrs exp.</div>
+          <div class="status-dot-wrap">
+            <div class="status-dot online"></div>
+            <span class="status-text online">On Duty — Available</span>
+          </div>
+        </div>
+      </div>
+      <div class="doctor-card-stats">
+        <div class="dc-stat"><div class="dc-stat-num">6</div><div class="dc-stat-label">Today</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">38</div><div class="dc-stat-label">This Month</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">876</div><div class="dc-stat-label">All Time</div></div>
+      </div>
+      <div class="doctor-card-footer">
+        <div class="schedule-tags">
+          <span class="sched-tag today">Tue, Thu, Sat</span>
+          <span class="sched-tag">9AM–2PM</span>
+        </div>
+        <button class="card-action-btn">View Profile</button>
+      </div>
+    </div>
+
+    <!-- Dr. Rakesh Sharma -->
+    <div class="doctor-card">
+      <div class="doctor-card-top">
+        <div class="doctor-avatar-lg" style="background:#FEF3C7;color:#92400E;">RS</div>
+        <div class="doctor-card-info">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div class="doctor-card-name">Dr. Rakesh Sharma</div>
+            <span class="role-badge role-visiting">Visiting</span>
+          </div>
+          <div class="doctor-card-spec">Orthopedic Surgeon</div>
+          <div class="doctor-card-qual">MBBS, MS (Ortho) — 15 yrs exp.</div>
+          <div class="status-dot-wrap">
+            <div class="status-dot busy"></div>
+            <span class="status-text busy">On Duty — Fully Booked</span>
+          </div>
+        </div>
+      </div>
+      <div class="doctor-card-stats">
+        <div class="dc-stat"><div class="dc-stat-num">5</div><div class="dc-stat-label">Today</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">22</div><div class="dc-stat-label">This Month</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">512</div><div class="dc-stat-label">All Time</div></div>
+      </div>
+      <div class="doctor-card-footer">
+        <div class="schedule-tags">
+          <span class="sched-tag today">Wed, Sat</span>
+          <span class="sched-tag">10AM–1PM</span>
+        </div>
+        <button class="card-action-btn">View Profile</button>
+      </div>
+    </div>
+
+    <!-- Dr. Sunita Rao (Owner) -->
+    <div class="doctor-card">
+      <div class="doctor-card-top">
+        <div class="doctor-avatar-lg" style="background:var(--c-secondary-light);color:var(--c-secondary);">SR</div>
+        <div class="doctor-card-info">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
+            <div class="doctor-card-name">Dr. Sunita Rao</div>
+            <span class="role-badge role-owner">Owner</span>
+          </div>
+          <div class="doctor-card-spec">General Physician</div>
+          <div class="doctor-card-qual">MBBS, DNB — 20 yrs exp.</div>
+          <div class="status-dot-wrap">
+            <div class="status-dot offline"></div>
+            <span class="status-text offline">Not on duty today</span>
+          </div>
+        </div>
+      </div>
+      <div class="doctor-card-stats">
+        <div class="dc-stat"><div class="dc-stat-num">0</div><div class="dc-stat-label">Today</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">18</div><div class="dc-stat-label">This Month</div></div>
+        <div class="dc-stat"><div class="dc-stat-num">2,341</div><div class="dc-stat-label">All Time</div></div>
+      </div>
+      <div class="doctor-card-footer">
+        <div class="schedule-tags">
+          <span class="sched-tag">Mon, Wed, Fri</span>
+          <span class="sched-tag">9AM–12PM</span>
+        </div>
+        <button class="card-action-btn">View Profile</button>
+      </div>
+    </div>
+
+  </div>
+</main>
+</body>
+</html>

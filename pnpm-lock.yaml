@@ -23,13 +23,13 @@ importers:
 
   apps/web:
     dependencies:
-      '@cliniqly/branding':
+      '@chikitsa360/branding':
         specifier: workspace:*
         version: link:../../packages/branding
-      '@cliniqly/core':
+      '@chikitsa360/core':
         specifier: workspace:*
         version: link:../../packages/core
-      '@cliniqly/ui':
+      '@chikitsa360/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       next:
@@ -42,10 +42,10 @@ importers:
         specifier: ^19.1.0
         version: 19.2.7(react@19.2.7)
     devDependencies:
-      '@cliniqly/eslint-config':
+      '@chikitsa360/eslint-config':
         specifier: workspace:*
         version: link:../../packages/config/eslint
-      '@cliniqly/typescript-config':
+      '@chikitsa360/typescript-config':
         specifier: workspace:*
         version: link:../../packages/config/typescript
       '@tailwindcss/postcss':
@@ -66,7 +66,7 @@ importers:
 
   packages/branding:
     devDependencies:
-      '@cliniqly/typescript-config':
+      '@chikitsa360/typescript-config':
         specifier: workspace:*
         version: link:../config/typescript
       typescript:
@@ -83,7 +83,7 @@ importers:
 
   packages/core:
     devDependencies:
-      '@cliniqly/typescript-config':
+      '@chikitsa360/typescript-config':
         specifier: workspace:*
         version: link:../config/typescript
       typescript:
@@ -92,7 +92,7 @@ importers:
 
   packages/ui:
     dependencies:
-      '@cliniqly/core':
+      '@chikitsa360/core':
         specifier: workspace:*
         version: link:../core
       react:
@@ -102,7 +102,7 @@ importers:
         specifier: ^19.0.0
         version: 19.2.7(react@19.2.7)
     devDependencies:
-      '@cliniqly/typescript-config':
+      '@chikitsa360/typescript-config':
         specifier: workspace:*
         version: link:../config/typescript
       '@types/react':

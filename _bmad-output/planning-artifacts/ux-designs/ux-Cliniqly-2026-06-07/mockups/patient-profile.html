@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chikitsa360 — Patient Profile</title>
+<style>
+/*
+  Key Screen: Patient Profile — 360° View (Timeline tab active)
+  Spine sections: Component Patterns (Patient Profile), Key Flow 2 (Dr. Arjun reviews patient),
+  State Patterns (loaded state), Privacy by Default.
+  DESIGN.md: patient-avatar, profile-tab, timeline-entry, status-badge tokens applied.
+  No JS, no network. System fonts only.
+*/
+
+:root {
+  --c-primary: #0A6EFF;
+  --c-primary-light: rgba(10,110,255,0.08);
+  --c-secondary: #00B8A9;
+  --c-accent: #4FD9FF;
+  --c-bg: #F8FAFC;
+  --c-card: #FFFFFF;
+  --c-fg: #0F172A;
+  --c-muted: #F1F5F9;
+  --c-muted-fg: #64748B;
+  --c-border: #E2E8F0;
+  --c-success: #10B981;
+  --c-warning: #F59E0B;
+  --c-destructive: #EF4444;
+  --c-violet: #8B5CF6;
+  --sidebar-w: 240px;
+  --topbar-h: 56px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font);
+  background: var(--c-bg);
+  color: var(--c-fg);
+  font-size: 14px;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+}
+
+/* === Collapsed Sidebar === */
+.sidebar-collapsed {
+  width: 56px;
+  height: 100vh;
+  background: var(--c-card);
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.sc-logo {
+  width: 32px;
+  height: 32px;
+  background: var(--c-primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.sc-item {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-muted-fg);
+  cursor: pointer;
+}
+
+.sc-item:hover { background: var(--c-muted); }
+.sc-item.active { background: var(--c-primary-light); color: var(--c-primary); }
+.sc-item svg { width: 16px; height: 16px; }
+
+.sc-divider {
+  width: 24px;
+  height: 1px;
+  background: var(--c-border);
+  margin: 4px 0;
+}
+
+.sc-footer { margin-top: auto; }
+.sc-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* === Main === */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* === Topbar === */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--c-card);
+  border-bottom: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--c-muted-fg);
+  flex: 1;
+}
+
+.breadcrumb a {
+  color: var(--c-muted-fg);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.breadcrumb a:hover { color: var(--c-fg); }
+.breadcrumb-sep { color: var(--c-border); }
+.breadcrumb-current { color: var(--c-fg); font-weight: 500; }
+
+.topbar-btn-outline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--c-border);
+  background: var(--c-card);
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-fg);
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+.topbar-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  background: var(--c-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+  font-family: var(--font);
+}
+
+/* === Patient Header === */
+.patient-header {
+  background: var(--c-card);
+  border-bottom: 1px solid var(--c-border);
+  padding: 20px 32px 0;
+  flex-shrink: 0;
+}
+
+.patient-header-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.patient-avatar-lg {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--c-secondary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.patient-core { flex: 1; }
+
+.patient-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-fg);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.patient-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.patient-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--c-muted-fg);
+}
+
+.patient-meta-divider {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--c-border);
+}
+
+.condition-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(239,68,68,0.08);
+  color: var(--c-destructive);
+  border: 1px solid rgba(239,68,68,0.15);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.phone-masked {
+  font-size: 12px;
+  color: var(--c-muted-fg);
+  background: var(--c-muted);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.phone-masked:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+.patient-stats-row {
+  display: flex;
+  gap: 0;
+  margin-top: 12px;
+  margin-bottom: -1px;
+}
+
+.patient-stat {
+  padding: 8px 20px;
+  border: 1px solid var(--c-border);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  background: var(--c-muted);
+  text-align: center;
+  margin-right: 4px;
+}
+
+.patient-stat-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-fg);
+  line-height: 1.1;
+}
+
+.patient-stat-label {
+  font-size: 10px;
+  color: var(--c-muted-fg);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 0;
+  margin-top: 8px;
+}
+
+.profile-tab {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-muted-fg);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.1s;
+}
+
+.profile-tab:hover { color: var(--c-fg); }
+.profile-tab.active {
+  color: var(--c-primary);
+  border-bottom-color: var(--c-primary);
+}
+
+/* === Content === */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 32px;
+}
+
+/* === Timeline === */
+.timeline-filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-muted-fg);
+  background: var(--c-card);
+  cursor: pointer;
+}
+
+.filter-chip.active {
+  background: var(--c-primary-light);
+  border-color: rgba(10,110,255,0.3);
+  color: var(--c-primary);
+}
+
+.timeline {
+  position: relative;
+  padding-left: 28px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 8px;
+  bottom: 0;
+  width: 1px;
+  background: var(--c-border);
+}
+
+.timeline-entry {
+  position: relative;
+  margin-bottom: 24px;
+}
+
+.timeline-node {
+  position: absolute;
+  left: -24px;
+  top: 8px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  border: 2px solid var(--c-bg);
+  outline: 3px solid rgba(10,110,255,0.15);
+  z-index: 1;
+}
+
+.timeline-node-grey {
+  background: var(--c-muted-fg);
+  outline-color: transparent;
+}
+
+.timeline-node-green {
+  background: var(--c-success);
+  outline-color: rgba(16,185,129,0.15);
+}
+
+.timeline-card {
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  transition: border-color 0.1s;
+  cursor: pointer;
+}
+
+.timeline-card:hover { border-color: rgba(10,110,255,0.3); }
+
+.timeline-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.timeline-card-date {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--c-muted-fg);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.timeline-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.type-consultation { background: rgba(10,110,255,0.08); color: var(--c-primary); }
+.type-prescription  { background: rgba(139,92,246,0.08); color: var(--c-violet); }
+.type-lab           { background: rgba(0,184,169,0.08); color: var(--c-secondary); }
+.type-billing       { background: rgba(16,185,129,0.08); color: var(--c-success); }
+.type-whatsapp      { background: rgba(37,211,102,0.1); color: #128C7E; }
+
+.timeline-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-fg);
+  margin-bottom: 4px;
+}
+
+.timeline-card-body {
+  font-size: 13px;
+  color: var(--c-muted-fg);
+  line-height: 1.5;
+}
+
+.timeline-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--c-muted);
+}
+
+.timeline-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--c-muted-fg);
+}
+
+.vitals-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.vital-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--c-muted);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  min-width: 60px;
+}
+
+.vital-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-fg);
+  font-variant-numeric: tabular-nums;
+}
+
+.vital-label {
+  font-size: 10px;
+  color: var(--c-muted-fg);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.vital-high { color: var(--c-destructive); }
+
+.drug-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.drug-chip {
+  background: rgba(139,92,246,0.06);
+  border: 1px solid rgba(139,92,246,0.15);
+  border-radius: var(--radius-sm);
+  padding: 3px 10px;
+  font-size: 12px;
+  color: #6D28D9;
+  font-weight: 500;
+}
+
+.lab-file {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--c-muted);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-top: 8px;
+  cursor: pointer;
+}
+
+.lab-file:hover { background: var(--c-border); }
+
+.lab-icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(0,184,169,0.1);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lab-file-info { flex: 1; }
+.lab-file-name { font-size: 13px; font-weight: 500; color: var(--c-fg); }
+.lab-file-meta { font-size: 11px; color: var(--c-muted-fg); margin-top: 2px; }
+
+.amount-chip {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-success);
+  background: rgba(16,185,129,0.08);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+}
+</style>
+</head>
+<body>
+
+<!-- Collapsed Sidebar -->
+<div class="sidebar-collapsed">
+  <div class="sc-logo">C3</div>
+  <div class="sc-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+  </div>
+  <div class="sc-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+  </div>
+  <div class="sc-item active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+  <div class="sc-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+  </div>
+  <div class="sc-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+  </div>
+  <div class="sc-divider"></div>
+  <div class="sc-item">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+  </div>
+  <div class="sc-footer">
+    <div class="sc-avatar">PN</div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="breadcrumb">
+      <a href="#">Patients</a>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Anjali Sharma</span>
+    </div>
+    <button class="topbar-btn-outline">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Send WhatsApp
+    </button>
+    <button class="topbar-btn-outline">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit Profile
+    </button>
+    <button class="topbar-btn-primary">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Book Appointment
+    </button>
+  </div>
+
+  <!-- Patient Header -->
+  <div class="patient-header">
+    <div class="patient-header-top">
+      <div class="patient-avatar-lg">AS</div>
+      <div class="patient-core">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <div class="patient-name">Anjali Sharma</div>
+          <span class="condition-tag">Diabetic</span>
+          <span class="condition-tag">Hypertensive</span>
+        </div>
+        <div class="patient-meta-row">
+          <div class="patient-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Female, 34 yrs
+          </div>
+          <div class="patient-meta-divider"></div>
+          <div class="patient-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            DOB: <span style="cursor:pointer;border-bottom:1px dashed var(--c-border);">•• Jun 1992</span>
+          </div>
+          <div class="patient-meta-divider"></div>
+          <div class="patient-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.2a2 2 0 012-2.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 6.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 13.92z"/></svg>
+            <span class="phone-masked">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+              ••••••4321
+            </span>
+          </div>
+          <div class="patient-meta-divider"></div>
+          <div class="patient-meta-item">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Andheri West, Mumbai
+          </div>
+          <div class="patient-meta-divider"></div>
+          <div class="patient-meta-item" style="color: var(--c-warning); font-weight: 500;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+            Allergy: Penicillin
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex-shrink:0;">
+        <div style="display:flex;gap:6px;">
+          <div style="text-align:center;padding:8px 14px;background:var(--c-muted);border:1px solid var(--c-border);border-radius:var(--radius-md);">
+            <div style="font-size:18px;font-weight:700;color:var(--c-fg);">14</div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--c-muted-fg);font-weight:600;margin-top:2px;">Visits</div>
+          </div>
+          <div style="text-align:center;padding:8px 14px;background:var(--c-muted);border:1px solid var(--c-border);border-radius:var(--radius-md);">
+            <div style="font-size:18px;font-weight:700;color:var(--c-fg);">12 Jun</div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--c-muted-fg);font-weight:600;margin-top:2px;">Last Visit</div>
+          </div>
+          <div style="text-align:center;padding:8px 14px;background:rgba(239,68,68,0.05);border:1px solid rgba(239,68,68,0.15);border-radius:var(--radius-md);">
+            <div style="font-size:18px;font-weight:700;color:var(--c-destructive);">₹1,200</div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.05em;color:var(--c-destructive);font-weight:600;opacity:0.7;margin-top:2px;">Outstanding</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--c-muted-fg);">Patient ID: CH-2024-00892</div>
+      </div>
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+      <div class="profile-tab">Overview</div>
+      <div class="profile-tab active">Timeline</div>
+      <div class="profile-tab">EMR</div>
+      <div class="profile-tab">Prescriptions <span style="background:rgba(139,92,246,0.1);color:#7C3AED;border-radius:9999px;padding:1px 5px;font-size:10px;font-weight:600;margin-left:4px;">2 active</span></div>
+      <div class="profile-tab">Billing <span style="background:rgba(239,68,68,0.1);color:var(--c-destructive);border-radius:9999px;padding:1px 5px;font-size:10px;font-weight:600;margin-left:4px;">Due</span></div>
+      <div class="profile-tab">Communication</div>
+    </div>
+  </div>
+
+  <!-- Content: Timeline Tab -->
+  <div class="content">
+    <div class="timeline-filter">
+      <span style="font-size:12px;font-weight:500;color:var(--c-muted-fg);">Filter:</span>
+      <div class="filter-chip active">All</div>
+      <div class="filter-chip">Consultations</div>
+      <div class="filter-chip">Prescriptions</div>
+      <div class="filter-chip">Lab Reports</div>
+      <div class="filter-chip">Billing</div>
+      <div class="filter-chip">WhatsApp</div>
+      <div style="margin-left:auto;">
+        <div style="font-size:12px;color:var(--c-muted-fg);">14 entries</div>
+      </div>
+    </div>
+
+    <div class="timeline">
+
+      <!-- Entry 1: Latest Consultation -->
+      <div class="timeline-entry">
+        <div class="timeline-node timeline-node-green"></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div>
+              <div class="timeline-card-date">Sat, 7 Jun 2026</div>
+              <div class="timeline-card-title" style="margin-top:4px;">Consultation — BP &amp; Diabetes Review</div>
+            </div>
+            <span class="timeline-type-badge type-consultation">Consultation</span>
+          </div>
+          <div class="timeline-card-body">
+            Chief complaint: Routine follow-up for hypertension and type 2 diabetes. Patient reports improved energy, occasional morning headaches.
+          </div>
+          <div class="vitals-row">
+            <div class="vital-chip">
+              <div class="vital-value vital-high">148/92</div>
+              <div class="vital-label">BP</div>
+            </div>
+            <div class="vital-chip">
+              <div class="vital-value">98.4°</div>
+              <div class="vital-label">Temp</div>
+            </div>
+            <div class="vital-chip">
+              <div class="vital-value">72</div>
+              <div class="vital-label">Pulse</div>
+            </div>
+            <div class="vital-chip">
+              <div class="vital-value vital-high">186</div>
+              <div class="vital-label">Sugar</div>
+            </div>
+            <div class="vital-chip">
+              <div class="vital-value">58 kg</div>
+              <div class="vital-label">Weight</div>
+            </div>
+          </div>
+          <div class="timeline-card-meta">
+            <div class="timeline-meta-item">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Dr. Arjun Mehta
+            </div>
+            <div class="timeline-meta-item">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              10:30 AM
+            </div>
+            <div style="margin-left:auto;">
+              <span style="font-size:11px;color:var(--c-primary);cursor:pointer;font-weight:500;">View full note →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 2: Prescription -->
+      <div class="timeline-entry">
+        <div class="timeline-node"></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div>
+              <div class="timeline-card-date">Sat, 7 Jun 2026</div>
+              <div class="timeline-card-title" style="margin-top:4px;">Prescription Issued</div>
+            </div>
+            <span class="timeline-type-badge type-prescription">Prescription</span>
+          </div>
+          <div class="timeline-card-body">Prescription #RX-2026-1847 — 3 medications issued.</div>
+          <div class="drug-row">
+            <div class="drug-chip">Amlodipine 10mg · OD · 30 days</div>
+            <div class="drug-chip">Telmisartan 40mg · OD · 30 days</div>
+            <div class="drug-chip">Metformin 500mg · BD · 30 days</div>
+          </div>
+          <div class="timeline-card-meta">
+            <div class="timeline-meta-item">Dr. Arjun Mehta</div>
+            <div style="margin-left:auto;display:flex;gap:8px;">
+              <span style="font-size:11px;color:var(--c-primary);cursor:pointer;font-weight:500;">Download PDF</span>
+              <span style="font-size:11px;color:var(--c-primary);cursor:pointer;font-weight:500;">Repeat →</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 3: Previous Consultation -->
+      <div class="timeline-entry">
+        <div class="timeline-node timeline-node-grey"></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div>
+              <div class="timeline-card-date">Tue, 14 Apr 2026</div>
+              <div class="timeline-card-title" style="margin-top:4px;">Consultation — Hypertension Escalation</div>
+            </div>
+            <span class="timeline-type-badge type-consultation">Consultation</span>
+          </div>
+          <div class="timeline-card-body">
+            BP poorly controlled (162/98). Amlodipine dose increased from 5mg to 10mg. Advised low-sodium diet and daily 30-min walk. Follow-up in 6 weeks.
+          </div>
+          <div class="timeline-card-meta">
+            <div class="timeline-meta-item">Dr. Arjun Mehta</div>
+            <div style="margin-left:auto;">
+              <span style="font-size:11px;color:var(--c-muted-fg);">Follow-up: 26 May 2026 (missed)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 4: Lab Report -->
+      <div class="timeline-entry">
+        <div class="timeline-node" style="background:var(--c-secondary);outline-color:rgba(0,184,169,0.15);"></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div>
+              <div class="timeline-card-date">Mon, 10 Apr 2026</div>
+              <div class="timeline-card-title" style="margin-top:4px;">Lab Reports Uploaded</div>
+            </div>
+            <span class="timeline-type-badge type-lab">Lab Report</span>
+          </div>
+          <div class="lab-file">
+            <div class="lab-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00B8A9" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div class="lab-file-info">
+              <div class="lab-file-name">HbA1c + Lipid Panel — Apr 2026</div>
+              <div class="lab-file-meta">Metropolis Lab · PDF · 2 pages</div>
+            </div>
+            <span style="font-size:12px;color:var(--c-primary);font-weight:500;cursor:pointer;">View →</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <div class="vital-chip">
+              <div class="vital-value vital-high">8.2%</div>
+              <div class="vital-label">HbA1c</div>
+            </div>
+            <div class="vital-chip">
+              <div class="vital-value vital-high">210</div>
+              <div class="vital-label">LDL</div>
+            </div>
+            <div class="vital-chip">
+              <div class="vital-value">42</div>
+              <div class="vital-label">HDL</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entry 5: Payment -->
+      <div class="timeline-entry">
+        <div class="timeline-node timeline-node-green"></div>
+        <div class="timeline-card">
+          <div class="timeline-card-header">
+            <div>
+              <div class="timeline-card-date">Mon, 10 Apr 2026</div>
+              <div class="timeline-card-title" style="margin-top:4px;">Payment Received</div>
+            </div>
+            <span class="timeline-type-badge type-billing">Billing</span>
+          </div>
+          <div class="timeline-card-body" style="display:flex;align-items:center;gap:8px;">
+            Invoice #INV-0421 settled via UPI.
+            <span class="amount-chip">₹800 paid</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Load more -->
+      <div style="text-align:center;padding:12px 0;font-size:13px;color:var(--c-primary);cursor:pointer;font-weight:500;">
+        Show 9 older entries ↓
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

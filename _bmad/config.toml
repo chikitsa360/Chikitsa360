@@ -11,7 +11,7 @@
 # ─────────────────────────────────────────────────────────────────
 
 [core]
-project_name = "Cliniqly"
+project_name = "Chikitsa360"
 document_output_language = "English"
 output_folder = "_bmad-output"
 

@@ -10,7 +10,7 @@ NEXT_PUBLIC_CLIENT_ID=mediflow pnpm dev
 ```
 
 1. At build/runtime, `apps/web/src/lib/brand.ts` reads `NEXT_PUBLIC_CLIENT_ID`
-2. It calls `getBrandTheme(clientId)` from `@cliniqly/branding`
+2. It calls `getBrandTheme(clientId)` from `@chikitsa360/branding`
 3. The brand's `cssVariables` are injected as CSS custom properties into `<head>`
 4. All Tailwind utility classes resolve through those CSS vars
 5. App name, logo, support email, and tagline all come from `BrandMeta`

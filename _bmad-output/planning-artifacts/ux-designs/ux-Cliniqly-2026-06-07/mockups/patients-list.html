@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chikitsa360 — Patients</title>
+<style>
+:root {
+  --c-primary: #0A6EFF; --c-primary-light: rgba(10,110,255,0.08); --c-secondary: #00B8A9;
+  --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-fg: #0F172A; --c-muted: #F1F5F9;
+  --c-muted-fg: #64748B; --c-border: #E2E8F0; --c-success: #10B981;
+  --c-warning: #F59E0B; --c-destructive: #EF4444; --c-violet: #8B5CF6;
+  --sidebar-w: 240px; --topbar-h: 56px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--c-bg); color: var(--c-fg); font-size: 14px; height: 100vh; overflow: hidden; display: flex; }
+
+/* SIDEBAR */
+.sidebar { width: var(--sidebar-w); height: 100vh; background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
+.sidebar-header { padding: 0 16px; height: var(--topbar-h); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--c-border); flex-shrink: 0; }
+.sidebar-logo { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; flex-shrink: 0; }
+.sidebar-clinic { flex: 1; min-width: 0; }
+.sidebar-clinic-name { font-size: 13px; font-weight: 600; color: var(--c-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar-clinic-sub { font-size: 11px; color: var(--c-muted-fg); }
+.sidebar-switcher { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; color: var(--c-muted-fg); }
+.sidebar-search { padding: 12px 12px 8px; }
+.sidebar-search-wrap { position: relative; }
+.sidebar-search-field { width: 100%; height: 32px; background: var(--c-muted); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 0 32px 0 30px; font-size: 12px; color: var(--c-muted-fg); font-family: var(--font); outline: none; }
+.search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-muted-fg); pointer-events: none; }
+.kbd { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); font-size: 10px; color: var(--c-muted-fg); background: var(--c-card); border: 1px solid var(--c-border); border-radius: 3px; padding: 1px 4px; }
+.sidebar-section { padding: 16px 12px 4px; }
+.sidebar-section-label { font-size: 10px; font-weight: 600; color: var(--c-muted-fg); letter-spacing: 0.06em; text-transform: uppercase; padding: 0 4px; margin-bottom: 2px; }
+.nav-item { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--c-muted-fg); cursor: pointer; margin-bottom: 1px; }
+.nav-item:hover { background: var(--c-muted); color: var(--c-fg); }
+.nav-item.active { background: var(--c-primary-light); color: var(--c-primary); }
+.nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.7; }
+.nav-item.active svg { opacity: 1; }
+.nav-badge { margin-left: auto; background: var(--c-primary); color: white; font-size: 10px; font-weight: 600; border-radius: 10px; padding: 1px 6px; min-width: 18px; text-align: center; }
+.sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--c-border); }
+.user-item { display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: var(--radius-md); cursor: pointer; }
+.user-item:hover { background: var(--c-muted); }
+.user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--c-primary); flex-shrink: 0; }
+.user-name { font-size: 12px; font-weight: 600; color: var(--c-fg); }
+.user-role { font-size: 11px; color: var(--c-muted-fg); }
+
+/* MAIN */
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.topbar { height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; flex-shrink: 0; }
+.topbar-title { font-size: 16px; font-weight: 700; color: var(--c-fg); letter-spacing: -0.01em; flex: 1; }
+.topbar-count { font-size: 13px; color: var(--c-muted-fg); font-weight: 400; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: none; border-radius: var(--radius-md); font-size: 13px; font-weight: 500; font-family: var(--font); cursor: pointer; }
+.btn-primary { background: var(--c-primary); color: white; }
+.btn-outline { background: transparent; color: var(--c-fg); border: 1px solid var(--c-border); }
+.btn-ghost { background: transparent; color: var(--c-muted-fg); border: none; }
+
+/* CONTENT */
+.content { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+
+/* FILTER BAR */
+.filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.filter-search { position: relative; flex: 1; max-width: 320px; }
+.filter-search input { width: 100%; height: 34px; background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 0 12px 0 34px; font-size: 13px; font-family: var(--font); outline: none; color: var(--c-fg); }
+.filter-search svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-muted-fg); width: 15px; height: 15px; }
+.filter-select { height: 34px; padding: 0 10px; background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; font-family: var(--font); color: var(--c-fg); outline: none; }
+.filter-chip { height: 30px; padding: 0 12px; border-radius: var(--radius-full); font-size: 12px; font-weight: 500; cursor: pointer; border: 1px solid var(--c-border); background: var(--c-card); color: var(--c-muted-fg); }
+.filter-chip.active { background: var(--c-primary-light); border-color: rgba(10,110,255,0.2); color: var(--c-primary); }
+.filter-spacer { flex: 1; }
+.cols-btn { display: flex; align-items: center; gap: 5px; height: 34px; padding: 0 12px; background: transparent; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--c-muted-fg); cursor: pointer; }
+
+/* TABLE CARD */
+.table-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; flex: 1; display: flex; flex-direction: column; }
+.bulk-bar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: rgba(10,110,255,0.04); border-bottom: 1px solid rgba(10,110,255,0.12); }
+.bulk-count { font-size: 13px; font-weight: 600; color: var(--c-primary); }
+.bulk-actions { display: flex; gap: 8px; }
+.bulk-action-btn { display: flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; background: white; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 12px; font-weight: 500; color: var(--c-fg); cursor: pointer; }
+.bulk-clear { margin-left: auto; font-size: 12px; color: var(--c-muted-fg); cursor: pointer; }
+table { width: 100%; border-collapse: collapse; }
+thead { background: var(--c-muted); position: sticky; top: 0; z-index: 1; }
+th { padding: 0 16px; height: 40px; text-align: left; font-size: 11px; font-weight: 600; color: var(--c-muted-fg); letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; border-bottom: 1px solid var(--c-border); }
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--c-fg); }
+.sort-icon { display: inline-block; margin-left: 4px; opacity: 0.5; }
+td { padding: 0 16px; height: 52px; border-bottom: 1px solid var(--c-border); font-size: 13px; color: var(--c-fg); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(241,245,249,0.6); }
+tr.selected td { background: rgba(10,110,255,0.03); }
+tr.selected td:first-child { border-left: 2px solid var(--c-primary); }
+input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--c-primary); cursor: pointer; }
+.patient-cell { display: flex; align-items: center; gap: 10px; }
+.avatar { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: white; flex-shrink: 0; }
+.avatar-teal { background: var(--c-secondary); }
+.avatar-blue { background: var(--c-primary); }
+.avatar-violet { background: var(--c-violet); }
+.avatar-orange { background: #F97316; }
+.avatar-sm { width: 34px; height: 34px; font-size: 12px; }
+.patient-name { font-size: 13px; font-weight: 500; color: var(--c-fg); }
+.patient-meta { font-size: 11px; color: var(--c-muted-fg); margin-top: 1px; }
+.phone-text { font-size: 13px; color: var(--c-fg); font-variant-numeric: tabular-nums; }
+.masked { color: var(--c-muted-fg); letter-spacing: 0.05em; }
+.date-text { font-size: 13px; color: var(--c-fg); }
+.date-sub { font-size: 11px; color: var(--c-muted-fg); }
+.doctor-chip { display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; background: rgba(10,110,255,0.07); border-radius: var(--radius-full); font-size: 11px; font-weight: 500; color: var(--c-primary); }
+.count-pill { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 22px; padding: 0 7px; background: var(--c-muted); border-radius: var(--radius-full); font-size: 12px; font-weight: 600; color: var(--c-muted-fg); }
+.status-badge { display: inline-flex; align-items: center; gap: 4px; height: 20px; padding: 0 8px; border-radius: var(--radius-full); font-size: 11px; font-weight: 500; }
+.status-active { background: rgba(16,185,129,0.1); color: var(--c-success); }
+.status-inactive { background: var(--c-muted); color: var(--c-muted-fg); }
+.row-actions { display: flex; align-items: center; gap: 4px; opacity: 0; }
+tr:hover .row-actions { opacity: 1; }
+.icon-btn { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; background: transparent; border: none; border-radius: var(--radius-md); cursor: pointer; color: var(--c-muted-fg); }
+.icon-btn:hover { background: var(--c-muted); color: var(--c-fg); }
+
+/* PAGINATION */
+.pagination { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--c-border); background: var(--c-card); }
+.pagination-info { font-size: 12px; color: var(--c-muted-fg); flex: 1; }
+.page-btn { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: var(--radius-md); border: 1px solid var(--c-border); font-size: 13px; font-weight: 500; cursor: pointer; background: var(--c-card); color: var(--c-fg); }
+.page-btn.active { background: var(--c-primary); color: white; border-color: var(--c-primary); }
+.page-btn.disabled { opacity: 0.4; cursor: not-allowed; }
+.per-page { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--c-muted-fg); }
+.per-page select { height: 28px; padding: 0 6px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 12px; background: var(--c-card); font-family: var(--font); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">C3</div>
+    <div class="sidebar-clinic">
+      <div class="sidebar-clinic-name">Mehta Clinic</div>
+      <div class="sidebar-clinic-sub">Andheri, Mumbai</div>
+    </div>
+    <div class="sidebar-switcher">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+    </div>
+  </div>
+  <div class="sidebar-search">
+    <div class="sidebar-search-wrap" style="position:relative;">
+      <svg class="search-icon" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:13px;height:13px;" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="sidebar-search-field" placeholder="Search patients, appointments…">
+      <span class="kbd">⌘K</span>
+    </div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Main</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Appointments
+      <span class="nav-badge">14</span>
+    </a>
+    <a class="nav-item active" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Patients
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg>
+      Doctors
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/></svg>
+      Prescriptions
+    </a>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Billing
+    </a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Insights</div>
+    <a class="nav-item" href="#">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Reports
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    <div class="user-item">
+      <div class="user-avatar">PM</div>
+      <div>
+        <div class="user-name">Priya Nair</div>
+        <div class="user-role">Receptionist</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" style="margin-left:auto;flex-shrink:0;"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Patients <span class="topbar-count" style="font-size:13px;font-weight:400;color:#64748B;margin-left:6px;">2,847 total</span></div>
+    <button class="btn btn-outline" style="gap:5px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="btn btn-primary" style="gap:5px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Patient
+    </button>
+  </div>
+
+  <div class="content">
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <div class="filter-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input placeholder="Search by name or phone…" style="width:100%;height:34px;background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:0 12px 0 34px;font-size:13px;font-family:inherit;outline:none;color:#0F172A;">
+      </div>
+      <select class="filter-select">
+        <option>All Doctors</option>
+        <option>Dr. Arjun Mehta</option>
+        <option>Dr. Priya Sharma</option>
+        <option>Dr. Rahul Patel</option>
+      </select>
+      <button class="filter-chip active">All</button>
+      <button class="filter-chip">Active</button>
+      <button class="filter-chip">New this month</button>
+      <button class="filter-chip">Chronic</button>
+      <div class="filter-spacer"></div>
+      <button class="cols-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Columns
+      </button>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+      <!-- BULK BAR (shown when rows selected) -->
+      <div class="bulk-bar">
+        <span class="bulk-count">3 selected</span>
+        <div class="bulk-actions">
+          <button class="bulk-action-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Send WhatsApp
+          </button>
+          <button class="bulk-action-btn">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export
+          </button>
+          <button class="bulk-action-btn">Assign Doctor</button>
+        </div>
+        <span class="bulk-clear">✕ Clear</span>
+      </div>
+
+      <div style="overflow-x:auto;flex:1;">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" checked></th>
+              <th class="sortable">Patient <span class="sort-icon">↑</span></th>
+              <th>Phone</th>
+              <th class="sortable">Last Visit</th>
+              <th>Doctor</th>
+              <th class="sortable">Visits</th>
+              <th>Status</th>
+              <th style="width:80px;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="selected">
+              <td><input type="checkbox" checked></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-teal avatar-sm">AN</div>
+                  <div>
+                    <div class="patient-name">Anjali Nair</div>
+                    <div class="patient-meta">32 yrs · Female</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text">+91 98765 43210</div></td>
+              <td><div class="date-text">Today, 10:30am</div><div class="date-sub">Follow-up</div></td>
+              <td><span class="doctor-chip">Dr. Arjun Mehta</span></td>
+              <td><span class="count-pill">12</span></td>
+              <td><span class="status-badge status-active">● Active</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn" title="View profile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn" title="Book appointment"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+            <tr class="selected">
+              <td><input type="checkbox" checked></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-blue avatar-sm">RK</div>
+                  <div>
+                    <div class="patient-name">Ravi Kumar</div>
+                    <div class="patient-meta">45 yrs · Male</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text masked">+91 98765 •••••</div></td>
+              <td><div class="date-text">Yesterday</div><div class="date-sub">New Patient</div></td>
+              <td><span class="doctor-chip">Dr. Priya Sharma</span></td>
+              <td><span class="count-pill">1</span></td>
+              <td><span class="status-badge status-active">● Active</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-violet avatar-sm">SM</div>
+                  <div>
+                    <div class="patient-name">Sunita Mehta</div>
+                    <div class="patient-meta">58 yrs · Female</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text">+91 99887 65432</div></td>
+              <td><div class="date-text">12 Jun 2026</div><div class="date-sub">Follow-up</div></td>
+              <td><span class="doctor-chip">Dr. Arjun Mehta</span></td>
+              <td><span class="count-pill">34</span></td>
+              <td><span class="status-badge status-active">● Active</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-orange avatar-sm">PD</div>
+                  <div>
+                    <div class="patient-name">Pradeep Desai</div>
+                    <div class="patient-meta">41 yrs · Male</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text">+91 91234 56789</div></td>
+              <td><div class="date-text">10 Jun 2026</div><div class="date-sub">Consultation</div></td>
+              <td><span class="doctor-chip">Dr. Rahul Patel</span></td>
+              <td><span class="count-pill">7</span></td>
+              <td><span class="status-badge status-active">● Active</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-teal avatar-sm">KI</div>
+                  <div>
+                    <div class="patient-name">Kavita Iyer</div>
+                    <div class="patient-meta">27 yrs · Female</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text masked">+91 93456 •••••</div></td>
+              <td><div class="date-text">5 Jun 2026</div><div class="date-sub">New Patient</div></td>
+              <td><span class="doctor-chip">Dr. Priya Sharma</span></td>
+              <td><span class="count-pill">2</span></td>
+              <td><span class="status-badge status-active">● Active</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-blue avatar-sm">MS</div>
+                  <div>
+                    <div class="patient-name">Mohan Sharma</div>
+                    <div class="patient-meta">63 yrs · Male</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text">+91 98001 23456</div></td>
+              <td><div class="date-text">1 Jun 2026</div><div class="date-sub">Follow-up</div></td>
+              <td><span class="doctor-chip">Dr. Arjun Mehta</span></td>
+              <td><span class="count-pill">89</span></td>
+              <td><span class="status-badge status-active">● Active</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox"></td>
+              <td>
+                <div class="patient-cell">
+                  <div class="avatar avatar-violet avatar-sm">NR</div>
+                  <div>
+                    <div class="patient-name">Neha Rao</div>
+                    <div class="patient-meta">35 yrs · Female</div>
+                  </div>
+                </div>
+              </td>
+              <td><div class="phone-text">+91 97654 32109</div></td>
+              <td><div class="date-text">28 May 2026</div><div class="date-sub">Consultation</div></td>
+              <td><span class="doctor-chip">Dr. Rahul Patel</span></td>
+              <td><span class="count-pill">5</span></td>
+              <td><span class="status-badge status-inactive">● Inactive</span></td>
+              <td><div class="row-actions">
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+                <button class="icon-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></button>
+              </div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination">
+        <div class="pagination-info">Showing 1–15 of 2,847 patients</div>
+        <button class="page-btn disabled">←</button>
+        <button class="page-btn active">1</button>
+        <button class="page-btn">2</button>
+        <button class="page-btn">3</button>
+        <span style="font-size:13px;color:#64748B;">…</span>
+        <button class="page-btn">190</button>
+        <button class="page-btn">→</button>
+        <div class="per-page">
+          <span>Per page:</span>
+          <select><option>15</option><option>25</option><option>50</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
