@@ -20,13 +20,13 @@ Master status tracker for all epics and user stories. Update `status` as work pr
 | [Epic 2](epic-02-clinic-onboarding/epic.md) | Clinic Onboarding & Setup | — | Not Started |
 | [Epic 3](epic-03-whatsapp-booking/epic.md) | WhatsApp Appointment Booking | — | Not Started |
 | [Epic 4](epic-04-web-booking-link/epic.md) | Web Booking Link | — | Not Started |
-| [Epic 5](epic-05-appointment-management/epic.md) | Appointment Management & Calendar | — | Not Started |
-| [Epic 6](epic-06-patient-database/epic.md) | Patient Database & Profiles | — | Not Started |
-| [Epic 7](epic-07-whatsapp-automation/epic.md) | WhatsApp Automation & Reminders | — | Not Started |
-| [Epic 8](epic-08-dashboard/epic.md) | Clinic Dashboard | — | Not Started |
-| [Epic 9](epic-09-billing/epic.md) | Basic Billing | — | Not Started |
-| [Epic 10](epic-10-reports/epic.md) | Reports & Analytics | — | Not Started |
-| [Epic 11](epic-11-subscription/epic.md) | Subscription Enforcement & Data Rights | — | Not Started |
+| [Epic 5](epic-05-appointment-management/epic.md) | Appointment Management & Calendar | 4 | Not Started |
+| [Epic 6](epic-06-patient-database/epic.md) | Patient Database & Profiles | 3 | Not Started |
+| [Epic 7](epic-07-whatsapp-automation/epic.md) | WhatsApp Automation & Reminders | 3 | Not Started |
+| [Epic 8](epic-08-dashboard/epic.md) | Clinic Dashboard | 2 | Not Started |
+| [Epic 9](epic-09-billing/epic.md) | Basic Billing | 2 | Not Started |
+| [Epic 10](epic-10-reports/epic.md) | Reports & Analytics | 3 | Not Started |
+| [Epic 11](epic-11-subscription/epic.md) | Subscription Enforcement & Data Rights | 3 | Not Started |
 
 ---
 
@@ -75,40 +75,67 @@ Master status tracker for all epics and user stories. Update `status` as work pr
 
 ## Epic 5: Appointment Management & Calendar
 
-_Stories to be created — pending Epic 5 story generation._
+| Story | Title | FRs | Status |
+|---|---|---|---|
+| [5.1](epic-05-appointment-management/story-05-01-calendar-view-and-realtime.md) | Calendar View & Real-Time Updates | FR-14 | Not Started |
+| [5.2](epic-05-appointment-management/story-05-02-manual-appointment-creation.md) | Manual Appointment Creation | FR-10, FR-15 | Not Started |
+| [5.3](epic-05-appointment-management/story-05-03-walk-in-registration.md) | Walk-In Registration | FR-11, FR-15 | Not Started |
+| [5.4](epic-05-appointment-management/story-05-04-modification-cancellation-slot-blocking.md) | Appointment Modification, Cancellation & Slot Blocking | FR-12, FR-16 | Not Started |
 
 ---
 
 ## Epic 6: Patient Database & Profiles
 
-_Stories to be created — pending Epic 6 story generation._
+| Story | Title | FRs | Status |
+|---|---|---|---|
+| [6.1](epic-06-patient-database/story-06-01-patient-search-and-directory.md) | Patient Search & Directory | FR-19, FR-20 | Not Started |
+| [6.2](epic-06-patient-database/story-06-02-patient-profile-360-view.md) | Patient Profile & 360° View | FR-17, FR-18 | Not Started |
+| [6.3](epic-06-patient-database/story-06-03-visit-notes-and-record-management.md) | Visit Notes & Record Management | FR-18 | Not Started |
 
 ---
 
 ## Epic 7: WhatsApp Automation & Reminders
 
-_Stories to be created — pending Epic 7 story generation._
+| Story | Title | FRs | Status |
+|---|---|---|---|
+| [7.1](epic-07-whatsapp-automation/story-07-01-appointment-reminders.md) | 24-Hour & 2-Hour Appointment Reminders | FR-22, FR-23, FR-24 | Not Started |
+| [7.2](epic-07-whatsapp-automation/story-07-02-reminder-settings-and-toggle.md) | Reminder Settings & Clinic Toggle | FR-25 | Not Started |
+| [7.3](epic-07-whatsapp-automation/story-07-03-cancellation-via-reminder-and-optout.md) | Cancellation via Reminder & Opt-Out Management | FR-6, FR-24 | Not Started |
 
 ---
 
 ## Epic 8: Clinic Dashboard
 
-_Stories to be created — pending Epic 8 story generation._
+| Story | Title | FRs | Status |
+|---|---|---|---|
+| [8.1](epic-08-dashboard/story-08-01-realtime-summary-and-upcoming-feed.md) | Real-Time Today's Summary & Upcoming Feed | FR-26, FR-27, FR-29 | Not Started |
+| [8.2](epic-08-dashboard/story-08-02-revenue-and-weekly-summary.md) | Revenue Tracking & Weekly Summary | FR-28, FR-30 | Not Started |
 
 ---
 
 ## Epic 9: Basic Billing
 
-_Stories to be created — pending Epic 9 story generation._
+| Story | Title | FRs | Status |
+|---|---|---|---|
+| [9.1](epic-09-billing/story-09-01-fee-recording-and-payment-status.md) | Consultation Fee Recording & Payment Status | FR-31 | Not Started |
+| [9.2](epic-09-billing/story-09-02-default-fee-per-doctor.md) | Default Fee Configuration per Doctor | FR-32 | Not Started |
 
 ---
 
 ## Epic 10: Reports & Analytics
 
-_Stories to be created — pending Epic 10 story generation._
+| Story | Title | FRs | Status |
+|---|---|---|---|
+| [10.1](epic-10-reports/story-10-01-appointment-and-noshow-reports.md) | Appointment & No-Show Reports | FR-38, FR-39, FR-40 | Not Started |
+| [10.2](epic-10-reports/story-10-02-revenue-and-doctor-utilisation.md) | Revenue & Doctor Utilisation Reports | FR-41, FR-42, FR-43 | Not Started |
+| [10.3](epic-10-reports/story-10-03-patient-growth-and-export.md) | Patient Growth & Export | FR-44, FR-45, FR-45b | Not Started |
 
 ---
 
 ## Epic 11: Subscription Enforcement & Data Rights
 
-_Stories to be created — pending Epic 11 story generation._
+| Story | Title | Requirements | Status |
+|---|---|---|---|
+| [11.1](epic-11-subscription/story-11-01-subscription-enforcement-and-soft-paywall.md) | Subscription Plan Enforcement & Soft Paywall | MON-1, MON-2, MON-3, MON-4 | Not Started |
+| [11.2](epic-11-subscription/story-11-02-patient-data-erasure.md) | Patient Data Erasure (DPDP Act) | CR-3 | Not Started |
+| [11.3](epic-11-subscription/story-11-03-data-export-and-super-admin.md) | Data Export & Super Admin Plan Management | CR-13, MON-1 | Not Started |
