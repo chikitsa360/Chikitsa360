@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "packages/config/*"
+
+allowedDeprecatedVersions: {}
+
+onlyBuiltDependencies:
+  - sharp
+  - '@next/swc'

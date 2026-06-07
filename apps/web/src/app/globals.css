@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/*
+  Base layer: maps Tailwind utility classes to CSS variables
+  injected by the branding system via BrandTheme.cssVariables
+*/
+@layer base {
+  * {
+    border-color: rgb(var(--color-border) / <alpha-value>);
+  }
+
+  body {
+    background-color: rgb(var(--color-background) / <alpha-value>);
+    color: rgb(var(--color-foreground) / <alpha-value>);
+  }
+}
+
+@theme inline {
+  --color-primary: rgb(var(--color-primary) / <alpha-value>);
+  --color-primary-foreground: rgb(var(--color-primary-foreground) / <alpha-value>);
+  --color-secondary: rgb(var(--color-secondary) / <alpha-value>);
+  --color-secondary-foreground: rgb(var(--color-secondary-foreground) / <alpha-value>);
+  --color-accent: rgb(var(--color-accent) / <alpha-value>);
+  --color-accent-foreground: rgb(var(--color-accent-foreground) / <alpha-value>);
+  --color-background: rgb(var(--color-background) / <alpha-value>);
+  --color-foreground: rgb(var(--color-foreground) / <alpha-value>);
+  --color-muted: rgb(var(--color-muted) / <alpha-value>);
+  --color-muted-foreground: rgb(var(--color-muted-foreground) / <alpha-value>);
+  --color-border: rgb(var(--color-border) / <alpha-value>);
+  --color-ring: rgb(var(--color-ring) / <alpha-value>);
+  --radius: var(--radius);
+}

@@ -1,0 +1,16 @@
+{
+  "name": "@cliniqly/core",
+  "version": "0.0.1",
+  "private": true,
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cliniqly/typescript-config": "workspace:*",
+    "typescript": "^5.8.3"
+  }
+}
