@@ -10,10 +10,22 @@ CREATE TABLE IF NOT EXISTS appointments (
     status TEXT NOT NULL DEFAULT 'scheduled',
     token_number INTEGER,
     booking_source TEXT NOT NULL DEFAULT 'portal',
+    appointment_date DATE,
+    appointment_time TIME,
+    is_sample BOOLEAN NOT NULL DEFAULT false,
+    whatsapp_delivery_status TEXT,
+    delivery_failures JSONB,
+    cancelled_at TIMESTAMP(3),
+    cancelled_by UUID,
+    updated_by UUID,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT appointments_pkey PRIMARY KEY (id)
 );
+-- Prevent double-booking: unique slot per doctor per date+time (for web/whatsapp bookings)
+CREATE UNIQUE INDEX IF NOT EXISTS appointments_doctor_date_time_key
+    ON appointments(doctor_id, appointment_date, appointment_time)
+    WHERE appointment_time IS NOT NULL AND status != 'cancelled';
 
 -- patients
 CREATE TABLE IF NOT EXISTS patients (
@@ -22,7 +34,11 @@ CREATE TABLE IF NOT EXISTS patients (
     name TEXT NOT NULL,
     dob DATE,
     gender TEXT,
+    age_range TEXT,
     first_visit_reason TEXT,
+    booking_source TEXT NOT NULL DEFAULT 'portal',
+    whatsapp_opt_out_at TIMESTAMP(3),
+    is_placeholder BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT patients_pkey PRIMARY KEY (id)
@@ -55,13 +71,28 @@ CREATE TABLE IF NOT EXISTS slots (
 -- slot_blocks
 CREATE TABLE IF NOT EXISTS slot_blocks (
     id UUID NOT NULL DEFAULT gen_random_uuid(),
-    doctor_id UUID NOT NULL,
-    start_time TIMESTAMP(3) NOT NULL,
-    end_time TIMESTAMP(3) NOT NULL,
+    doctor_id UUID,             -- NULL = all doctors
+    block_date DATE NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
     reason TEXT,
-    recurrence TEXT,
+    recurrence TEXT NOT NULL DEFAULT 'none',  -- 'none' | 'daily' | 'weekly'
+    created_by UUID,
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT slot_blocks_pkey PRIMARY KEY (id)
+);
+
+-- audit_log (per-tenant immutable event log for appointment activity)
+CREATE TABLE IF NOT EXISTS audit_log (
+    id UUID NOT NULL DEFAULT gen_random_uuid(),
+    action TEXT NOT NULL,
+    actor_id UUID NOT NULL,
+    actor_role TEXT NOT NULL,
+    resource_type TEXT NOT NULL DEFAULT 'appointment',
+    resource_id UUID,
+    metadata JSONB,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT audit_log_pkey PRIMARY KEY (id)
 );
 
 -- visit_notes
@@ -104,6 +135,9 @@ CREATE TABLE IF NOT EXISTS working_hours (
     start_time TIME NOT NULL,
     end_time TIME NOT NULL,
     is_active BOOLEAN NOT NULL DEFAULT true,
+    slot_duration INTEGER NOT NULL DEFAULT 20,
+    lunch_start_time TIME,
+    lunch_end_time TIME,
     CONSTRAINT working_hours_pkey PRIMARY KEY (id)
 );
 

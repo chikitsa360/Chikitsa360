@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Profile — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9; --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-text-2: #475569; --c-text-3: #94A3B8;
+    --c-danger: #EF4444; --c-success: #10B981; --c-success-light: #ECFDF5;
+    --c-warning: #F59E0B;
+    --sidebar-w: 240px; --topbar-h: 56px;
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--c-border); }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { margin-left: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .sidebar-nav { padding: 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin-bottom: 2px; font-size: 13.5px; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--c-text-2); }
+  .topbar-breadcrumb .current { color: var(--c-text); font-weight: 600; }
+  .topbar-breadcrumb a { color: var(--c-text-2); text-decoration: none; }
+  .topbar-breadcrumb .sep { color: var(--c-text-3); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 24px; }
+  .detail-layout { display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+
+  /* Profile sidebar card */
+  .profile-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .profile-hero { background: linear-gradient(135deg, var(--c-secondary) 0%, #007A70 100%); padding: 24px; text-align: center; }
+  .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: #fff; margin: 0 auto 12px; border: 3px solid rgba(255,255,255,.4); }
+  .profile-name { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 17px; font-weight: 700; color: #fff; }
+  .profile-spec { font-size: 13px; color: rgba(255,255,255,.8); margin-top: 3px; }
+  .profile-qual { font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; background: rgba(255,255,255,.2); border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: #fff; }
+  .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ADE80; }
+
+  .profile-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-bottom: 1px solid var(--c-border); }
+  .profile-stat { padding: 14px 12px; text-align: center; border-right: 1px solid var(--c-border); }
+  .profile-stat:nth-child(2n) { border-right: none; }
+  .profile-stat:nth-child(3), .profile-stat:nth-child(4) { border-top: 1px solid var(--c-border); }
+  .profile-stat-num { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 20px; font-weight: 700; color: var(--c-text); }
+  .profile-stat-label { font-size: 10px; color: var(--c-text-3); margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; font-weight: 600; }
+
+  .profile-info { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .info-row { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; }
+  .info-row svg { width: 15px; height: 15px; color: var(--c-text-3); flex-shrink: 0; margin-top: 1px; }
+  .info-row-label { font-size: 11px; color: var(--c-text-3); }
+  .info-row-value { font-size: 13px; color: var(--c-text); font-weight: 500; }
+
+  .profile-actions { padding: 12px 16px; border-top: 1px solid var(--c-border); display: flex; flex-direction: column; gap: 8px; }
+  .profile-action-btn { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); cursor: pointer; font-size: 13px; color: var(--c-text-2); }
+  .profile-action-btn:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
+  .profile-action-btn svg { width: 15px; height: 15px; }
+
+  /* Right content */
+  .card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); margin-bottom: 16px; }
+  .card:last-child { margin-bottom: 0; }
+  .card-header { padding: 14px 20px; border-bottom: 1px solid var(--c-border); display: flex; align-items: center; }
+  .card-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 14px; font-weight: 700; flex: 1; }
+  .card-body { padding: 20px; }
+
+  /* Schedule grid */
+  .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+  .schedule-day { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 10px 6px; text-align: center; }
+  .schedule-day.active { border-color: var(--c-secondary); background: var(--c-secondary-light); }
+  .schedule-day.closed { opacity: .5; }
+  .schedule-day-name { font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .schedule-day.active .schedule-day-name { color: var(--c-secondary); }
+  .schedule-day-time { font-size: 11px; color: var(--c-text-2); line-height: 1.4; }
+  .schedule-day-time strong { display: block; font-size: 12px; font-weight: 700; color: var(--c-text); }
+  .schedule-day-closed { font-size: 11px; color: var(--c-text-3); }
+
+  /* Performance chart bar */
+  .perf-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .perf-label { font-size: 12.5px; color: var(--c-text-2); width: 80px; flex-shrink: 0; }
+  .perf-bar-wrap { flex: 1; height: 8px; background: var(--c-border); border-radius: 4px; overflow: hidden; }
+  .perf-bar-fill { height: 100%; border-radius: 4px; background: var(--c-secondary); }
+  .perf-value { font-size: 12.5px; font-weight: 700; color: var(--c-text); width: 40px; text-align: right; }
+
+  /* Patient table */
+  .inner-table { width: 100%; border-collapse: collapse; }
+  .inner-table th { padding: 9px 14px; font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; text-align: left; background: var(--c-bg); border-bottom: 1px solid var(--c-border); }
+  .inner-table td { padding: 11px 14px; font-size: 13px; border-bottom: 1px solid var(--c-border); vertical-align: middle; }
+  .inner-table tr:last-child td { border-bottom: none; }
+  .inner-table tr:hover td { background: #FAFBFF; cursor: pointer; }
+  .patient-cell { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+  .badge-completed { background: var(--c-success-light); color: var(--c-success); }
+  .badge-scheduled { background: var(--c-primary-light); color: var(--c-primary); }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+  /* Toggle switch */
+  .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: var(--c-border); border-radius: 22px; transition: .2s; }
+  .toggle-slider:before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.15); }
+  .toggle input:checked + .toggle-slider { background: var(--c-primary); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(18px); }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="logo-mark">C</div><span class="logo-text">Chikitsa360</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/></svg>Doctors</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer"><div class="user-row"><div class="avatar-sm">SR</div><div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div></div></div>
+</aside>
+<header class="topbar">
+  <div class="topbar-breadcrumb">
+    <a href="#">Doctors</a>
+    <span class="sep">›</span>
+    <span class="current">Dr. Arjun Mehta</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-ghost">Edit Profile</button>
+    <button class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Appointment
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:13px;">SR</div>
+  </div>
+</header>
+<main class="main">
+  <div class="detail-layout">
+    <!-- Left profile card -->
+    <div>
+      <div class="profile-card">
+        <div class="profile-hero">
+          <div class="profile-avatar">AM</div>
+          <div class="profile-name">Dr. Arjun Mehta</div>
+          <div class="profile-spec">General Physician</div>
+          <div class="profile-qual">MBBS, MD · 12 yrs experience</div>
+          <div class="status-pill"><div class="status-dot"></div> On Duty · In Consultation</div>
+        </div>
+        <div class="profile-stats">
+          <div class="profile-stat"><div class="profile-stat-num">8</div><div class="profile-stat-label">Today</div></div>
+          <div class="profile-stat"><div class="profile-stat-num">42</div><div class="profile-stat-label">This Month</div></div>
+          <div class="profile-stat"><div class="profile-stat-num">1,204</div><div class="profile-stat-label">All Time</div></div>
+          <div class="profile-stat"><div class="profile-stat-num" style="color:var(--c-success);">96%</div><div class="profile-stat-label">Attendance</div></div>
+        </div>
+        <div class="profile-info">
+          <div class="info-row">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 15.4a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.82 4.7h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 12a16 16 0 0 0 5.91 5.91l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 20c.037.397.037.797 0 1.19"/></svg>
+            <div><div class="info-row-label">Contact</div><div class="info-row-value">+91 98000 12345</div></div>
+          </div>
+          <div class="info-row">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <div><div class="info-row-label">Email</div><div class="info-row-value">arjun.mehta@clinic.com</div></div>
+          </div>
+          <div class="info-row">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <div><div class="info-row-label">Joined</div><div class="info-row-value">12 March 2022</div></div>
+          </div>
+          <div class="info-row">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <div><div class="info-row-label">Reg. Number</div><div class="info-row-value">MH-MCI-12345</div></div>
+          </div>
+          <div class="info-row">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+            <div><div class="info-row-label">Employment</div><div class="info-row-value">Full-time</div></div>
+          </div>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--c-border);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13px;color:var(--c-text-2);">Accepting appointments</span>
+          <label class="toggle"><input type="checkbox" checked /><span class="toggle-slider"></span></label>
+        </div>
+        <div class="profile-actions">
+          <div class="profile-action-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            View Schedule
+          </div>
+          <div class="profile-action-btn">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>
+            Performance Report
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right content -->
+    <div>
+      <!-- Weekly schedule -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Weekly Schedule</span><span style="font-size:12px;color:var(--c-text-3);margin-left:auto;">Jun 2025</span></div>
+        <div class="card-body">
+          <div class="schedule-grid">
+            <div class="schedule-day active">
+              <div class="schedule-day-name">Mon</div>
+              <div class="schedule-day-time"><strong>9–1 PM</strong>2–5 PM</div>
+            </div>
+            <div class="schedule-day active">
+              <div class="schedule-day-name">Tue</div>
+              <div class="schedule-day-time"><strong>9–1 PM</strong>2–5 PM</div>
+            </div>
+            <div class="schedule-day active">
+              <div class="schedule-day-name">Wed</div>
+              <div class="schedule-day-time"><strong>9–1 PM</strong>2–5 PM</div>
+            </div>
+            <div class="schedule-day active">
+              <div class="schedule-day-name">Thu</div>
+              <div class="schedule-day-time"><strong>9–1 PM</strong>2–5 PM</div>
+            </div>
+            <div class="schedule-day active">
+              <div class="schedule-day-name">Fri</div>
+              <div class="schedule-day-time"><strong>9–1 PM</strong>2–5 PM</div>
+            </div>
+            <div class="schedule-day active">
+              <div class="schedule-day-name">Sat</div>
+              <div class="schedule-day-time"><strong>9–1 PM</strong></div>
+            </div>
+            <div class="schedule-day closed">
+              <div class="schedule-day-name">Sun</div>
+              <div class="schedule-day-closed">Closed</div>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--c-border);display:flex;align-items:center;gap:16px;font-size:12.5px;color:var(--c-text-2);">
+            <div>Slot duration: <strong style="color:var(--c-text);">30 min</strong></div>
+            <div>Max per day: <strong style="color:var(--c-text);">16 slots</strong></div>
+            <div>Break: <strong style="color:var(--c-text);">1–2 PM</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Performance — June 2025</span></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">Appointment Metrics</div>
+              <div class="perf-row"><span class="perf-label">Completed</span><div class="perf-bar-wrap"><div class="perf-bar-fill" style="width:85%;"></div></div><span class="perf-value">36/42</span></div>
+              <div class="perf-row"><span class="perf-label">No-shows</span><div class="perf-bar-wrap"><div class="perf-bar-fill" style="width:10%;background:var(--c-warning);"></div></div><span class="perf-value">4</span></div>
+              <div class="perf-row"><span class="perf-label">Cancelled</span><div class="perf-bar-wrap"><div class="perf-bar-fill" style="width:5%;background:var(--c-danger);"></div></div><span class="perf-value">2</span></div>
+              <div class="perf-row"><span class="perf-label">On time</span><div class="perf-bar-wrap"><div class="perf-bar-fill" style="width:91%;"></div></div><span class="perf-value">91%</span></div>
+            </div>
+            <div>
+              <div style="font-size:11px;font-weight:700;color:var(--c-text-3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">Revenue Contribution</div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div>
+                  <div style="font-size:12px;color:var(--c-text-3);">Revenue Generated</div>
+                  <div style="font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-size:22px;font-weight:700;color:var(--c-text);">₹58,400</div>
+                  <div style="font-size:12px;color:var(--c-success);">47% of clinic total</div>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:var(--c-text-3);">Avg per consultation</div>
+                  <div style="font-size:16px;font-weight:700;color:var(--c-text);">₹1,390</div>
+                </div>
+                <div>
+                  <div style="font-size:12px;color:var(--c-text-3);">Return patient rate</div>
+                  <div style="font-size:16px;font-weight:700;color:var(--c-success);">74%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent patients -->
+      <div class="card">
+        <div class="card-header"><span class="card-title">Recent Patients</span><span style="font-size:12px;color:var(--c-text-3);margin-left:auto;">Last 7 days</span></div>
+        <table class="inner-table">
+          <thead>
+            <tr><th>Patient</th><th>Date & Time</th><th>Reason</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="patient-cell"><div class="avatar" style="background:#FDE8FF;color:#9333EA;">AN</div><div><div style="font-weight:600;">Anjali Nair</div><div style="font-size:11px;color:var(--c-text-3);">F · 32</div></div></div></td>
+              <td style="color:var(--c-text-2);">14 Jun · 10:30 AM</td>
+              <td style="color:var(--c-text-2);">BP Follow-up</td>
+              <td><span class="badge badge-scheduled"><span class="badge-dot"></span>Upcoming</span></td>
+            </tr>
+            <tr>
+              <td><div class="patient-cell"><div class="avatar" style="background:var(--c-primary-light);color:var(--c-primary);">RK</div><div><div style="font-weight:600;">Ramesh Kumar</div><div style="font-size:11px;color:var(--c-text-3);">M · 48</div></div></div></td>
+              <td style="color:var(--c-text-2);">14 Jun · 9:00 AM</td>
+              <td style="color:var(--c-text-2);">Diabetes Check</td>
+              <td><span class="badge badge-completed"><span class="badge-dot"></span>Completed</span></td>
+            </tr>
+            <tr>
+              <td><div class="patient-cell"><div class="avatar" style="background:#FEF3C7;color:#92400E;">VJ</div><div><div style="font-weight:600;">Vijay Joshi</div><div style="font-size:11px;color:var(--c-text-3);">M · 55</div></div></div></td>
+              <td style="color:var(--c-text-2);">12 Jun · 11:00 AM</td>
+              <td style="color:var(--c-text-2);">Cardio Consult</td>
+              <td><span class="badge badge-completed"><span class="badge-dot"></span>Completed</span></td>
+            </tr>
+            <tr>
+              <td><div class="patient-cell"><div class="avatar" style="background:var(--c-secondary-light);color:var(--c-secondary);">KN</div><div><div style="font-weight:600;">Kavita Nambiar</div><div style="font-size:11px;color:var(--c-text-3);">F · 52</div></div></div></td>
+              <td style="color:var(--c-text-2);">10 Jun · 9:30 AM</td>
+              <td style="color:var(--c-text-2);">Thyroid Follow-up</td>
+              <td><span class="badge badge-completed"><span class="badge-dot"></span>Completed</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--c-border);text-align:center;">
+          <a href="#" style="font-size:12.5px;color:var(--c-primary);text-decoration:none;font-weight:600;">View All 42 Appointments →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

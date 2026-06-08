@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9; --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-text-2: #475569; --c-text-3: #94A3B8;
+    --c-success: #10B981; --c-success-light: #ECFDF5;
+    --c-danger: #EF4444;
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* Top nav */
+  .onboard-topnav { height: 56px; background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 32px; }
+  .logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .logo-mark { width: 30px; height: 30px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 16px; color: var(--c-text); }
+  .onboard-topnav-right { margin-left: auto; display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--c-text-3); }
+
+  /* Progress stepper */
+  .stepper-wrap { background: var(--c-card); border-bottom: 1px solid var(--c-border); padding: 16px 32px; }
+  .stepper { display: flex; align-items: center; gap: 0; max-width: 700px; margin: 0 auto; }
+  .step { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+  .step-connector { flex: 1; height: 2px; background: var(--c-border); margin-top: -14px; }
+  .step-connector.done { background: var(--c-primary); }
+  .step-circle { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; border: 2px solid var(--c-border); background: var(--c-card); color: var(--c-text-3); flex-shrink: 0; z-index: 1; }
+  .step-circle.done { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+  .step-circle.active { background: var(--c-card); border-color: var(--c-primary); color: var(--c-primary); }
+  .step-circle.done-check { background: var(--c-success); border-color: var(--c-success); color: #fff; }
+  .step-label { font-size: 11.5px; font-weight: 600; margin-top: 6px; color: var(--c-text-3); white-space: nowrap; }
+  .step-label.active { color: var(--c-primary); }
+  .step-label.done { color: var(--c-text-2); }
+
+  /* Main content */
+  .onboard-main { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 40px 24px; }
+  .onboard-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-xl); width: 100%; max-width: 680px; overflow: hidden; }
+
+  /* Card header with illustration area */
+  .onboard-card-hero { background: linear-gradient(135deg, var(--c-primary) 0%, #1E40AF 100%); padding: 28px 32px; color: #fff; }
+  .hero-step-label { font-size: 12px; font-weight: 600; opacity: .7; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+  .hero-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .hero-desc { font-size: 13.5px; opacity: .8; line-height: 1.55; }
+
+  .onboard-card-body { padding: 28px 32px; }
+
+  /* Form elements */
+  .form-section { margin-bottom: 24px; }
+  .form-section:last-child { margin-bottom: 0; }
+  .form-section-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--c-text-2); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .form-section-title::before { content: ''; flex: 0 0 3px; height: 14px; background: var(--c-primary); border-radius: 2px; display: block; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--c-text-2); }
+  .form-label .req { color: var(--c-danger); margin-left: 2px; }
+  .form-input { height: 38px; padding: 0 12px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13.5px; color: var(--c-text); background: var(--c-card); outline: none; width: 100%; }
+  .form-input:focus { border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(10,110,255,.1); }
+  .form-input.filled { border-color: var(--c-border); }
+  .form-select { height: 38px; padding: 0 28px 0 12px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13.5px; color: var(--c-text); background: var(--c-card); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; width: 100%; }
+  .form-full { grid-column: 1 / -1; }
+  .form-hint { font-size: 11.5px; color: var(--c-text-3); margin-top: 2px; line-height: 1.4; }
+
+  /* Phone input */
+  .phone-wrap { display: flex; }
+  .phone-prefix { height: 38px; padding: 0 10px; border: 1px solid var(--c-border); border-right: none; border-radius: var(--radius-md) 0 0 var(--radius-md); background: var(--c-bg); font-size: 13px; color: var(--c-text-2); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+  .phone-wrap .form-input { border-radius: 0 var(--radius-md) var(--radius-md) 0; }
+
+  /* Day/time selector grid */
+  .day-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .day-chip { padding: 6px 4px; text-align: center; border: 1px solid var(--c-border); border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--c-text-2); cursor: pointer; }
+  .day-chip.selected { background: var(--c-primary); border-color: var(--c-primary); color: #fff; }
+  .day-chip.closed { background: var(--c-bg); color: var(--c-text-3); }
+  .time-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; margin-top: 10px; }
+  .time-sep { font-size: 13px; color: var(--c-text-3); }
+
+  /* WhatsApp verify block */
+  .wa-verify-block { background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 16px; }
+  .wa-verify-steps { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+  .wa-step { display: flex; align-items: flex-start; gap: 10px; }
+  .wa-step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--c-primary); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .wa-step-text { font-size: 13px; color: var(--c-text-2); line-height: 1.5; flex: 1; }
+  .wa-step-text strong { color: var(--c-text); }
+  .wa-status-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--c-border); }
+  .wa-verified-badge { background: var(--c-success-light); color: var(--c-success); border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+  /* Cards with info for review step */
+  .review-section { margin-bottom: 16px; }
+  .review-label { font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 8px; }
+  .review-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .review-item { }
+  .review-item-label { font-size: 11.5px; color: var(--c-text-3); }
+  .review-item-value { font-size: 13.5px; font-weight: 600; color: var(--c-text); margin-top: 2px; }
+  .edit-link { font-size: 12px; color: var(--c-primary); cursor: pointer; text-decoration: none; margin-left: auto; }
+
+  /* Footer nav */
+  .onboard-footer { padding: 20px 32px; border-top: 1px solid var(--c-border); display: flex; align-items: center; gap: 10px; background: var(--c-card); }
+  .progress-dots { display: flex; gap: 6px; flex: 1; }
+  .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-border); }
+  .progress-dot.active { background: var(--c-primary); }
+  .progress-dot.done { background: var(--c-primary); opacity: .4; }
+  .btn { height: 40px; padding: 0 24px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-ghost { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+  .btn-ghost:hover { background: var(--c-bg); }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-primary:hover { background: #0058CC; }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--c-border); margin: 20px 0; }
+</style>
+</head>
+<body>
+
+<!-- Top nav -->
+<div class="onboard-topnav">
+  <div class="logo-wrap">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Chikitsa360</span>
+  </div>
+  <div class="onboard-topnav-right">
+    <span>Need help?</span>
+    <a href="#" style="color:var(--c-primary);text-decoration:none;font-weight:600;">Chat with us</a>
+  </div>
+</div>
+
+<!-- Progress stepper -->
+<div class="stepper-wrap">
+  <div class="stepper">
+    <div class="step">
+      <div class="step-circle done-check">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="step-label done">Account</div>
+    </div>
+    <div class="step-connector done"></div>
+    <div class="step">
+      <div class="step-circle done-check">
+        <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="step-label done">Clinic Info</div>
+    </div>
+    <div class="step-connector done"></div>
+    <div class="step">
+      <div class="step-circle active">3</div>
+      <div class="step-label active">WhatsApp</div>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step">
+      <div class="step-circle">4</div>
+      <div class="step-label">Go Live</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main onboarding card -->
+<div class="onboard-main">
+  <div class="onboard-card">
+    <!-- Hero -->
+    <div class="onboard-card-hero">
+      <div class="hero-step-label">Step 3 of 4</div>
+      <div class="hero-title">Connect Your WhatsApp Number</div>
+      <div class="hero-desc">Chikitsa360 uses WhatsApp to send booking confirmations, reminders, and patient communications — directly from your clinic's number via Meta Cloud API.</div>
+    </div>
+
+    <div class="onboard-card-body">
+      <!-- WhatsApp number input -->
+      <div class="form-section">
+        <div class="form-section-title">WhatsApp Business Number</div>
+        <div class="form-group">
+          <label class="form-label">Phone Number <span class="req">*</span></label>
+          <div class="phone-wrap">
+            <div class="phone-prefix">🇮🇳 +91</div>
+            <input class="form-input filled" type="text" value="98765 00001" style="border-radius:0 var(--radius-md) var(--radius-md) 0;" />
+          </div>
+          <div class="form-hint">This must be an active WhatsApp Business number. It will be registered with Meta for your clinic.</div>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="form-group">
+            <label class="form-label">Display Name (on WhatsApp)</label>
+            <input class="form-input filled" type="text" value="Rao Medical Clinic" />
+            <div class="form-hint">Shown to patients when they receive messages from you. Keep it professional.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Verification steps -->
+      <div class="form-section">
+        <div class="form-section-title">Verification Status</div>
+        <div class="wa-verify-block">
+          <div style="font-size:13px;color:var(--c-text-2);line-height:1.6;">
+            We'll register your number with Meta's WhatsApp Business API. The steps below happen automatically — just confirm when prompted on your phone.
+          </div>
+          <div class="wa-verify-steps">
+            <div class="wa-step">
+              <div class="wa-step-num" style="background:var(--c-success);">
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="wa-step-text"><strong>Meta Business Manager verified</strong> — Your business account is verified with Meta.</div>
+            </div>
+            <div class="wa-step">
+              <div class="wa-step-num" style="background:var(--c-success);">
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="wa-step-text"><strong>Phone number registered</strong> — +91 98765 00001 added to your WABA account.</div>
+            </div>
+            <div class="wa-step">
+              <div class="wa-step-num">3</div>
+              <div class="wa-step-text"><strong>OTP Verification</strong> — Enter the 6-digit code sent to <strong>+91 98765 00001</strong> via SMS.</div>
+            </div>
+          </div>
+
+          <!-- OTP input -->
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--c-border);">
+            <div class="form-label" style="margin-bottom:8px;">Enter OTP</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input style="width:44px;height:44px;text-align:center;font-size:18px;font-weight:700;border:2px solid var(--c-primary);border-radius:var(--radius-md);outline:none;" value="4" />
+              <input style="width:44px;height:44px;text-align:center;font-size:18px;font-weight:700;border:2px solid var(--c-primary);border-radius:var(--radius-md);outline:none;" value="8" />
+              <input style="width:44px;height:44px;text-align:center;font-size:18px;font-weight:700;border:2px solid var(--c-primary);border-radius:var(--radius-md);outline:none;" value="3" />
+              <input style="width:44px;height:44px;text-align:center;font-size:18px;font-weight:700;border:1px solid var(--c-border);border-radius:var(--radius-md);outline:none;" placeholder="—" />
+              <input style="width:44px;height:44px;text-align:center;font-size:18px;font-weight:700;border:1px solid var(--c-border);border-radius:var(--radius-md);outline:none;" placeholder="—" />
+              <input style="width:44px;height:44px;text-align:center;font-size:18px;font-weight:700;border:1px solid var(--c-border);border-radius:var(--radius-md);outline:none;" placeholder="—" />
+              <button style="margin-left:8px;padding:8px 14px;border-radius:var(--radius-md);border:none;background:var(--c-primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Verify</button>
+            </div>
+            <div style="font-size:12px;color:var(--c-text-3);margin-top:8px;">Didn't receive? <a href="#" style="color:var(--c-primary);text-decoration:none;font-weight:600;">Resend OTP</a> (59s)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Message templates -->
+      <div class="form-section">
+        <div class="form-section-title">Pre-Approved Message Templates</div>
+        <div style="font-size:13px;color:var(--c-text-2);margin-bottom:12px;line-height:1.6;">The following WhatsApp templates will be submitted to Meta for approval. They are pre-configured and typically approved within 24 hours.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;gap:10px;">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--c-success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--c-text);">booking_confirmation</div>
+              <div style="font-size:12px;color:var(--c-text-3);margin-top:1px;">"Your appointment with {{doctor_name}} is confirmed for {{date}} at {{time}}."</div>
+            </div>
+            <span style="margin-left:auto;font-size:11px;background:var(--c-success-light);color:var(--c-success);padding:2px 8px;border-radius:10px;font-weight:600;">Approved</span>
+          </div>
+          <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;gap:10px;">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--c-success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--c-text);">appointment_reminder_24h</div>
+              <div style="font-size:12px;color:var(--c-text-3);margin-top:1px;">"Reminder: Your appointment tomorrow at {{time}} with {{doctor_name}}. Reply CANCEL to cancel."</div>
+            </div>
+            <span style="margin-left:auto;font-size:11px;background:var(--c-success-light);color:var(--c-success);padding:2px 8px;border-radius:10px;font-weight:600;">Approved</span>
+          </div>
+          <div style="background:var(--c-bg);border:1px solid var(--c-border);border-radius:var(--radius-md);padding:12px 14px;display:flex;align-items:center;gap:10px;">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--c-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--c-text);">appointment_reminder_2h</div>
+              <div style="font-size:12px;color:var(--c-text-3);margin-top:1px;">"Your appointment is in 2 hours at {{time}}. See you soon at {{clinic_name}}!"</div>
+            </div>
+            <span style="margin-left:auto;font-size:11px;background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:10px;font-weight:600;">Pending</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="onboard-footer">
+      <div class="progress-dots">
+        <div class="progress-dot done"></div>
+        <div class="progress-dot done"></div>
+        <div class="progress-dot active"></div>
+        <div class="progress-dot"></div>
+      </div>
+      <button class="btn btn-ghost">Back</button>
+      <button class="btn btn-primary">
+        Continue to Go Live
+        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 4 preview (collapsed hint at bottom) -->
+<div style="text-align:center;padding:12px;font-size:12.5px;color:var(--c-text-3);">
+  Next: <strong style="color:var(--c-text-2);">Go Live</strong> — Review your setup and launch your clinic on Chikitsa360
+</div>
+
+</body>
+</html>

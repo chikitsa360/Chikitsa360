@@ -2,7 +2,8 @@
 story: 5.2
 epic: 5
 title: Manual Appointment Creation
-status: Not Started
+status: review
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 created: 2026-06-07
 requirements:
   functional: [FR-10, FR-15]
@@ -152,3 +153,27 @@ apps/web/
 | Playwright (E2E) | Open panel → enter phone → select doctor → select slot → confirm → token shown in toast | Core path |
 | Playwright | Existing patient: phone entry → name auto-fills + visit history shown | Core path |
 | Playwright | Race condition: submit → "slot just taken" → grid refreshes | Core path |
+
+## Dev Agent Record
+
+### Completion Notes
+
+- `POST /api/v1/appointments` route handles `bookingSource: 'manual'`; validates doctor belongs to clinic; patient de-duplication by phone (FR-20); token = MAX(today)+1; 409 SLOT_TAKEN on unique constraint violation
+- `GET /api/v1/patients/by-phone` returns existing patient with last 5 visits or null for unknown number
+- `GET /api/v1/slots/available` extended to accept `clinicId` directly (portal use) in addition to `slug` (public)
+- `NewAppointmentPanel.tsx`: 420px right-side panel, Escape to close, integrates PatientLookup + doctor select + SlotGrid
+- `PatientLookup.tsx`: 300ms debounce, auto-lookup on 10 digits, existing patient name read-only + visit history strip, new patient editable; Unicode/Devanagari-safe name validation via `/\p{L}/u`
+- Integration tests: POST new patient, existing patient de-dup (FR-20), walk-in booking_source, 409 SLOT_TAKEN, 404 doctor not found, 400 validation (16 tests in appointments.test.ts)
+
+## File List
+
+- apps/web/src/app/api/v1/appointments/route.ts (new — shared with 5.1)
+- apps/web/src/app/api/v1/patients/by-phone/route.ts (new)
+- apps/web/src/app/api/v1/slots/available/route.ts (modified — added clinicId param)
+- apps/web/src/components/appointments/NewAppointmentPanel.tsx (new)
+- apps/web/src/components/appointments/PatientLookup.tsx (new)
+- apps/web/src/app/api/v1/appointments/__tests__/appointments.test.ts (new)
+
+## Change Log
+
+- 2026-06-08: Implemented Story 5.2 — Manual Appointment Creation. POST /api/v1/appointments, GET /api/v1/patients/by-phone, NewAppointmentPanel, PatientLookup with Unicode name validation. FR-20 de-duplication, 409 race condition handling.

@@ -21,6 +21,7 @@
     "@chikitsa360/core": "workspace:*",
     "@chikitsa360/ui": "workspace:*",
     "@prisma/client": "^5.22.0",
+    "@types/qrcode": "^1.5.6",
     "@upstash/ratelimit": "^2.0.5",
     "@upstash/redis": "^1.34.3",
     "inngest": "^3.30.0",
@@ -29,6 +30,7 @@
     "next-intl": "^3.26.5",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0",
+    "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "zod": "^3.25.76"

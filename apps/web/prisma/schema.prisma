@@ -21,6 +21,11 @@ enum ClinicPlan {
   PRO
 }
 
+enum ClinicLanguage {
+  en
+  hi
+}
+
 enum InviteStatus {
   PENDING
   ACCEPTED
@@ -34,7 +39,27 @@ model Clinic {
   plan          ClinicPlan  @default(STARTER)
   trialEndsAt   DateTime?   @map("trial_ends_at")
   onboardingComplete Boolean @default(false) @map("onboarding_complete")
+  onboardingStep    Int      @default(1) @map("onboarding_step")
   createdAt     DateTime    @default(now()) @map("created_at")
+
+  // Clinic profile fields
+  address         String?
+  city            String?
+  speciality      String?
+  clinicPhone     String?   @map("clinic_phone")
+
+  // Legal acceptance timestamps (UTC)
+  tosAcceptedAt     DateTime? @map("tos_accepted_at")
+  privacyAcceptedAt DateTime? @map("privacy_accepted_at")
+  dpaAcceptedAt     DateTime? @map("dpa_accepted_at")
+
+  // Language / locale
+  language  ClinicLanguage @default(en)
+
+  // WhatsApp Business
+  whatsappWabaId          String?  @map("whatsapp_waba_id")
+  whatsappPhoneNumberId   String?  @map("whatsapp_phone_number_id")
+  whatsappConnected       Boolean  @default(false) @map("whatsapp_connected")
 
   users         User[]
   staffInvites  StaffInvite[]

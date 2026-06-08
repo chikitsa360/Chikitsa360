@@ -2,8 +2,9 @@
 story: 3.4
 epic: 3
 title: Booking Confirmation Message & SMS Fallback
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 requirements:
   functional: [FR-5, FR-21]
   nfr: [NFR-1, NFR-13]

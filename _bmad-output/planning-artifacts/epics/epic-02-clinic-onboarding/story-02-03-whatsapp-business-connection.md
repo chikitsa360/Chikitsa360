@@ -2,8 +2,9 @@
 story: 2.3
 epic: 2
 title: WhatsApp Business Number Connection
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b3
 requirements:
   functional: [FR-36]
   compliance: [CR-9, CR-10]

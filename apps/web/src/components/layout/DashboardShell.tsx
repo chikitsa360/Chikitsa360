@@ -11,6 +11,7 @@ interface DashboardShellProps {
   clinicName?: string
   userName?: string
   userRole?: string
+  whatsAppBanner?: React.ReactNode
 }
 
 export function DashboardShell({
@@ -18,6 +19,7 @@ export function DashboardShell({
   clinicName,
   userName,
   userRole,
+  whatsAppBanner,
 }: DashboardShellProps) {
   return (
     <div className="flex h-screen overflow-hidden">
@@ -28,6 +30,8 @@ export function DashboardShell({
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top header */}
         <Header userName={userName} userRole={userRole} />
+        {/* WhatsApp pending banner */}
+        {whatsAppBanner}
 
         {/* Page content */}
         <main

@@ -2,7 +2,8 @@
 story: 5.3
 epic: 5
 title: Walk-In Registration
-status: Not Started
+status: review
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 created: 2026-06-07
 requirements:
   functional: [FR-11, FR-15]
@@ -156,3 +157,29 @@ apps/web/
 | Playwright (E2E) | Walk-in flow: phone → name → next available → confirm → token success screen | Core path |
 | Playwright | Overflow: fully booked → warning banner appears → "Override Anyway" → token shown with overflow note | Core path |
 | Playwright | Mobile (375px): token number visible; all touch targets ≥ 44px | Mobile UJ |
+
+## Dev Agent Record
+
+### Completion Notes
+
+- `GET /api/v1/slots/next-available?doctorId=&fromTime=HH:mm`: uses computeAvailableSlots() for today, filters to slots >= fromTime, returns `{ slot, fullyBooked, totalAvailable }`
+- `WalkInPanel.tsx`: 2-step shell (`step: 1 | 2 | 'success'`), step indicator "1 Patient › 2 Slot"
+- `WalkInPatientStep.tsx`: phone + PatientLookup + "Next →" with name validation
+- `WalkInSlotStep.tsx`: doctor selector + "Assign Next Available Slot" (52px brand-primary) + SlotGrid; calls next-available API; shows OverflowWarningBanner when fullyBooked
+- `WalkInSuccessScreen.tsx`: full-panel overlay, token #N at 72px bold brand-primary, aria-live="assertive", "Register Another Walk-In" + "Done" buttons
+- `OverflowWarningBanner.tsx`: amber bg-amber-50 border-l-4 border-amber-400, "Override Anyway" (amber-filled) + "Cancel" (ghost)
+- Walk-in sets `bookingSource: 'walk-in'`; overflow sets `bookingSource: 'walk-in-overflow'`
+- All touch targets ≥ 44px (NFR-16)
+
+## File List
+
+- apps/web/src/app/api/v1/slots/next-available/route.ts (new)
+- apps/web/src/components/appointments/WalkInPanel.tsx (new)
+- apps/web/src/components/appointments/WalkInPatientStep.tsx (new)
+- apps/web/src/components/appointments/WalkInSlotStep.tsx (new)
+- apps/web/src/components/appointments/WalkInSuccessScreen.tsx (new)
+- apps/web/src/components/appointments/OverflowWarningBanner.tsx (new)
+
+## Change Log
+
+- 2026-06-08: Implemented Story 5.3 — Walk-In Registration. Next-available slot API, 2-step WalkIn panel, overflow warning banner, token success screen with 72px token display, aria-live announcement.

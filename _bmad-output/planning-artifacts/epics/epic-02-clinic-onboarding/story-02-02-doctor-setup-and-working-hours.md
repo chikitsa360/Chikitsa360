@@ -2,8 +2,9 @@
 story: 2.2
 epic: 2
 title: Doctor Setup & Working Hours Configuration
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b3
 requirements:
   functional: [FR-13, FR-36]
   monetisation: [MON-2]

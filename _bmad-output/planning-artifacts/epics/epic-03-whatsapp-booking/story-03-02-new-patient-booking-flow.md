@@ -2,8 +2,9 @@
 story: 3.2
 epic: 3
 title: New Patient WhatsApp Booking Flow
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 requirements:
   functional: [FR-1, FR-2, FR-3, FR-4, FR-5]
   compliance: [CR-1, CR-2]

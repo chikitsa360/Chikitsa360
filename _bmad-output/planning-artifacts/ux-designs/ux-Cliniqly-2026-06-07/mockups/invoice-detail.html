@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice Detail — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: #EBF2FF;
+    --c-secondary: #00B8A9; --c-secondary-light: #E6F8F7;
+    --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-text-2: #475569; --c-text-3: #94A3B8;
+    --c-danger: #EF4444; --c-success: #10B981; --c-success-light: #ECFDF5;
+    --c-warning: #F59E0B; --c-warning-light: #FFFBEB;
+    --sidebar-w: 240px; --topbar-h: 56px;
+    --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--c-border); }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { margin-left: 10px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 15px; }
+  .sidebar-nav { padding: 12px; flex: 1; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin-bottom: 2px; font-size: 13.5px; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--c-text-2); }
+  .topbar-breadcrumb .current { color: var(--c-text); font-weight: 600; }
+  .topbar-breadcrumb a { color: var(--c-text-2); text-decoration: none; }
+  .topbar-breadcrumb .sep { color: var(--c-text-3); }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--c-text-2); border: 1px solid var(--c-border); }
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 24px; }
+  .detail-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; }
+
+  /* Invoice paper */
+  .invoice-paper { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .invoice-header { padding: 28px 32px 20px; border-bottom: 2px solid var(--c-primary); }
+  .invoice-header-row { display: flex; align-items: flex-start; justify-content: space-between; }
+  .clinic-name { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 20px; font-weight: 700; color: var(--c-primary); }
+  .clinic-addr { font-size: 12.5px; color: var(--c-text-3); line-height: 1.6; margin-top: 4px; }
+  .invoice-title-block { text-align: right; }
+  .invoice-word { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 24px; font-weight: 800; color: var(--c-text-3); letter-spacing: .05em; text-transform: uppercase; }
+  .invoice-num { font-size: 13px; font-weight: 700; color: var(--c-text); margin-top: 4px; }
+  .invoice-date { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+  .badge-paid { background: var(--c-success-light); color: var(--c-success); }
+  .badge-partial { background: var(--c-warning-light); color: #92400E; }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+  .invoice-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; padding: 20px 32px; border-bottom: 1px solid var(--c-border); }
+  .meta-label { font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+  .meta-value { font-size: 13.5px; color: var(--c-text); font-weight: 600; }
+  .meta-sub { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+
+  /* Line items table */
+  .line-items { padding: 0; }
+  .line-table { width: 100%; border-collapse: collapse; }
+  .line-table th { padding: 10px 16px; font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; text-align: left; background: var(--c-bg); border-bottom: 1px solid var(--c-border); }
+  .line-table th:last-child, .line-table td:last-child { text-align: right; }
+  .line-table td { padding: 13px 16px; font-size: 13.5px; border-bottom: 1px solid var(--c-border); vertical-align: middle; }
+  .line-table tr:last-child td { border-bottom: none; }
+  .item-name { font-weight: 600; color: var(--c-text); }
+  .item-desc { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+  .amount-cell { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; color: var(--c-text); }
+
+  /* Totals block */
+  .totals-block { padding: 16px 32px; border-top: 1px solid var(--c-border); }
+  .totals-row { display: flex; justify-content: flex-end; }
+  .totals-table { width: 260px; }
+  .total-line { display: flex; justify-content: space-between; font-size: 13.5px; padding: 5px 0; }
+  .total-line .tl-label { color: var(--c-text-2); }
+  .total-line .tl-value { font-weight: 600; color: var(--c-text); }
+  .total-divider { height: 1px; background: var(--c-border); margin: 6px 0; }
+  .total-final { display: flex; justify-content: space-between; font-size: 16px; font-weight: 800; padding: 6px 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .total-final .tl-value { color: var(--c-primary); }
+  .total-due { display: flex; justify-content: space-between; font-size: 13.5px; padding: 5px 0; background: var(--c-warning-light); border-radius: var(--radius-sm); padding: 8px 10px; margin-top: 6px; }
+  .total-due .tl-label { color: #92400E; font-weight: 600; }
+  .total-due .tl-value { color: #92400E; font-weight: 800; }
+
+  /* Payment history */
+  .payment-history { padding: 16px 32px; border-top: 1px solid var(--c-border); }
+  .ph-title { font-size: 11px; font-weight: 700; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 10px; }
+  .payment-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--c-border); font-size: 13px; }
+  .payment-row:last-child { border-bottom: none; }
+  .payment-icon { width: 30px; height: 30px; border-radius: 50%; background: var(--c-success-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .payment-meta { flex: 1; }
+  .payment-method { font-weight: 600; color: var(--c-text); }
+  .payment-date { font-size: 11.5px; color: var(--c-text-3); margin-top: 1px; }
+  .payment-amount { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; color: var(--c-success); font-size: 14px; }
+
+  /* Notes footer */
+  .invoice-footer { padding: 16px 32px; border-top: 1px solid var(--c-border); background: var(--c-bg); }
+  .footer-note { font-size: 12px; color: var(--c-text-3); line-height: 1.6; }
+
+  /* Side panel */
+  .side-panel { display: flex; flex-direction: column; gap: 14px; }
+  .panel-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); }
+  .panel-header { padding: 12px 16px; border-bottom: 1px solid var(--c-border); font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 13px; font-weight: 700; }
+  .panel-body { padding: 14px 16px; }
+  .panel-action-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); cursor: pointer; font-size: 13px; color: var(--c-text-2); width: 100%; margin-bottom: 8px; }
+  .panel-action-btn:last-child { margin-bottom: 0; }
+  .panel-action-btn:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
+  .panel-action-btn.primary { background: var(--c-primary); color: #fff; border-color: var(--c-primary); font-weight: 600; }
+  .panel-action-btn.primary:hover { background: #0058CC; }
+  .panel-action-btn.danger { color: var(--c-danger); }
+  .panel-action-btn.danger:hover { border-color: var(--c-danger); background: #FEF2F2; }
+  .panel-action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  /* Record payment form */
+  .rp-form { display: flex; flex-direction: column; gap: 10px; }
+  .form-label { font-size: 11.5px; font-weight: 600; color: var(--c-text-2); margin-bottom: 4px; display: block; }
+  .form-input { height: 36px; padding: 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13.5px; color: var(--c-text); background: var(--c-card); outline: none; width: 100%; }
+  .form-input:focus { border-color: var(--c-primary); }
+  .form-select { height: 36px; padding: 0 24px 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; background: var(--c-card); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 7px center; width: 100%; }
+  .rp-submit { width: 100%; background: var(--c-success); color: #fff; border: none; border-radius: var(--radius-md); padding: 9px; font-size: 13.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; }
+  .rp-submit:hover { background: #059669; }
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo"><div class="logo-mark">C</div><span class="logo-text">Chikitsa360</span></div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>Doctors</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer"><div class="user-row"><div class="avatar-sm">SR</div><div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div></div></div>
+</aside>
+<header class="topbar">
+  <div class="topbar-breadcrumb">
+    <a href="#">Billing</a>
+    <span class="sep">›</span>
+    <span class="current">INV-2024-0341</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-ghost"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>Print</button>
+    <button class="btn btn-ghost"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF</button>
+    <button class="btn btn-primary">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Record Payment
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:13px;">SR</div>
+  </div>
+</header>
+<main class="main">
+  <div class="detail-layout">
+    <!-- Invoice paper -->
+    <div class="invoice-paper">
+      <!-- Header -->
+      <div class="invoice-header">
+        <div class="invoice-header-row">
+          <div>
+            <div class="clinic-name">Rao Medical Clinic</div>
+            <div class="clinic-addr">14, MG Road, Koregaon Park<br>Pune, Maharashtra 411001<br>GST: 27ABCDE1234F1Z5</div>
+          </div>
+          <div class="invoice-title-block">
+            <div class="invoice-word">Invoice</div>
+            <div class="invoice-num">INV-2024-0341</div>
+            <div class="invoice-date">Issued: 14 Jun 2025</div>
+            <span class="badge badge-partial"><span class="badge-dot"></span>Partially Paid</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Meta -->
+      <div class="invoice-meta">
+        <div>
+          <div class="meta-label">Bill To</div>
+          <div class="meta-value">Ramesh Kumar</div>
+          <div class="meta-sub">Male · 48 years</div>
+          <div class="meta-sub">+91 98111 22233</div>
+        </div>
+        <div>
+          <div class="meta-label">Appointment</div>
+          <div class="meta-value">APT-2024-1840</div>
+          <div class="meta-sub">14 Jun 2025 · 9:00 AM</div>
+          <div class="meta-sub">Dr. Arjun Mehta</div>
+        </div>
+      </div>
+
+      <!-- Line items -->
+      <div class="line-items">
+        <table class="line-table">
+          <thead>
+            <tr>
+              <th style="width:40%;">Service / Item</th>
+              <th>Doctor</th>
+              <th style="text-align:center;">Qty</th>
+              <th style="text-align:right;">Unit Price</th>
+              <th style="text-align:right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="item-name">General Consultation</div><div class="item-desc">Follow-up visit · 30 min</div></td>
+              <td style="color:var(--c-text-2);">Dr. Arjun Mehta</td>
+              <td style="text-align:center;color:var(--c-text-2);">1</td>
+              <td style="text-align:right;" class="amount-cell">₹800</td>
+              <td style="text-align:right;" class="amount-cell">₹800</td>
+            </tr>
+            <tr>
+              <td><div class="item-name">HbA1c Blood Test</div><div class="item-desc">Glycated hemoglobin test for diabetes monitoring</div></td>
+              <td style="color:var(--c-text-2);">Lab</td>
+              <td style="text-align:center;color:var(--c-text-2);">1</td>
+              <td style="text-align:right;" class="amount-cell">₹900</td>
+              <td style="text-align:right;" class="amount-cell">₹900</td>
+            </tr>
+            <tr>
+              <td><div class="item-name">Fasting Blood Sugar</div><div class="item-desc">FBS test</div></td>
+              <td style="color:var(--c-text-2);">Lab</td>
+              <td style="text-align:center;color:var(--c-text-2);">1</td>
+              <td style="text-align:right;" class="amount-cell">₹400</td>
+              <td style="text-align:right;" class="amount-cell">₹400</td>
+            </tr>
+            <tr>
+              <td><div class="item-name">Metformin 500mg</div><div class="item-desc">30 tablets</div></td>
+              <td style="color:var(--c-text-2);">Pharmacy</td>
+              <td style="text-align:center;color:var(--c-text-2);">30</td>
+              <td style="text-align:right;" class="amount-cell">₹10</td>
+              <td style="text-align:right;" class="amount-cell">₹300</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Totals -->
+      <div class="totals-block">
+        <div class="totals-row">
+          <div class="totals-table">
+            <div class="total-line"><span class="tl-label">Subtotal</span><span class="tl-value">₹2,400</span></div>
+            <div class="total-line"><span class="tl-label">Discount</span><span class="tl-value" style="color:var(--c-success);">— ₹0</span></div>
+            <div class="total-line"><span class="tl-label">GST (0%)</span><span class="tl-value">₹0</span></div>
+            <div class="total-divider"></div>
+            <div class="total-final"><span class="tl-label">Total</span><span class="tl-value">₹2,400</span></div>
+            <div class="total-line"><span class="tl-label" style="color:var(--c-success);">Paid</span><span class="tl-value" style="color:var(--c-success);">₹1,000</span></div>
+            <div class="total-due"><span class="tl-label">Amount Due</span><span class="tl-value">₹1,400</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment history -->
+      <div class="payment-history">
+        <div class="ph-title">Payment History</div>
+        <div class="payment-row">
+          <div class="payment-icon">
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--c-success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="payment-meta">
+            <div class="payment-method">Cash — Partial Payment</div>
+            <div class="payment-date">14 Jun 2025 · 9:32 AM · Received by Priya (Receptionist)</div>
+          </div>
+          <div class="payment-amount">₹1,000</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="invoice-footer">
+        <div class="footer-note">Thank you for choosing Rao Medical Clinic. Please clear the outstanding balance at your earliest convenience. For queries, call +91 20 1234 5678.</div>
+      </div>
+    </div>
+
+    <!-- Side panel -->
+    <div class="side-panel">
+      <!-- Record payment -->
+      <div class="panel-card">
+        <div class="panel-header">Record Payment</div>
+        <div class="panel-body">
+          <div style="background:var(--c-warning-light);border:1px solid #FDE68A;border-radius:var(--radius-md);padding:10px 12px;margin-bottom:12px;font-size:12.5px;color:#92400E;">
+            <strong>₹1,400 outstanding.</strong> Record the remaining payment below.
+          </div>
+          <div class="rp-form">
+            <div>
+              <label class="form-label">Amount</label>
+              <input class="form-input" type="text" value="1400" />
+            </div>
+            <div>
+              <label class="form-label">Payment Method</label>
+              <select class="form-select">
+                <option>UPI</option>
+                <option>Cash</option>
+                <option>Card</option>
+                <option>Net Banking</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Reference / UPI ID (optional)</label>
+              <input class="form-input" type="text" placeholder="e.g. 9876543210@upi" />
+            </div>
+            <button class="rp-submit">
+              <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Mark ₹1,400 as Paid
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="panel-card">
+        <div class="panel-header">Actions</div>
+        <div class="panel-body">
+          <button class="panel-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit Invoice
+          </button>
+          <button class="panel-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print Invoice
+          </button>
+          <button class="panel-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </button>
+          <button class="panel-action-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 15.4a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.82 4.7h3a2 2 0 0 1 2 1.72"/></svg>
+            Send via WhatsApp
+          </button>
+          <button class="panel-action-btn danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Cancel Invoice
+          </button>
+        </div>
+      </div>
+
+      <!-- Patient link -->
+      <div class="panel-card">
+        <div class="panel-header">Patient</div>
+        <div class="panel-body">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:38px;height:38px;border-radius:50%;background:var(--c-primary-light);color:var(--c-primary);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;">RK</div>
+            <div>
+              <div style="font-weight:600;font-size:13.5px;">Ramesh Kumar</div>
+              <div style="font-size:12px;color:var(--c-text-3);">Male · 48 yrs · +91 98111 22233</div>
+            </div>
+          </div>
+          <a href="#" style="display:block;margin-top:10px;font-size:12.5px;color:var(--c-primary);text-decoration:none;font-weight:600;">View Patient Profile →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

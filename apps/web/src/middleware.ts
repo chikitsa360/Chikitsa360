@@ -15,6 +15,14 @@ const PROTECTED_PATHS = [
 
 const AUTH_PATHS = ['/login']
 
+// Public API routes — no auth required (rate-limited separately per route)
+const PUBLIC_API_PATHS = [
+  '/api/v1/clinics/by-slug/',
+  '/api/v1/slots/available',
+  '/api/v1/booking',
+  '/api/og/',
+]
+
 export default auth(async function middleware(req: NextRequest & { auth: unknown }) {
   const { pathname } = req.nextUrl
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,6 +31,7 @@ export default auth(async function middleware(req: NextRequest & { auth: unknown
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p))
   const isAuthPath = AUTH_PATHS.some((p) => pathname.startsWith(p))
   const isApiV1 = pathname.startsWith('/api/v1/')
+  const isPublicApi = PUBLIC_API_PATHS.some((p) => pathname.startsWith(p))
 
   // Redirect unauthenticated users away from protected pages
   if (isProtected && !session?.user) {
@@ -34,6 +43,11 @@ export default auth(async function middleware(req: NextRequest & { auth: unknown
   // Redirect authenticated users away from auth pages
   if (isAuthPath && session?.user) {
     return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  // Skip auth checks for public API routes and booking page
+  if (isPublicApi || pathname.startsWith('/book/')) {
+    return NextResponse.next()
   }
 
   // API rate limiting (per clinicId)

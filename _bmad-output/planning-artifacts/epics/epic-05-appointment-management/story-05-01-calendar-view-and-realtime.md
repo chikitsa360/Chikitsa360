@@ -2,8 +2,9 @@
 story: 5.1
 epic: 5
 title: Calendar View & Real-Time Updates
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 requirements:
   functional: [FR-14]
   nfr: [NFR-2, NFR-5]
@@ -136,3 +137,46 @@ apps/web/
 | Playwright (E2E) | Open appointments page → verify today's count → wait for Pusher event → count updates within 5s | Core path |
 | Playwright | Click appointment → detail panel opens with correct fields | Core path |
 | Playwright | Mobile (375px): day view scrollable list; week view horizontal strip | Mobile UJ |
+
+## Dev Agent Record
+
+### Implementation Plan
+
+Implemented calendar view with 4-layer real-time reliability pattern using Pusher + polling fallback. No React Query available — used useState/useEffect with direct fetch. @dnd-kit not installed so drag-to-reschedule deferred.
+
+### Completion Notes
+
+- `appointments/page.tsx` (Server Component): IST-aware today, prefetches appointments + doctors via $queryRawUnsafe
+- `CalendarClient.tsx`: Day/Week toggle, date navigation, URL-sync, Pusher subscription via useAppointmentUpdates hook, action handlers for all 4 status changes
+- `DateNavigator.tsx`: < Today > chevrons, "Today" label for current date
+- `AppointmentCard.tsx`: exports statusBadgeClass/statusBorderColor, status colours, animate prop for live-update animation, 44px min height
+- `DayView.tsx`: chronological list, new-ID detection for animation (not on initial load), empty state CTA
+- `WeekView.tsx`: exports getWeekDates(), fetches density counts, per-doctor rows, click to Day View
+- `AppointmentDetailPanel.tsx`: 400px slide-in panel, masked phone, all 4 action buttons, Escape/backdrop dismissal
+- `ReschedulePanel.tsx`: slot grid, excludes current slot, 409 handling
+- `CancelDialog.tsx`: modal confirmation, Enter/Escape keyboard
+- `useAppointmentUpdates.ts`: Pusher binds for all 5 event types, 10s polling fallback, reconnect full invalidation
+- Tests: `src/lib/__tests__/appointments.test.ts` — statusBadgeClass, statusBorderColor, getWeekDates, getDayOfWeek (17 tests)
+- Tests: `src/app/api/v1/appointments/__tests__/appointments.test.ts` — GET/POST integration tests (16 tests)
+- GET /api/v1/appointments route implemented (single-date + week-range density modes)
+
+## File List
+
+- apps/web/src/app/(dashboard)/appointments/page.tsx (new)
+- apps/web/src/app/(dashboard)/appointments/CalendarClient.tsx (new)
+- apps/web/src/app/api/v1/appointments/route.ts (new)
+- apps/web/src/components/appointments/DateNavigator.tsx (new)
+- apps/web/src/components/appointments/AppointmentCard.tsx (new)
+- apps/web/src/components/appointments/DayView.tsx (new)
+- apps/web/src/components/appointments/WeekView.tsx (new)
+- apps/web/src/components/appointments/AppointmentDetailPanel.tsx (new)
+- apps/web/src/components/appointments/ReschedulePanel.tsx (new)
+- apps/web/src/components/appointments/CancelDialog.tsx (new)
+- apps/web/src/lib/pusher/useAppointmentUpdates.ts (new)
+- apps/web/src/lib/__tests__/appointments.test.ts (new)
+- apps/web/src/app/api/v1/appointments/__tests__/appointments.test.ts (new)
+- apps/web/prisma/baseline/tenant-schema.sql (modified)
+
+## Change Log
+
+- 2026-06-08: Implemented Story 5.1 — Calendar View & Real-Time Updates. Day/Week views, DateNavigator, AppointmentCard with status colours, AppointmentDetailPanel, ReschedulePanel, CancelDialog. GET /api/v1/appointments API route. Pusher useAppointmentUpdates hook with 10s polling fallback. 33 unit + integration tests passing.

@@ -2,8 +2,9 @@
 story: 3.1
 epic: 3
 title: WhatsApp Webhook Handler & Conversation State Engine
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 requirements:
   functional: [FR-1, FR-6b]
   arch: [ARCH-9, ARCH-13]

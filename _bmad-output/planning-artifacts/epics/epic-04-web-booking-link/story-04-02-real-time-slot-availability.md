@@ -2,7 +2,8 @@
 story: 4.2
 epic: 4
 title: Web Booking Real-Time Integration & Portal Sync
-status: Not Started
+status: review
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 created: 2026-06-07
 requirements:
   functional: [FR-7, FR-8, FR-9]

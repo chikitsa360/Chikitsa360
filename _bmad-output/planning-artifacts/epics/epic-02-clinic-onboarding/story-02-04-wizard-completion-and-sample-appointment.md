@@ -2,8 +2,9 @@
 story: 2.4
 epic: 2
 title: Wizard Completion & Sample Appointment
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: d8174b3
 requirements:
   functional: [FR-36, FR-37]
   nfr: [NFR-23, NFR-37]

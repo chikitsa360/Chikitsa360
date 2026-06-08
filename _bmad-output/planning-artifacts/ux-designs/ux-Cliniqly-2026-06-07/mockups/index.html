@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chikitsa360 — Mockup Journey Map</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF;
+    --c-primary-light: #EBF3FF;
+    --c-secondary: #00B8A9;
+    --c-secondary-light: #E6F9F7;
+    --c-bg: #F1F5F9;
+    --c-card: #FFFFFF;
+    --c-border: #E2E8F0;
+    --c-text: #0F172A;
+    --c-muted: #64748B;
+    --c-success: #22C55E;
+    --c-warning: #F59E0B;
+    --c-danger: #EF4444;
+    --c-purple: #8B5CF6;
+    --c-indigo: #6366F1;
+    --c-orange: #F97316;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--c-bg); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; color: var(--c-text); min-height: 100vh; }
+
+  /* ── Header ──────────────────────────────────────── */
+  .hero {
+    background: linear-gradient(135deg, #0F172A 0%, #1E3A5F 50%, #0A6EFF 100%);
+    padding: 48px 32px 40px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: rgba(10,110,255,0.15);
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -80px; left: 40%;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(0,184,169,0.12);
+  }
+  .hero-inner { max-width: 1080px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600;
+    margin-bottom: 16px; letter-spacing: 0.3px;
+  }
+  .hero h1 { font-size: 32px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
+  .hero h1 span { color: #60A5FA; }
+  .hero-sub { font-size: 15px; opacity: 0.75; line-height: 1.5; max-width: 560px; margin-bottom: 24px; }
+  .hero-stats { display: flex; gap: 32px; flex-wrap: wrap; }
+  .stat { }
+  .stat-num { font-size: 28px; font-weight: 800; line-height: 1; }
+  .stat-label { font-size: 12px; opacity: 0.65; margin-top: 2px; }
+
+  /* ── Layout ──────────────────────────────────────── */
+  .main { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── Journey filter ──────────────────────────────── */
+  .filter-row { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; align-items: center; }
+  .filter-label { font-size: 12px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px; }
+  .filter-btn {
+    padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: 1.5px solid var(--c-border); background: var(--c-card);
+    color: var(--c-muted); transition: all 0.15s;
+  }
+  .filter-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+  .filter-btn.active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+
+  /* ── Epic section ────────────────────────────────── */
+  .epic-section { margin-bottom: 48px; }
+  .epic-header {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--c-border);
+  }
+  .epic-icon {
+    width: 40px; height: 40px; border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .epic-meta { flex: 1; }
+  .epic-title { font-size: 18px; font-weight: 800; margin-bottom: 2px; }
+  .epic-desc { font-size: 13px; color: var(--c-muted); }
+  .epic-count { font-size: 12px; font-weight: 700; color: var(--c-muted); background: var(--c-bg); padding: 4px 10px; border-radius: 12px; }
+
+  /* ── Screen cards grid ───────────────────────────── */
+  .screen-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+
+  .screen-card {
+    background: var(--c-card);
+    border: 1.5px solid var(--c-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    text-decoration: none;
+    color: var(--c-text);
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+  }
+  .screen-card:hover {
+    border-color: var(--c-primary);
+    box-shadow: 0 8px 24px rgba(10,110,255,0.12);
+    transform: translateY(-2px);
+  }
+  .screen-card:hover .card-arrow { color: var(--c-primary); }
+
+  .card-thumb {
+    height: 120px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Epic-specific thumb gradients */
+  .thumb-onboarding { background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); }
+  .thumb-whatsapp { background: linear-gradient(135deg, #F0FFF4 0%, #D1FAE5 100%); }
+  .thumb-appointments { background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); }
+  .thumb-patients { background: linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%); }
+  .thumb-doctors { background: linear-gradient(135deg, #FFF7ED 0%, #FED7AA 100%); }
+  .thumb-prescriptions { background: linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%); }
+  .thumb-billing { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); }
+  .thumb-reports { background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); }
+  .thumb-settings { background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%); }
+  .thumb-auth { background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); }
+
+  .card-body { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 4px; }
+  .card-title { font-size: 14px; font-weight: 700; line-height: 1.3; }
+  .card-route { font-size: 11px; color: var(--c-muted); font-family: 'SF Mono', 'Fira Code', monospace; }
+  .card-desc { font-size: 12px; color: var(--c-muted); line-height: 1.4; margin-top: 2px; }
+
+  .card-footer {
+    padding: 10px 16px;
+    border-top: 1px solid var(--c-border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag {
+    font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px;
+    background: var(--c-bg); color: var(--c-muted);
+  }
+  .tag.reception { background: #EFF6FF; color: #2563EB; }
+  .tag.doctor { background: #F5F3FF; color: #7C3AED; }
+  .tag.admin { background: #FFF7ED; color: #C2410C; }
+  .tag.patient { background: #F0FDF4; color: #15803D; }
+  .tag.public { background: #F0FFF4; color: #059669; }
+  .card-arrow { color: var(--c-border); font-size: 16px; transition: color 0.15s; }
+
+  /* ── Journey flow indicator ──────────────────────── */
+  .journey-flow {
+    background: var(--c-card);
+    border: 1.5px solid var(--c-border);
+    border-radius: var(--radius-xl);
+    padding: 20px 24px;
+    margin-bottom: 40px;
+    box-shadow: var(--shadow-sm);
+  }
+  .flow-title { font-size: 14px; font-weight: 800; margin-bottom: 14px; color: var(--c-text); display: flex; align-items: center; gap: 8px; }
+  .flow-chain { display: flex; align-items: center; gap: 0; flex-wrap: wrap; row-gap: 8px; }
+  .flow-node {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    text-decoration: none; transition: all 0.15s;
+    background: var(--c-bg); color: var(--c-muted); border: 1.5px solid var(--c-border);
+  }
+  .flow-node:hover { background: var(--c-primary-light); color: var(--c-primary); border-color: var(--c-primary); }
+  .flow-arrow { color: var(--c-muted); font-size: 14px; padding: 0 4px; flex-shrink: 0; }
+  .flow-node.start { background: var(--c-primary-light); color: var(--c-primary); border-color: var(--c-primary); }
+
+  /* ── Legend ──────────────────────────────────────── */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
+  .legend-title { font-size: 12px; font-weight: 700; color: var(--c-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--c-muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  /* ── Quick launch grid ───────────────────────────── */
+  .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 40px; }
+  .quick-card {
+    background: var(--c-card);
+    border: 1.5px solid var(--c-border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    text-decoration: none;
+    color: var(--c-text);
+    display: flex; align-items: center; gap: 10px;
+    transition: all 0.15s;
+    box-shadow: var(--shadow-sm);
+  }
+  .quick-card:hover { border-color: var(--c-primary); box-shadow: 0 4px 12px rgba(10,110,255,0.1); }
+  .quick-icon { font-size: 22px; flex-shrink: 0; }
+  .quick-name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .quick-sub { font-size: 11px; color: var(--c-muted); }
+
+  /* ── Divider ─────────────────────────────────────── */
+  .section-divider { height: 1px; background: var(--c-border); margin: 40px 0; }
+
+  /* ── Footer ──────────────────────────────────────── */
+  .footer { text-align: center; padding: 32px; font-size: 12px; color: var(--c-muted); border-top: 1px solid var(--c-border); margin-top: 40px; }
+  .footer strong { color: var(--c-text); }
+
+  /* ── Responsive ──────────────────────────────────── */
+  @media (max-width: 600px) {
+    .hero { padding: 32px 16px 28px; }
+    .hero h1 { font-size: 22px; }
+    .main { padding: 24px 16px 60px; }
+    .hero-stats { gap: 20px; }
+    .flow-chain { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero header -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">
+      🗺️ UX Journey Map · Chikitsa360 · v1.0
+    </div>
+    <h1>Cliniqly <span>Product Mockups</span></h1>
+    <div class="hero-sub">Complete screen-by-screen journey for all product epics. Click any card to open the interactive HTML mockup.</div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num">21</div><div class="stat-label">Screen mockups</div></div>
+      <div class="stat"><div class="stat-num">7</div><div class="stat-label">Product epics</div></div>
+      <div class="stat"><div class="stat-num">5</div><div class="stat-label">User journeys</div></div>
+      <div class="stat"><div class="stat-num">3</div><div class="stat-label">Persona flows</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- User journey flows -->
+  <div style="margin-bottom:12px;">
+    <div style="font-size:12px;font-weight:700;color:var(--c-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px;">Named protagonist journeys — click to follow the flow</div>
+  </div>
+
+  <!-- UJ-1: Sunita — receptionist books WhatsApp patient -->
+  <div class="journey-flow">
+    <div class="flow-title">👩‍💼 UJ-1 · Sunita (Reception) — WhatsApp patient arrives, books appointment</div>
+    <div class="flow-chain">
+      <a class="flow-node start" href="login.html">🔐 Login</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="dashboard.html">📊 Dashboard</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="appointments-waitlist.html">⏳ Waitlist</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="new-appointment.html">➕ New Appt</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="appointment-detail.html">📋 Appt Detail</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="new-patient.html">👤 New Patient</a>
+    </div>
+  </div>
+
+  <!-- UJ-2: Ravi — patient books via web link -->
+  <div class="journey-flow">
+    <div class="flow-title">🧑 UJ-2 · Ravi (Patient) — Books appointment via public web link</div>
+    <div class="flow-chain">
+      <a class="flow-node start" href="web-booking.html">🌐 Web Booking (Step 1)</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="web-booking.html">📝 Details (Step 2)</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="web-booking.html">✅ Confirm (Step 3)</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="web-booking.html">🎉 Confirmed</a>
+      <div class="flow-arrow">→</div>
+      <span style="font-size:12px;color:var(--c-muted);padding:0 8px;">WhatsApp sent</span>
+    </div>
+  </div>
+
+  <!-- UJ-3: Dr. Arjun — reviews patient before consultation -->
+  <div class="journey-flow">
+    <div class="flow-title">👨‍⚕️ UJ-3 · Dr. Arjun — Reviews patient history before consultation</div>
+    <div class="flow-chain">
+      <a class="flow-node start" href="dashboard.html">📊 Dashboard</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="appointments-agenda.html">📅 Agenda View</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="appointment-detail.html">📋 Appt Detail</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="patient-profile.html">🏥 Patient Profile</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="new-prescription.html">💊 New Rx</a>
+    </div>
+  </div>
+
+  <!-- UJ-4: Sunita — walk-in patient -->
+  <div class="journey-flow">
+    <div class="flow-title">🚶 UJ-4 · Sunita — Handles walk-in and generates invoice</div>
+    <div class="flow-chain">
+      <a class="flow-node start" href="appointments-waitlist.html">⏳ Waitlist</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="new-patient.html">👤 New Patient</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="new-appointment.html">➕ New Appt</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="appointment-detail.html">📋 Mark Done</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="new-invoice.html">🧾 New Invoice</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="invoice-detail.html">💰 Payment</a>
+    </div>
+  </div>
+
+  <!-- UJ-5: Rakesh — reviews weekly performance -->
+  <div class="journey-flow">
+    <div class="flow-title">📈 UJ-5 · Rakesh (Owner) — Reviews weekly metrics and exports</div>
+    <div class="flow-chain">
+      <a class="flow-node start" href="dashboard.html">📊 Dashboard</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="reports.html">📈 Reports</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="billing-list.html">💵 Billing List</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="doctors-list.html">👩‍⚕️ Doctor Stats</a>
+      <div class="flow-arrow">→</div>
+      <a class="flow-node" href="settings.html">⚙️ Settings</a>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 0: Auth & Onboarding -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#EEF2FF;">🚀</div>
+      <div class="epic-meta">
+        <div class="epic-title">Clinic Onboarding</div>
+        <div class="epic-desc">First-run wizard, authentication, WhatsApp setup, staff invite</div>
+      </div>
+      <div class="epic-count">2 screens</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="login.html">
+        <div class="card-thumb thumb-auth">🔐</div>
+        <div class="card-body">
+          <div class="card-title">Login</div>
+          <div class="card-route">/login</div>
+          <div class="card-desc">Email + password login, Google SSO option, forgot password flow</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag">All users</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="onboarding.html">
+        <div class="card-thumb thumb-onboarding">🏥</div>
+        <div class="card-body">
+          <div class="card-title">Onboarding Wizard</div>
+          <div class="card-route">/onboarding</div>
+          <div class="card-desc">4-step: Clinic details → Working hours → Staff invite → WhatsApp setup</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 1: WhatsApp Booking Flow -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#F0FFF4;">📱</div>
+      <div class="epic-meta">
+        <div class="epic-title">WhatsApp Booking Flow</div>
+        <div class="epic-desc">Patient-facing booking — via WhatsApp chatbot and public web link. No login required.</div>
+      </div>
+      <div class="epic-count">1 screen · 6 states</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="web-booking.html">
+        <div class="card-thumb thumb-whatsapp">🌐</div>
+        <div class="card-body">
+          <div class="card-title">Web Booking Link</div>
+          <div class="card-route">/book/[clinic-slug]</div>
+          <div class="card-desc">Patient-facing booking page. 3-step: pick slot → details → confirm. States: success, no-slots, capacity-limit.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag patient">Patient</span><span class="tag public">Public</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+    <div style="margin-top:12px;padding:12px 16px;background:var(--c-card);border:1px solid var(--c-border);border-radius:var(--radius-lg);font-size:13px;color:var(--c-muted);">
+      📲 <strong style="color:var(--c-text);">WhatsApp chatbot flow</strong> (patient sends "Hi" → receives Quick Reply buttons → selects slot) is handled by the Meta Cloud API integration and has no dedicated admin UI screen. The appointment appears automatically in the Calendar/Waitlist views.
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 2: Appointments -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#EFF6FF;">📅</div>
+      <div class="epic-meta">
+        <div class="epic-title">Appointments</div>
+        <div class="epic-desc">Calendar, agenda, waitlist, appointment detail, new booking</div>
+      </div>
+      <div class="epic-count">5 screens</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="appointment-calendar.html">
+        <div class="card-thumb thumb-appointments">📅</div>
+        <div class="card-body">
+          <div class="card-title">Calendar View</div>
+          <div class="card-route">/appointments</div>
+          <div class="card-desc">Day/week/month calendar. Doctor column headers. Click slot to book.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag reception">Reception</span><span class="tag doctor">Doctor</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="appointments-agenda.html">
+        <div class="card-thumb thumb-appointments">📋</div>
+        <div class="card-body">
+          <div class="card-title">Agenda View</div>
+          <div class="card-route">/appointments?view=agenda</div>
+          <div class="card-desc">Chronological list with sticky date headers. Current-time indicator. Status color-coding.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="appointments-waitlist.html">
+        <div class="card-thumb thumb-appointments">⏳</div>
+        <div class="card-body">
+          <div class="card-title">Waitlist</div>
+          <div class="card-route">/appointments?view=waitlist</div>
+          <div class="card-desc">Live queue panel + slot assignment grid. Add walk-in, assign to doctor slot.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="appointment-detail.html">
+        <div class="card-thumb thumb-appointments">🩺</div>
+        <div class="card-body">
+          <div class="card-title">Appointment Detail</div>
+          <div class="card-route">/appointments/[id]</div>
+          <div class="card-desc">Vitals, SOAP notes, activity timeline, quick actions: complete, prescribe, invoice, reschedule.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag doctor">Doctor</span><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="new-appointment.html">
+        <div class="card-thumb thumb-appointments">➕</div>
+        <div class="card-body">
+          <div class="card-title">New Appointment</div>
+          <div class="card-route">/appointments/new</div>
+          <div class="card-desc">Patient search/create, doctor selector, date/time picker, reason, WhatsApp confirmation toggle.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 3: Patients -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#F5F3FF;">🏥</div>
+      <div class="epic-meta">
+        <div class="epic-title">Patient Management</div>
+        <div class="epic-desc">Patient list, full EMR profile with tabs, new patient registration</div>
+      </div>
+      <div class="epic-count">3 screens</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="patients-list.html">
+        <div class="card-thumb thumb-patients">👥</div>
+        <div class="card-body">
+          <div class="card-title">Patients List</div>
+          <div class="card-route">/patients</div>
+          <div class="card-desc">Searchable/filterable table. Last visit, next appointment, quick-action row hover.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag">All</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="patient-profile.html">
+        <div class="card-thumb thumb-patients">👤</div>
+        <div class="card-body">
+          <div class="card-title">Patient Profile</div>
+          <div class="card-route">/patients/[id]</div>
+          <div class="card-desc">5 tabs: Overview · Timeline · EMR · Prescriptions · Billing · Communication</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag doctor">Doctor</span><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="new-patient.html">
+        <div class="card-thumb thumb-patients">➕</div>
+        <div class="card-body">
+          <div class="card-title">New Patient</div>
+          <div class="card-route">/patients/new</div>
+          <div class="card-desc">Registration form: basic info, medical history, allergies, chronic conditions. Duplicate detection.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 4: Doctors -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#FFF7ED;">👨‍⚕️</div>
+      <div class="epic-meta">
+        <div class="epic-title">Doctor Management</div>
+        <div class="epic-desc">Doctor roster, availability, schedule, performance metrics</div>
+      </div>
+      <div class="epic-count">2 screens</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="doctors-list.html">
+        <div class="card-thumb thumb-doctors">👩‍⚕️</div>
+        <div class="card-body">
+          <div class="card-title">Doctors List</div>
+          <div class="card-route">/doctors</div>
+          <div class="card-desc">Card grid with live status (on-duty/busy/offline), daily stats, role badges. Summary KPIs.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="doctor-profile.html">
+        <div class="card-thumb thumb-doctors">📊</div>
+        <div class="card-body">
+          <div class="card-title">Doctor Profile</div>
+          <div class="card-route">/doctors/[id]</div>
+          <div class="card-desc">Weekly schedule grid, performance charts (revenue, completion rate), recent patients table.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 5: Prescriptions -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#FFF1F2;">💊</div>
+      <div class="epic-meta">
+        <div class="epic-title">Prescriptions</div>
+        <div class="epic-desc">Prescription list, new Rx with drug autocomplete and allergy conflict detection</div>
+      </div>
+      <div class="epic-count">2 screens</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="prescriptions.html">
+        <div class="card-thumb thumb-prescriptions">📜</div>
+        <div class="card-body">
+          <div class="card-title">Prescriptions</div>
+          <div class="card-route">/prescriptions</div>
+          <div class="card-desc">Full table (Rx ID, patient, doctor, drugs, diagnosis, status). Filter by doctor/date/status.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag doctor">Doctor</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="new-prescription.html">
+        <div class="card-thumb thumb-prescriptions">✍️</div>
+        <div class="card-body">
+          <div class="card-title">New Prescription</div>
+          <div class="card-route">/prescriptions/new</div>
+          <div class="card-desc">Drug table with autocomplete, real-time allergy conflict warning, live print preview panel.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag doctor">Doctor</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 6: Billing & Finance -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#FFFBEB;">💰</div>
+      <div class="epic-meta">
+        <div class="epic-title">Billing &amp; Finance</div>
+        <div class="epic-desc">Invoice list, invoice detail with payment recording, new invoice creation</div>
+      </div>
+      <div class="epic-count">3 screens</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="billing-list.html">
+        <div class="card-thumb thumb-billing">💵</div>
+        <div class="card-body">
+          <div class="card-title">Billing List</div>
+          <div class="card-route">/billing</div>
+          <div class="card-desc">Revenue summary cards, invoice table with overdue row highlighting. CSV export.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="invoice-detail.html">
+        <div class="card-thumb thumb-billing">🧾</div>
+        <div class="card-body">
+          <div class="card-title">Invoice Detail</div>
+          <div class="card-route">/billing/[id]</div>
+          <div class="card-desc">Invoice paper layout, line items, payment history timeline, record-payment side panel.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span><span class="tag reception">Reception</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="new-invoice.html">
+        <div class="card-thumb thumb-billing">📝</div>
+        <div class="card-body">
+          <div class="card-title">New Invoice</div>
+          <div class="card-route">/billing/new</div>
+          <div class="card-desc">Patient + appointment linker, editable line items, discount, payment mode grid, live preview.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag reception">Reception</span><span class="tag admin">Admin</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 7: Reports & Analytics -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#F0F9FF;">📈</div>
+      <div class="epic-meta">
+        <div class="epic-title">Reports &amp; Analytics</div>
+        <div class="epic-desc">Revenue, appointments, doctor performance, follow-up rate dashboards</div>
+      </div>
+      <div class="epic-count">1 screen · 4 tabs</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="reports.html">
+        <div class="card-thumb thumb-reports">📊</div>
+        <div class="card-body">
+          <div class="card-title">Reports</div>
+          <div class="card-route">/reports</div>
+          <div class="card-desc">4 tabs: Revenue (bar chart, donut) · Appointments · Doctor Performance · Follow-ups. CSV/PDF export.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+      <a class="screen-card" href="dashboard.html">
+        <div class="card-thumb thumb-reports">🏠</div>
+        <div class="card-body">
+          <div class="card-title">Dashboard</div>
+          <div class="card-route">/</div>
+          <div class="card-desc">Today's KPIs (appts, revenue, wait time, no-shows), real-time appointment list, quick actions.</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag">All</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- EPIC 8: Settings & Configuration -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="epic-section">
+    <div class="epic-header">
+      <div class="epic-icon" style="background:#F8FAFC;">⚙️</div>
+      <div class="epic-meta">
+        <div class="epic-title">Settings &amp; Configuration</div>
+        <div class="epic-desc">Clinic profile, users &amp; roles, notifications, appearance, integrations, billing plan</div>
+      </div>
+      <div class="epic-count">1 screen · 6 tabs</div>
+    </div>
+    <div class="screen-grid">
+      <a class="screen-card" href="settings.html">
+        <div class="card-thumb thumb-settings">⚙️</div>
+        <div class="card-body">
+          <div class="card-title">Settings</div>
+          <div class="card-route">/settings</div>
+          <div class="card-desc">Clinic Profile · Users &amp; Roles · Notifications (WhatsApp) · Appearance · Integrations · Billing Plan</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-tags"><span class="tag admin">Admin</span></div>
+          <div class="card-arrow">→</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- All mockups quick-launch -->
+  <div style="margin-bottom:16px;">
+    <div style="font-size:14px;font-weight:800;margin-bottom:4px;">All Mockups — Quick Launch</div>
+    <div style="font-size:13px;color:var(--c-muted);margin-bottom:16px;">21 screens · Click any tile to open</div>
+  </div>
+  <div class="quick-grid">
+    <a class="quick-card" href="login.html"><div class="quick-icon">🔐</div><div><div class="quick-name">Login</div><div class="quick-sub">/login</div></div></a>
+    <a class="quick-card" href="onboarding.html"><div class="quick-icon">🚀</div><div><div class="quick-name">Onboarding</div><div class="quick-sub">/onboarding</div></div></a>
+    <a class="quick-card" href="web-booking.html"><div class="quick-icon">🌐</div><div><div class="quick-name">Web Booking</div><div class="quick-sub">/book/[slug]</div></div></a>
+    <a class="quick-card" href="dashboard.html"><div class="quick-icon">📊</div><div><div class="quick-name">Dashboard</div><div class="quick-sub">/</div></div></a>
+    <a class="quick-card" href="appointment-calendar.html"><div class="quick-icon">📅</div><div><div class="quick-name">Calendar</div><div class="quick-sub">/appointments</div></div></a>
+    <a class="quick-card" href="appointments-agenda.html"><div class="quick-icon">📋</div><div><div class="quick-name">Agenda</div><div class="quick-sub">?view=agenda</div></div></a>
+    <a class="quick-card" href="appointments-waitlist.html"><div class="quick-icon">⏳</div><div><div class="quick-name">Waitlist</div><div class="quick-sub">?view=waitlist</div></div></a>
+    <a class="quick-card" href="new-appointment.html"><div class="quick-icon">➕</div><div><div class="quick-name">New Appt</div><div class="quick-sub">/appointments/new</div></div></a>
+    <a class="quick-card" href="appointment-detail.html"><div class="quick-icon">🩺</div><div><div class="quick-name">Appt Detail</div><div class="quick-sub">/appointments/[id]</div></div></a>
+    <a class="quick-card" href="patients-list.html"><div class="quick-icon">👥</div><div><div class="quick-name">Patients</div><div class="quick-sub">/patients</div></div></a>
+    <a class="quick-card" href="patient-profile.html"><div class="quick-icon">👤</div><div><div class="quick-name">Patient Profile</div><div class="quick-sub">/patients/[id]</div></div></a>
+    <a class="quick-card" href="new-patient.html"><div class="quick-icon">🆕</div><div><div class="quick-name">New Patient</div><div class="quick-sub">/patients/new</div></div></a>
+    <a class="quick-card" href="doctors-list.html"><div class="quick-icon">👩‍⚕️</div><div><div class="quick-name">Doctors</div><div class="quick-sub">/doctors</div></div></a>
+    <a class="quick-card" href="doctor-profile.html"><div class="quick-icon">📊</div><div><div class="quick-name">Doctor Profile</div><div class="quick-sub">/doctors/[id]</div></div></a>
+    <a class="quick-card" href="prescriptions.html"><div class="quick-icon">📜</div><div><div class="quick-name">Prescriptions</div><div class="quick-sub">/prescriptions</div></div></a>
+    <a class="quick-card" href="new-prescription.html"><div class="quick-icon">✍️</div><div><div class="quick-name">New Rx</div><div class="quick-sub">/prescriptions/new</div></div></a>
+    <a class="quick-card" href="billing-list.html"><div class="quick-icon">💵</div><div><div class="quick-name">Billing</div><div class="quick-sub">/billing</div></div></a>
+    <a class="quick-card" href="invoice-detail.html"><div class="quick-icon">🧾</div><div><div class="quick-name">Invoice</div><div class="quick-sub">/billing/[id]</div></div></a>
+    <a class="quick-card" href="new-invoice.html"><div class="quick-icon">📝</div><div><div class="quick-name">New Invoice</div><div class="quick-sub">/billing/new</div></div></a>
+    <a class="quick-card" href="reports.html"><div class="quick-icon">📈</div><div><div class="quick-name">Reports</div><div class="quick-sub">/reports</div></div></a>
+    <a class="quick-card" href="settings.html"><div class="quick-icon">⚙️</div><div><div class="quick-name">Settings</div><div class="quick-sub">/settings</div></div></a>
+  </div>
+
+</div>
+
+<div class="footer">
+  <strong>Chikitsa360 / Cliniqly</strong> — UX Design Artifacts · Generated 2026-06-08<br>
+  <span style="margin-top:6px;display:block;">DESIGN.md + EXPERIENCE.md are the source of truth · These mockups are for stakeholder alignment and developer reference</span>
+</div>
+
+</body>
+</html>

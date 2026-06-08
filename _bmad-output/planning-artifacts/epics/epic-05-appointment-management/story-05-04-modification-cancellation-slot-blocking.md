@@ -2,7 +2,8 @@
 story: 5.4
 epic: 5
 title: Appointment Modification, Cancellation & Slot Blocking
-status: Not Started
+status: review
+baseline_commit: 4726811ba8737c9ef0947d6d2fd43d7eda09bca7
 created: 2026-06-07
 requirements:
   functional: [FR-12, FR-16]
@@ -188,3 +189,36 @@ apps/web/
 | Playwright | Cancel: cancel dialog → confirm → appointment shows strikethrough | Core path |
 | Playwright | Block slot: click empty slot → block form → confirm → hatched card appears | Core path |
 | Playwright | Drag-to-reschedule: drag card to new slot → dialog → confirm → updated in calendar | Desktop UJ |
+
+## Dev Agent Record
+
+### Completion Notes
+
+- `PATCH /api/v1/appointments/[id]`: discriminatedUnion on `action` — reschedule (updates date/time, scheduleConfirmation, Pusher appointment.updated), cancel (status='cancelled', Inngest cancellation.send, Pusher appointment.cancelled), mark-complete, mark-no-show. All actions write per-tenant audit_log + writeAuditLog(). 409 SLOT_TAKEN on reschedule conflict.
+- `GET/POST /api/v1/slot-blocks`: list blocks for date range (handles none/daily/weekly recurrence), create block with audit log + Pusher slot.blocked
+- `DELETE /api/v1/slot-blocks/[id]?scope=this|future`: removes single or all future occurrences; Pusher slot.unblocked
+- `computeAvailableSlots()` updated: fetches slot_blocks, isSlotBlocked() checks recurrence, graceful fallback if table missing
+- `appointment-cancellation-send.ts` Inngest function: sends WhatsApp cancellation in en/hi; idempotency key `${appointmentId}:cancellation`
+- `BlockSlotForm.tsx`: doctor selector (all/individual), date, start/end time (15-min steps), reason, recurrence toggle
+- `ActivityLog.tsx`: paginated table with date range + action type filters, IST timestamps
+- Settings → Activity Log page: OWNER-only redirect, server component
+- Tenant schema: `audit_log` table (INSERT-only), `slot_blocks` updated (doctor_id nullable, TIME type, recurrence, block_date)
+- Drag-to-reschedule (UX-DR20) deferred — @dnd-kit/core not installed
+
+## File List
+
+- apps/web/src/app/api/v1/appointments/[id]/route.ts (new)
+- apps/web/src/app/api/v1/slot-blocks/route.ts (new)
+- apps/web/src/app/api/v1/slot-blocks/[id]/route.ts (new)
+- apps/web/src/app/api/v1/activity-log/route.ts (new)
+- apps/web/src/inngest/functions/appointment-cancellation-send.ts (new)
+- apps/web/src/app/api/inngest/route.ts (modified — registered appointmentCancellationSend)
+- apps/web/src/components/appointments/BlockSlotForm.tsx (new)
+- apps/web/src/components/appointments/ActivityLog.tsx (new)
+- apps/web/src/app/(dashboard)/settings/activity-log/page.tsx (new)
+- apps/web/src/lib/compute-available-slots.ts (modified — slot block filtering with recurrence)
+- apps/web/prisma/baseline/tenant-schema.sql (modified — audit_log table, slot_blocks schema update, appointments cancelled_at/by/updated_by)
+
+## Change Log
+
+- 2026-06-08: Implemented Story 5.4 — Appointment Modification, Cancellation & Slot Blocking. PATCH appointments/[id] with 4 actions + audit log, slot-blocks CRUD with recurrence, computeAvailableSlots block filtering, cancellation Inngest function, BlockSlotForm, ActivityLog (OWNER-only). Drag-to-reschedule deferred (no @dnd-kit).
