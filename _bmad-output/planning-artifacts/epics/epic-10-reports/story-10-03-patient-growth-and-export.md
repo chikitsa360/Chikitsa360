@@ -2,7 +2,8 @@
 story: 10.3
 epic: 10
 title: Patient Growth & Export
-status: Not Started
+status: review
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 created: 2026-06-07
 requirements:
   functional: [FR-44, FR-45, FR-45b]

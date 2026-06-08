@@ -12,6 +12,8 @@ export interface VisitHistoryEntry {
   booking_source: string
   note_id: string | null
   note_text: string | null
+  consultation_fee: number | null
+  payment_status: 'paid' | 'unpaid'
 }
 
 export interface VisitHistoryResult {

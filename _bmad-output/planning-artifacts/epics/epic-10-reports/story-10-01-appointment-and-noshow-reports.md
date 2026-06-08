@@ -2,7 +2,8 @@
 story: 10.1
 epic: 10
 title: Appointment & No-Show Reports
-status: Not Started
+status: review
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 created: 2026-06-07
 requirements:
   functional: [FR-38, FR-39, FR-40]

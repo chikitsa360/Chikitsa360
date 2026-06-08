@@ -31,13 +31,23 @@ export function DoctorsSettingsClient({ clinicId: _clinicId }: { clinicId: strin
   async function saveEdit(id: string) {
     setSaving(true)
     try {
-      const res = await fetch('/api/v1/doctors', {
-        method: 'PUT',
+      const payload: { name?: string; speciality?: string; default_fee?: number | null } = {}
+      if (editData.name !== undefined) payload.name = editData.name
+      if (editData.speciality !== undefined) payload.speciality = editData.speciality ?? undefined
+      if (editData.default_fee !== undefined) {
+        const feeVal = editData.default_fee === '' || editData.default_fee === null
+          ? null
+          : parseInt(String(editData.default_fee), 10)
+        payload.default_fee = feeVal !== null && !isNaN(feeVal) ? feeVal : null
+      }
+
+      const res = await fetch(`/api/v1/doctors/${id}`, {
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, ...editData }),
+        body: JSON.stringify(payload),
       })
       if (res.ok) {
-        const updated = await res.json()
+        const updated = await res.json() as Doctor
         setDoctors((prev) => prev.map((d) => (d.id === id ? { ...d, ...updated } : d)))
         setEditingId(null)
       }
@@ -91,20 +101,48 @@ export function DoctorsSettingsClient({ clinicId: _clinicId }: { clinicId: strin
               {/* Info */}
               <div className="flex-1 min-w-0">
                 {editingId === doc.id ? (
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={editData.name ?? doc.name}
-                      onChange={(e) => setEditData((p) => ({ ...p, name: e.target.value }))}
-                      className="h-8 w-40 rounded-lg border border-border px-2 text-[13px] focus:border-primary focus:outline-none"
-                    />
-                    <input
-                      type="number"
-                      value={editData.default_fee ?? doc.default_fee ?? ''}
-                      onChange={(e) => setEditData((p) => ({ ...p, default_fee: e.target.value }))}
-                      placeholder="Fee (₹)"
-                      className="h-8 w-24 rounded-lg border border-border px-2 text-[13px] focus:border-primary focus:outline-none"
-                    />
+                  <div className="space-y-3 pt-1">
+                    {/* Name field */}
+                    <div>
+                      <label className="mb-1 block text-[12px] font-medium text-foreground/70">Name</label>
+                      <input
+                        type="text"
+                        value={editData.name ?? doc.name}
+                        onChange={(e) => setEditData((p) => ({ ...p, name: e.target.value }))}
+                        className="h-10 w-full rounded-lg border border-border px-3 text-[13px] focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                    {/* Default fee field */}
+                    <div>
+                      <div className="mb-1 flex items-center gap-1.5">
+                        <label className="text-[12px] font-medium text-foreground/70">
+                          Default Consultation Fee (INR)
+                        </label>
+                        <span className="rounded-full border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+                          Optional
+                        </span>
+                      </div>
+                      <div className="flex h-10 items-center overflow-hidden rounded-lg border border-border focus-within:border-primary">
+                        <span className="flex h-full items-center border-r border-border bg-muted px-2.5 text-[13px] text-muted-foreground select-none">
+                          ₹
+                        </span>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          value={editData.default_fee ?? doc.default_fee ?? ''}
+                          onChange={(e) => {
+                            const raw = e.target.value.replace(/[^0-9]/g, '')
+                            setEditData((p) => ({ ...p, default_fee: raw }))
+                          }}
+                          placeholder="e.g. 500"
+                          className="h-full flex-1 bg-transparent px-3 text-[13px] focus:outline-none"
+                        />
+                      </div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">
+                        Auto-populates when creating appointments for this doctor. Receptionists can override per appointment.
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <>

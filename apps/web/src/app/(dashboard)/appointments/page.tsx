@@ -14,12 +14,15 @@ interface Appointment {
   booking_source: string
   appointment_date: string
   appointment_time: string | null
+  consultation_fee: number | null
+  payment_status: 'paid' | 'unpaid'
 }
 
 interface Doctor {
   id: string
   name: string
   speciality: string | null
+  default_fee: number | null
 }
 
 /**
@@ -50,13 +53,15 @@ export default async function AppointmentsPage({
   let doctors: Doctor[] = []
 
   try {
-    initialAppointments = await db.$queryRawUnsafe<Appointment[]>(
+    const rawAppointments = await db.$queryRawUnsafe<(Appointment & { consultation_fee: string | null })[]>(
       `SELECT
          a.id, p.name AS patient_name, p.phone AS patient_phone,
          a.doctor_id, d.name AS doctor_name,
          a.status, a.token_number, a.booking_source,
          a.appointment_date::text,
-         a.appointment_time::text
+         a.appointment_time::text,
+         a.consultation_fee,
+         COALESCE(a.payment_status, 'unpaid') AS payment_status
        FROM "${schemaName}".appointments a
        JOIN "${schemaName}".patients p ON p.id = a.patient_id
        JOIN "${schemaName}".doctors d ON d.id = a.doctor_id
@@ -64,9 +69,14 @@ export default async function AppointmentsPage({
        ORDER BY a.appointment_time ASC NULLS LAST, a.token_number ASC`,
       date
     )
+    initialAppointments = rawAppointments.map((r) => ({
+      ...r,
+      consultation_fee: r.consultation_fee != null ? parseInt(String(r.consultation_fee), 10) : null,
+      payment_status: (r.payment_status ?? 'unpaid') as 'paid' | 'unpaid',
+    }))
 
     doctors = await db.$queryRawUnsafe<Doctor[]>(
-      `SELECT id, name, speciality FROM "${schemaName}".doctors ORDER BY name ASC`
+      `SELECT id, name, speciality, default_fee FROM "${schemaName}".doctors ORDER BY name ASC`
     )
   } catch {
     // Tenant schema may not be provisioned yet

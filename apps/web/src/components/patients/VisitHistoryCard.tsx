@@ -61,6 +61,26 @@ export function VisitHistoryCard({ entry, canEditNote, onNoteUpdated }: VisitHis
         </div>
       )}
 
+      {/* Billing */}
+      <div className="mt-1.5 flex items-center gap-2">
+        {entry.consultation_fee !== null ? (
+          <>
+            <span className="text-[12px] font-medium text-foreground">₹{entry.consultation_fee}</span>
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                entry.payment_status === 'paid'
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-amber-50 text-amber-700'
+              }`}
+            >
+              {entry.payment_status === 'paid' ? 'Paid' : 'Unpaid'}
+            </span>
+          </>
+        ) : (
+          <span className="text-[11px] text-muted-foreground">No fee recorded</span>
+        )}
+      </div>
+
       {/* Note section */}
       {entry.status === 'completed' && (
         <div className="mt-2">

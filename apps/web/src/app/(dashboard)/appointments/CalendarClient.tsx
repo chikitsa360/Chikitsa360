@@ -21,12 +21,15 @@ export interface Appointment {
   booking_source: string
   appointment_date: string
   appointment_time: string | null
+  consultation_fee: number | null
+  payment_status: 'paid' | 'unpaid'
 }
 
 export interface Doctor {
   id: string
   name: string
   speciality: string | null
+  default_fee: number | null
 }
 
 interface CalendarClientProps {
@@ -292,11 +295,24 @@ export function CalendarClient({
         <AppointmentDetailPanel
           appointment={selectedAppointment}
           clinicId={clinicId}
+          doctorDefaultFee={doctors.find((d) => d.id === selectedAppointment.doctor_id)?.default_fee ?? null}
           onClose={() => setSelectedAppointment(null)}
           onReschedule={handleReschedule}
           onCancel={handleCancel}
           onMarkComplete={handleMarkComplete}
           onMarkNoShow={handleMarkNoShow}
+          onBillingSaved={(fee, ps) => {
+            setSelectedAppointment((prev) =>
+              prev ? { ...prev, consultation_fee: fee, payment_status: ps } : null
+            )
+            setAppointments((prev) =>
+              prev.map((a) =>
+                a.id === selectedAppointment.id
+                  ? { ...a, consultation_fee: fee, payment_status: ps }
+                  : a
+              )
+            )
+          }}
         />
       )}
 

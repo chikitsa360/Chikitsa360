@@ -118,3 +118,20 @@ model StaffInvite {
 
   @@map("staff_invites")
 }
+
+model ExportJob {
+  id           String    @id @default(uuid())
+  clinicId     String    @map("clinic_id")
+  requestedBy  String    @map("requested_by")
+  reportType   String    @map("report_type")
+  fromDate     String    @map("from_date")
+  toDate       String    @map("to_date")
+  doctorId     String?   @map("doctor_id")
+  status       String    @default("pending") // pending | complete | failed
+  csvData      String?   @map("csv_data")    @db.Text
+  errorMessage String?   @map("error_message")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  expiresAt    DateTime  @map("expires_at")
+
+  @@map("export_jobs")
+}

@@ -28,11 +28,13 @@
     "next": "^15.3.3",
     "next-auth": "^5.0.0-beta.28",
     "next-intl": "^3.26.5",
+    "papaparse": "^5.5.3",
     "pusher": "^5.2.0",
     "pusher-js": "^8.4.0",
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "recharts": "^3.8.1",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -45,6 +47,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
     "@vitejs/plugin-react": "^4.3.4",

@@ -2,8 +2,9 @@
 story: 8.1
 epic: 8
 title: Real-Time Today's Summary & Upcoming Feed
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 requirements:
   functional: [FR-26, FR-27, FR-29]
   nfr: [NFR-2, NFR-5]

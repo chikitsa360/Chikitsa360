@@ -2,7 +2,8 @@
 story: 9.1
 epic: 9
 title: Consultation Fee Recording & Payment Status
-status: Not Started
+status: review
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 created: 2026-06-07
 requirements:
   functional: [FR-31]
@@ -130,3 +131,40 @@ apps/web/
 | Playwright (E2E) | Open detail panel → enter fee → toggle Paid → Save → revenue card updates within 3s | Core path |
 | Playwright | Toggle Unpaid after Paid → revenue decrements | Core path |
 | Playwright | Visit history card: fee + status badge visible for past appointment | Core path |
+
+## Dev Agent Record
+
+### Completion Notes
+
+- Created `PATCH /api/v1/appointments/[id]/billing/route.ts`: saves `consultation_fee` (INTEGER) + `payment_status` ('paid'/'unpaid') + `paid_at` timestamp. Restricted to OWNER/RECEPTIONIST (403 for DOCTOR). Cancelled appointments return 422. Auto-reverts status to 'unpaid' when fee is cleared.
+- Created `BillingSection.tsx`: fee input with ₹ prefix, Unpaid/Paid pill toggle, dirty-state Save button, green flash on success, read-only for cancelled appointments. Pre-fills from `doctorDefaultFee` (UI-only, counts as dirty).
+- Created `useUpdateBilling.ts`: PATCH mutation hook with loading/error state.
+- Updated `Appointment` type (CalendarClient) to include `consultation_fee` and `payment_status`.
+- Updated `GET /api/v1/appointments` query to return billing fields.
+- Updated `appointments/page.tsx` SSR query and doctor query to include billing + `default_fee`.
+- Updated `AppointmentDetailPanel.tsx` to accept `doctorDefaultFee` and `onBillingSaved`, render `BillingSection` in body.
+- Updated `CalendarClient.tsx` to pass `doctorDefaultFee` and handle optimistic billing update on panel.
+- Updated visit history API to return `consultation_fee` + `payment_status`.
+- Updated `useVisitHistory.ts` type and `VisitHistoryCard.tsx` to show fee + Paid/Unpaid chip or "No fee recorded".
+- Pusher `appointment.payment_updated` event published on every save → dashboard revenue card reacts.
+- 10 new integration tests in billing.test.ts — all pass.
+- Added `consultation_fee INTEGER`, `payment_status TEXT DEFAULT 'unpaid'`, `paid_at TIMESTAMP(3)` columns to `tenant-schema.sql`.
+
+### File List
+
+- `apps/web/prisma/baseline/tenant-schema.sql` (modified)
+- `apps/web/src/app/api/v1/appointments/[id]/billing/route.ts` (created)
+- `apps/web/src/app/api/v1/appointments/[id]/billing/__tests__/billing.test.ts` (created)
+- `apps/web/src/app/api/v1/appointments/route.ts` (modified)
+- `apps/web/src/app/(dashboard)/appointments/page.tsx` (modified)
+- `apps/web/src/app/(dashboard)/appointments/CalendarClient.tsx` (modified)
+- `apps/web/src/components/appointments/AppointmentDetailPanel.tsx` (modified)
+- `apps/web/src/components/appointments/BillingSection.tsx` (created)
+- `apps/web/src/hooks/useUpdateBilling.ts` (created)
+- `apps/web/src/app/api/v1/patients/[patientId]/appointments/route.ts` (modified)
+- `apps/web/src/hooks/useVisitHistory.ts` (modified)
+- `apps/web/src/components/patients/VisitHistoryCard.tsx` (modified)
+
+### Change Log
+
+- 2026-06-09: Implemented Story 9.1 — consultation fee recording, payment status toggle, Pusher event, audit log, visit history billing display. 10 integration tests added.

@@ -4,16 +4,19 @@ import * as React from 'react'
 import { statusBadgeClass } from './AppointmentCard'
 import { ReschedulePanel } from './ReschedulePanel'
 import { CancelDialog } from './CancelDialog'
+import { BillingSection } from './BillingSection'
 import type { Appointment } from '@/app/(dashboard)/appointments/CalendarClient'
 
 interface AppointmentDetailPanelProps {
   appointment: Appointment
   clinicId: string
+  doctorDefaultFee: number | null
   onClose: () => void
   onReschedule: (id: string, newDate: string, newTime: string) => Promise<Response>
   onCancel: (id: string) => Promise<Response>
   onMarkComplete: (id: string) => Promise<Response>
   onMarkNoShow: (id: string) => Promise<Response>
+  onBillingSaved?: (fee: number | null, paymentStatus: 'paid' | 'unpaid') => void
 }
 
 function formatTime(time: string | null): string {
@@ -44,11 +47,13 @@ function bookingSourceLabel(source: string): string {
 export function AppointmentDetailPanel({
   appointment,
   clinicId,
+  doctorDefaultFee,
   onClose,
   onReschedule,
   onCancel,
   onMarkComplete,
   onMarkNoShow,
+  onBillingSaved,
 }: AppointmentDetailPanelProps) {
   const [showReschedule, setShowReschedule] = React.useState(false)
   const [showCancelDialog, setShowCancelDialog] = React.useState(false)
@@ -132,6 +137,16 @@ export function AppointmentDetailPanel({
             <DetailRow label="Time" value={formatTime(appointment.appointment_time)} />
             <DetailRow label="Source" value={bookingSourceLabel(appointment.booking_source)} />
           </div>
+
+          {/* Billing section */}
+          <BillingSection
+            appointmentId={appointment.id}
+            status={appointment.status}
+            initialFee={appointment.consultation_fee}
+            initialPaymentStatus={appointment.payment_status}
+            doctorDefaultFee={doctorDefaultFee}
+            onSaved={onBillingSaved}
+          />
 
           {actionError && (
             <p className="text-[12px] text-red-600">{actionError}</p>

@@ -8,6 +8,7 @@ import { appointmentSmsFallback } from '@/inngest/functions/appointment-sms-fall
 import { appointmentCancellationSend } from '@/inngest/functions/appointment-cancellation-send'
 import { appointmentReminder24h } from '@/inngest/functions/appointment-reminder-24h'
 import { appointmentReminder2h } from '@/inngest/functions/appointment-reminder-2h'
+import { reportExportGenerate } from '@/inngest/functions/report-export-generate'
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -20,5 +21,6 @@ export const { GET, POST, PUT } = serve({
     appointmentCancellationSend,
     appointmentReminder24h,
     appointmentReminder2h,
+    reportExportGenerate,
   ],
 })

@@ -2,7 +2,8 @@
 story: 10.2
 epic: 10
 title: Revenue & Doctor Utilisation Reports
-status: Not Started
+status: review
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 created: 2026-06-07
 requirements:
   functional: [FR-41, FR-42, FR-43]

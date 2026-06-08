@@ -52,6 +52,8 @@ export async function GET(
       booking_source: string
       note_id: string | null
       note_text: string | null
+      consultation_fee: string | null
+      payment_status: string
     }[]>(
       `SELECT
          a.id,
@@ -62,7 +64,9 @@ export async function GET(
          a.token_number,
          a.booking_source,
          vn.id AS note_id,
-         vn.note AS note_text
+         vn.note AS note_text,
+         a.consultation_fee,
+         COALESCE(a.payment_status, 'unpaid') AS payment_status
        FROM "${schemaName}".appointments a
        JOIN "${schemaName}".doctors d ON d.id = a.doctor_id
        LEFT JOIN "${schemaName}".visit_notes vn ON vn.appointment_id = a.id
@@ -77,8 +81,14 @@ export async function GET(
 
   const total = parseInt(countRows[0]?.total ?? '0', 10)
 
+  const mappedAppointments = appointments.map((a) => ({
+    ...a,
+    consultation_fee: a.consultation_fee != null ? parseInt(a.consultation_fee, 10) : null,
+    payment_status: (a.payment_status ?? 'unpaid') as 'paid' | 'unpaid',
+  }))
+
   return NextResponse.json({
-    appointments,
+    appointments: mappedAppointments,
     pagination: {
       total,
       page,

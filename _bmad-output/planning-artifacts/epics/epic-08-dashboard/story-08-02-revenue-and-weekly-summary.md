@@ -2,8 +2,9 @@
 story: 8.2
 epic: 8
 title: Revenue Tracking & Weekly Summary
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 requirements:
   functional: [FR-28, FR-30]
   nfr: [NFR-5]

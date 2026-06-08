@@ -2,7 +2,8 @@
 story: 9.2
 epic: 9
 title: Default Fee Configuration per Doctor
-status: Not Started
+status: review
+baseline_commit: a763e4fd4d106eb32617f91c524684413434945a
 created: 2026-06-07
 requirements:
   functional: [FR-32]
@@ -110,3 +111,25 @@ apps/web/
 | Playwright (E2E) | Settings → Doctors → set default fee → create appointment → fee pre-filled in panel | Core path |
 | Playwright | Override pre-filled fee → save → doctor default_fee unchanged | Core path |
 | Playwright | Doctor with no default fee → fee input empty in panel | Core path |
+
+## Dev Agent Record
+
+### Completion Notes
+
+- Created `PATCH /api/v1/doctors/[doctorId]/route.ts`: OWNER-only endpoint updating `name`, `speciality`, `default_fee` with full audit log when `default_fee` changes. Does NOT touch existing appointment `consultation_fee` records (confirmed by test asserting single `executeRawUnsafe` call targeting doctors table only).
+- Updated `DoctorsSettingsClient.tsx` to use `PATCH /api/v1/doctors/{id}` (new per-ID route) instead of the old `PUT /api/v1/doctors` with id in body.
+- Improved default_fee edit UI: proper "Default Consultation Fee (INR)" label, "₹" prefix input, "Optional" chip badge, helper text explaining auto-populate behaviour. Numeric-only input via `inputMode="numeric"`.
+- `CalendarClient.Doctor` type and `appointments/page.tsx` doctor query updated to include `default_fee` — passed to `AppointmentDetailPanel` and pre-fills `BillingSection` when `consultation_fee = NULL`.
+- 8 new unit/integration tests for doctor PATCH — all pass.
+
+### File List
+
+- `apps/web/src/app/api/v1/doctors/[doctorId]/route.ts` (created)
+- `apps/web/src/app/api/v1/doctors/[doctorId]/__tests__/doctor-patch.test.ts` (created)
+- `apps/web/src/components/settings/DoctorsSettingsClient.tsx` (modified)
+- `apps/web/src/app/(dashboard)/appointments/CalendarClient.tsx` (modified — Doctor.default_fee)
+- `apps/web/src/app/(dashboard)/appointments/page.tsx` (modified — doctor query includes default_fee)
+
+### Change Log
+
+- 2026-06-09: Implemented Story 9.2 — PATCH /api/v1/doctors/[doctorId] with audit log, improved default_fee settings UI (label, helper text, Optional badge, ₹ prefix input). 8 tests added.

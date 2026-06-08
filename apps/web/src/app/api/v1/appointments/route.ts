@@ -67,6 +67,8 @@ export async function GET(req: NextRequest) {
     cancelled_at: string | null
     updated_at: string
     created_at: string
+    consultation_fee: string | null
+    payment_status: string
   }[]>(
     `SELECT
        a.id, a.patient_id, p.name AS patient_name, p.phone AS patient_phone,
@@ -77,7 +79,9 @@ export async function GET(req: NextRequest) {
        a.whatsapp_delivery_status,
        a.cancelled_at::text,
        a.updated_at::text,
-       a.created_at::text
+       a.created_at::text,
+       a.consultation_fee,
+       COALESCE(a.payment_status, 'unpaid') AS payment_status
      FROM "${schemaName}".appointments a
      JOIN "${schemaName}".patients p ON p.id = a.patient_id
      JOIN "${schemaName}".doctors d ON d.id = a.doctor_id
@@ -86,7 +90,13 @@ export async function GET(req: NextRequest) {
     date
   )
 
-  return NextResponse.json({ appointments: rows })
+  const appointments = rows.map((r) => ({
+    ...r,
+    consultation_fee: r.consultation_fee != null ? parseInt(r.consultation_fee, 10) : null,
+    payment_status: (r.payment_status ?? 'unpaid') as 'paid' | 'unpaid',
+  }))
+
+  return NextResponse.json({ appointments })
 }
 
 // ─── POST /api/v1/appointments ────────────────────────────────────────────────

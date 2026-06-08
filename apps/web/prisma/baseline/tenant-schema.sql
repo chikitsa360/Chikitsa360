@@ -21,6 +21,9 @@ CREATE TABLE IF NOT EXISTS appointments (
     updated_by UUID,
     reminder_24h_sent_at TIMESTAMP(3),           -- set when 24h reminder delivered (Story 7.1)
     reminder_2h_sent_at TIMESTAMP(3),            -- set when 2h reminder delivered (Story 7.1)
+    consultation_fee INTEGER,                    -- INR integer, NULL until recorded (Story 9.1)
+    payment_status TEXT NOT NULL DEFAULT 'unpaid', -- 'paid' | 'unpaid' (Story 9.1)
+    paid_at TIMESTAMP(3),                        -- set when payment_status -> 'paid', cleared on revert (Story 9.1)
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT appointments_pkey PRIMARY KEY (id)
