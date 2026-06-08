@@ -2,17 +2,25 @@ import { inngest } from '@/lib/inngest'
 import { db } from '@/lib/db'
 import { sendSms } from '@/lib/sms/msg91'
 import { buildSmsMessage } from '@/lib/notifications/build-confirmation-message'
+import { build24hReminderSms, build2hReminderSms } from '@/lib/notifications/build-reminder-message'
 import type { Lang } from '@/lib/whatsapp/templates'
 
+type SmsChannel = 'confirmation' | 'reminder-24h' | 'reminder-2h'
+
 /**
- * SMS fallback for failed WhatsApp delivery (Story 3.4).
- * Sends via MSG91 and logs result to appointment.delivery_failures.
+ * SMS fallback for failed/skipped WhatsApp delivery (Story 3.4, Story 7.1).
+ * Handles confirmation and both reminder channels.
+ * Channel discriminator: 'confirmation' (default) | 'reminder-24h' | 'reminder-2h'
  */
 export const appointmentSmsFallback = inngest.createFunction(
   { id: 'appointment-sms-fallback', name: 'Appointment: SMS Fallback' },
   { event: 'appointment/sms-fallback.send' },
   async ({ event }) => {
-    const { appointmentId, clinicId } = event.data
+    const { appointmentId, clinicId, channel = 'confirmation' } = event.data as {
+      appointmentId: string
+      clinicId: string
+      channel?: SmsChannel
+    }
     const schemaName = `clinic_${clinicId}`
 
     // Load appointment details
@@ -58,8 +66,7 @@ export const appointmentSmsFallback = inngest.createFunction(
     })
 
     const lang = (clinic?.language ?? 'en') as Lang
-
-    const smsBody = buildSmsMessage({
+    const baseDetails = {
       patientFirstName: patient.name.split(' ')[0] ?? patient.name,
       tokenNumber: apt.token_number ?? 0,
       doctorName: doctor?.name ?? 'Doctor',
@@ -68,22 +75,30 @@ export const appointmentSmsFallback = inngest.createFunction(
       clinicName: clinic?.name ?? '',
       address: clinic?.address ?? null,
       language: lang,
-    })
+    }
+
+    let smsBody: string
+    if (channel === 'reminder-24h') {
+      smsBody = build24hReminderSms(baseDetails)
+    } else if (channel === 'reminder-2h') {
+      smsBody = build2hReminderSms(baseDetails)
+    } else {
+      smsBody = buildSmsMessage(baseDetails)
+    }
 
     const result = await sendSms(patient.phone, smsBody)
 
     if (!result.success) {
-      // Log SMS failure to appointment record
       await db.$executeRawUnsafe(
         `UPDATE "${schemaName}".appointments
          SET delivery_failures = COALESCE(delivery_failures, '[]'::jsonb) || $1::jsonb,
              updated_at = NOW()
          WHERE id = $2::uuid`,
-        JSON.stringify([{ channel: 'sms', failedAt: new Date().toISOString(), reason: result.error }]),
+        JSON.stringify([{ channel: `sms-${channel}`, failedAt: new Date().toISOString(), reason: result.error }]),
         appointmentId
       )
     }
 
-    return { sent: result.success, error: result.error }
+    return { sent: result.success, channel, error: result.error }
   }
 )

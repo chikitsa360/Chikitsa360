@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { scheduleConfirmation } from '@/lib/notifications/send-confirmation'
+import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
 import { inngest } from '@/lib/inngest'
 import { writeAuditLog } from '@/lib/audit'
@@ -156,8 +157,10 @@ export async function PATCH(
       throw err
     }
 
-    // Re-send confirmation with new time
+    // Re-send confirmation + reschedule reminders with new time
     await scheduleConfirmation(id, clinicId)
+    const slotDatetime = new Date(`${newDate}T${newTime}:00+05:30`)
+    await scheduleReminders(id, clinicId, slotDatetime)
 
     // Audit log
     try {

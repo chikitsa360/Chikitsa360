@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { scheduleConfirmation } from '@/lib/notifications/send-confirmation'
+import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
 
 const bookingSchema = z.object({
@@ -121,8 +122,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create appointment' }, { status: 500 })
     }
 
-    // Schedule WhatsApp confirmation (Story 3.4 shared service)
+    // Schedule WhatsApp confirmation + reminders (Story 3.4, Story 7.1)
     await scheduleConfirmation(appt.id, clinicId)
+    const slotDatetime = new Date(`${date}T${startTime}:00+05:30`)
+    await scheduleReminders(appt.id, clinicId, slotDatetime)
 
     // Publish real-time event to portal subscribers (Story 4.2)
     try {

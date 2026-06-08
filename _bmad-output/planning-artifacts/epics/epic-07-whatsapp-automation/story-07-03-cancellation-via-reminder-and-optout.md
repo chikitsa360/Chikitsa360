@@ -2,8 +2,9 @@
 story: 7.3
 epic: 7
 title: Cancellation via Reminder & Opt-Out Management
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: cb126142ac853ade1aef263e88dee838d6bb6d2a
 requirements:
   functional: [FR-6, FR-24]
   nfr: [NFR-1]

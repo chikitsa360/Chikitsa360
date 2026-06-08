@@ -61,6 +61,10 @@ model Clinic {
   whatsappPhoneNumberId   String?  @map("whatsapp_phone_number_id")
   whatsappConnected       Boolean  @default(false) @map("whatsapp_connected")
 
+  // Reminder toggles (FR-25)
+  reminder24hEnabled      Boolean  @default(true) @map("reminder_24h_enabled")
+  reminder2hEnabled       Boolean  @default(true) @map("reminder_2h_enabled")
+
   users         User[]
   staffInvites  StaffInvite[]
 

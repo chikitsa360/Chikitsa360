@@ -17,7 +17,10 @@ CREATE TABLE IF NOT EXISTS appointments (
     delivery_failures JSONB,
     cancelled_at TIMESTAMP(3),
     cancelled_by UUID,
+    cancelled_via TEXT,                          -- 'whatsapp-reminder' | 'staff' | etc.
     updated_by UUID,
+    reminder_24h_sent_at TIMESTAMP(3),           -- set when 24h reminder delivered (Story 7.1)
+    reminder_2h_sent_at TIMESTAMP(3),            -- set when 2h reminder delivered (Story 7.1)
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT appointments_pkey PRIMARY KEY (id)
@@ -39,6 +42,7 @@ CREATE TABLE IF NOT EXISTS patients (
     booking_source TEXT NOT NULL DEFAULT 'portal',
     whatsapp_opt_out_at TIMESTAMP(3),
     is_placeholder BOOLEAN NOT NULL DEFAULT false,
+    duplicate_flag BOOLEAN NOT NULL DEFAULT false, -- set when 'Add Anyway' creates a dupe (Story 6.1)
     created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT patients_pkey PRIMARY KEY (id)

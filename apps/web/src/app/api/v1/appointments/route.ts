@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { z } from 'zod'
 import { scheduleConfirmation } from '@/lib/notifications/send-confirmation'
+import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
 import { writeAuditLog } from '@/lib/audit'
 import { UserRole } from '@prisma/client'
@@ -209,8 +210,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to create appointment' }, { status: 500 })
     }
 
-    // Schedule WhatsApp confirmation
+    // Schedule WhatsApp confirmation + reminders
     await scheduleConfirmation(appt.id, clinicId)
+    // Parse slot as IST (UTC+5:30) datetime
+    const slotDatetime = new Date(`${date}T${startTime}:00+05:30`)
+    await scheduleReminders(appt.id, clinicId, slotDatetime)
 
     // Publish Pusher event
     try {

@@ -14,6 +14,7 @@ export type AuditAction =
   | 'EXPORT_DATA'
   | 'LOGIN'
   | 'LOGOUT'
+  | 'SETTINGS_CHANGE'
 
 export interface AuditLogParams {
   clinicId: string

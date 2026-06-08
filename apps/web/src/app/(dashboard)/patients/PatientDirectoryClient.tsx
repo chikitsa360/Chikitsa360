@@ -19,9 +19,10 @@ interface Pagination {
 interface PatientDirectoryClientProps {
   initialPatients: PatientRow[]
   pagination: Pagination
+  filterOptOut?: boolean
 }
 
-export function PatientDirectoryClient({ initialPatients, pagination }: PatientDirectoryClientProps) {
+export function PatientDirectoryClient({ initialPatients, pagination, filterOptOut = false }: PatientDirectoryClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
@@ -97,6 +98,14 @@ export function PatientDirectoryClient({ initialPatients, pagination }: PatientD
           </button>
         )}
       </div>
+
+      {/* Opt-out filter banner */}
+      {filterOptOut && (
+        <div className="mb-4 flex items-center justify-between rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-[13px] text-amber-700">
+          <span>Showing patients who have opted out of WhatsApp messages.</span>
+          <a href="/patients" className="font-medium underline-offset-4 hover:underline">Clear filter</a>
+        </div>
+      )}
 
       {/* Inline new patient form */}
       {showNewForm && (

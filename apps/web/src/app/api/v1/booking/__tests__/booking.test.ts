@@ -14,6 +14,10 @@ vi.mock('@/lib/notifications/send-confirmation', () => ({
   scheduleConfirmation: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock('@/lib/notifications/schedule-reminders', () => ({
+  scheduleReminders: vi.fn().mockResolvedValue(undefined),
+}))
+
 vi.mock('@/lib/pusher', () => ({
   pusherServer: {
     trigger: vi.fn().mockResolvedValue(undefined),

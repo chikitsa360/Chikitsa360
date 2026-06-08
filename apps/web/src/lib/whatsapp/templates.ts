@@ -122,6 +122,69 @@ export const t = {
       ? `Online booking abhi uplabdh nahi hai. Appointment book karne ke liye humare yahan call karein: ${clinicPhone}.`
       : `Online booking is temporarily unavailable. Please call us at ${clinicPhone} to book.`,
 
+  // Reminder templates (Story 7.1)
+  reminder24hEn: (
+    firstName: string,
+    doctorName: string,
+    dateStr: string,
+    timeStr: string,
+    token: number,
+    clinicName: string,
+    address: string
+  ): string =>
+    `Reminder: Hi ${firstName}, your appointment with Dr. ${doctorName} is ${dateStr} at ${timeStr}. Token #${token}. ${clinicName}, ${address}. Tap "Cancel Appointment" to cancel.`,
+
+  reminder24hHi: (
+    firstName: string,
+    doctorName: string,
+    dateStr: string,
+    timeStr: string,
+    token: number,
+    clinicName: string,
+    address: string
+  ): string =>
+    `Yaad dilaana: ${firstName}, Dr. ${doctorName} ke saath aapki appointment ${dateStr} ko ${timeStr} baje hai. Token #${token}. ${clinicName}, ${address}. Cancel karne ke liye button dabaaein.`,
+
+  reminder2hEn: (
+    firstName: string,
+    doctorName: string,
+    timeStr: string,
+    token: number,
+    clinicName: string
+  ): string =>
+    `Reminder: Hi ${firstName}, your appointment with Dr. ${doctorName} is in 2 hours at ${timeStr}. Token #${token}. ${clinicName}. Reply CANCEL to cancel.`,
+
+  reminder2hHi: (
+    firstName: string,
+    doctorName: string,
+    timeStr: string,
+    token: number,
+    clinicName: string
+  ): string =>
+    `Yaad dilaana: ${firstName}, Dr. ${doctorName} ke saath aapki appointment 2 ghante mein ${timeStr} baje hai. Token #${token}. ${clinicName}. Cancel ke liye CANCEL reply karein.`,
+
+  // Cancellation acknowledgment via reminder Quick Reply (Story 7.3)
+  cancelAckEn: (
+    doctorName: string,
+    dateStr: string,
+    timeStr: string,
+    bookingUrl: string
+  ): string =>
+    `Your appointment with Dr. ${doctorName} on ${dateStr} at ${timeStr} has been cancelled. To book again, visit ${bookingUrl}.`,
+
+  cancelAckHi: (
+    doctorName: string,
+    dateStr: string,
+    timeStr: string,
+    bookingUrl: string
+  ): string =>
+    `Dr. ${doctorName} ke saath ${dateStr} ko ${timeStr} baje ki aapki appointment cancel ho gayi. Dobara book karne ke liye visit karein: ${bookingUrl}.`,
+
+  optOutWithClinic: (clinicName: string, lang: Lang): string =>
+    lang === 'hi'
+      ? `Aapko ${clinicName} ke WhatsApp messages se unsubscribe kar diya gaya hai. Ab aapko koi automated message nahi aayega.`
+      : `You've been unsubscribed from WhatsApp messages from ${clinicName}. You will no longer receive automated messages.`,
+
   confirmationEn: (
     firstName: string,
     token: number,

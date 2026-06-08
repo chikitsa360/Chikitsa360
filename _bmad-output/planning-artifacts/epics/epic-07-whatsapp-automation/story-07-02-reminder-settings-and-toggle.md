@@ -2,8 +2,9 @@
 story: 7.2
 epic: 7
 title: Reminder Settings & Clinic Toggle
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: cb126142ac853ade1aef263e88dee838d6bb6d2a
 requirements:
   functional: [FR-25]
   nfr: [NFR-10]

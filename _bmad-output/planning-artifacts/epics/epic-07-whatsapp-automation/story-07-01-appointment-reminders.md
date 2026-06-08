@@ -2,8 +2,9 @@
 story: 7.1
 epic: 7
 title: 24-Hour & 2-Hour Appointment Reminders
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: cb126142ac853ade1aef263e88dee838d6bb6d2a
 requirements:
   functional: [FR-22, FR-23, FR-24]
   nfr: [NFR-1, NFR-13]

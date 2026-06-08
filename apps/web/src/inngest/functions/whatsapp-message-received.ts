@@ -13,6 +13,7 @@ import { handleSlotSelection } from '@/lib/whatsapp/step-handlers/handle-slot-se
 import { handleReturningPatientResponse } from '@/lib/whatsapp/step-handlers/handle-returning-patient'
 import { handleCancellation } from '@/lib/whatsapp/step-handlers/handle-cancellation'
 import { handleOptOut, handleOptIn } from '@/lib/whatsapp/step-handlers/handle-opt-out'
+import { handleReminderCancellation } from '@/lib/whatsapp/step-handlers/handle-reminder-cancellation'
 import type { ClinicContext } from '@/lib/whatsapp/step-handlers/types'
 
 export const whatsappMessageReceived = inngest.createFunction(
@@ -90,7 +91,14 @@ export const whatsappMessageReceived = inngest.createFunction(
       return
     }
 
-    // 4. Detect global keywords (highest priority — can fire from any step)
+    // 4. Handle interactive button replies first (CANCEL_APPOINTMENT: Quick Reply from reminder)
+    if (messageType === 'interactive' && interactiveType === 'button_reply' && interactiveId?.startsWith('CANCEL_APPOINTMENT:')) {
+      const appointmentId = interactiveId.replace('CANCEL_APPOINTMENT:', '')
+      await handleReminderCancellation(clinicCtx, patientPhone, appointmentId, lang)
+      return
+    }
+
+    // 5. Detect global keywords (highest priority — can fire from any step)
     const rawText = messageBody ?? interactiveTitle ?? ''
     const keyword = detectKeyword(rawText)
 

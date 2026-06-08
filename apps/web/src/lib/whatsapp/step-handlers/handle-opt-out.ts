@@ -26,8 +26,8 @@ export async function handleOptOut(
   // Clear any in-progress conversation
   await deleteConversationState(clinic.id, patientPhone)
 
-  // Required acknowledgment (last message ever sent to this patient)
-  await sendText(clinic.phoneNumberId, patientPhone, t.optOut(lang))
+  // Required acknowledgment (last message ever sent to this patient from this clinic)
+  await sendText(clinic.phoneNumberId, patientPhone, t.optOutWithClinic(clinic.name, lang))
 }
 
 /**

@@ -15,6 +15,7 @@ export interface PatientRow {
   last_visit_date: string | null
   last_doctor_name: string | null
   visit_count?: string
+  whatsapp_opt_out_at?: string | null
 }
 
 interface PatientDirectoryTableProps {
