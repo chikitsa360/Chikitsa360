@@ -5,6 +5,7 @@ import { cn } from '@chikitsa360/core'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
 import { BottomTabBar } from './BottomTabBar'
+import { GlobalSearch } from '@/components/search/GlobalSearch'
 
 interface DashboardShellProps {
   children: React.ReactNode
@@ -21,10 +22,32 @@ export function DashboardShell({
   userRole,
   whatsAppBanner,
 }: DashboardShellProps) {
+  const [searchOpen, setSearchOpen] = React.useState(false)
+
+  // Cmd+K / Ctrl+K keyboard shortcut
+  React.useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setSearchOpen(true)
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [])
+
   return (
     <div className="flex h-screen overflow-hidden">
+      {/* Global search modal */}
+      <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+
       {/* Left sidebar — desktop only */}
-      <Sidebar userRole={userRole} userName={userName} clinicName={clinicName} />
+      <Sidebar
+        userRole={userRole}
+        userName={userName}
+        clinicName={clinicName}
+        onSearchClick={() => setSearchOpen(true)}
+      />
 
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { hasPermission, getDoctorLimit, requirePermission } from '../rbac'
+import { hasPermission, getDoctorLimit, requirePermission, canEditVisitNote } from '../rbac'
 import type { UserRole } from '@prisma/client'
 
 describe('hasPermission — OWNER', () => {
@@ -69,6 +69,12 @@ describe('getDoctorLimit', () => {
   it('returns 3 for GROWTH', () => expect(getDoctorLimit('GROWTH')).toBe(3))
   it('returns 10 for PRO', () => expect(getDoctorLimit('PRO')).toBe(10))
   it('returns 1 for unknown plan', () => expect(getDoctorLimit('UNKNOWN')).toBe(1))
+})
+
+describe('canEditVisitNote', () => {
+  it('returns true for DOCTOR', () => expect(canEditVisitNote('DOCTOR')).toBe(true))
+  it('returns true for OWNER', () => expect(canEditVisitNote('OWNER')).toBe(true))
+  it('returns false for RECEPTIONIST', () => expect(canEditVisitNote('RECEPTIONIST')).toBe(false))
 })
 
 describe('requirePermission', () => {

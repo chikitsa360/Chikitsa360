@@ -72,9 +72,10 @@ interface SidebarProps {
   userRole?: string
   userName?: string
   clinicName?: string
+  onSearchClick?: () => void
 }
 
-export function Sidebar({ userRole, userName, clinicName }: SidebarProps) {
+export function Sidebar({ userRole, userName, clinicName, onSearchClick }: SidebarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
 
@@ -124,10 +125,11 @@ export function Sidebar({ userRole, userName, clinicName }: SidebarProps) {
             className={cn(
               'h-8 w-full rounded-md border border-border bg-muted pl-7 pr-10 text-[12px]',
               'text-muted-foreground placeholder:text-muted-foreground',
-              'focus:outline-none focus:ring-1 focus:ring-ring'
+              'focus:outline-none focus:ring-1 focus:ring-ring cursor-pointer'
             )}
             placeholder="Search patients, appts..."
             readOnly
+            onClick={onSearchClick}
           />
           <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-border bg-card px-1 text-[10px] text-muted-foreground">
             ⌘K

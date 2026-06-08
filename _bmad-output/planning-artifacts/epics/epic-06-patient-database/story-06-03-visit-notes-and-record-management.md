@@ -2,8 +2,9 @@
 story: 6.3
 epic: 6
 title: Visit Notes & Record Management
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: 6385967b1c452cb0c0332f0a6d3762fd489dbbe8
 requirements:
   functional: [FR-18]
   nfr: [NFR-10]

@@ -93,3 +93,10 @@ export function requirePermission(session: SessionContext, permission: Permissio
 export function isRbacError(err: unknown): err is Error & { statusCode: number } {
   return err instanceof Error && 'statusCode' in err
 }
+
+// ── Visit note RBAC helper ─────────────────────────────────────────────────
+
+/** Returns true for DOCTOR and OWNER; false for RECEPTIONIST */
+export function canEditVisitNote(role: UserRole): boolean {
+  return hasPermission(role, 'visit-notes:write:own')
+}

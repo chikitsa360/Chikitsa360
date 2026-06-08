@@ -2,8 +2,9 @@
 story: 6.1
 epic: 6
 title: Patient Search & Directory
-status: Not Started
+status: review
 created: 2026-06-07
+baseline_commit: 6385967b1c452cb0c0332f0a6d3762fd489dbbe8
 requirements:
   functional: [FR-19, FR-20]
   nfr: [NFR-4, NFR-7]
