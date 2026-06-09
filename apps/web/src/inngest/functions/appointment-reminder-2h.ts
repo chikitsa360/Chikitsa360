@@ -37,13 +37,13 @@ export const appointmentReminder2h = inngest.createFunction(
       status: string
       token_number: number | null
       appointment_date: string
+      appointment_time: string | null
       is_sample: boolean
       patient_id: string
       doctor_id: string
-      slot_id: string | null
     }[]>(
-      `SELECT status, token_number, appointment_date::text, is_sample,
-              patient_id, doctor_id, slot_id
+      `SELECT status, token_number, appointment_date::text, appointment_time::text,
+              is_sample, patient_id, doctor_id
        FROM "${schemaName}".appointments WHERE id = $1::uuid LIMIT 1`,
       appointmentId
     )
@@ -92,15 +92,8 @@ export const appointmentReminder2h = inngest.createFunction(
     )
     const doctor = doctorRows[0]
 
-    // Load slot start time
-    let startTime = '00:00'
-    if (apt.slot_id) {
-      const slotRows = await db.$queryRawUnsafe<{ start_time: string }[]>(
-        `SELECT start_time::text FROM "${schemaName}".slots WHERE id = $1::uuid LIMIT 1`,
-        apt.slot_id
-      )
-      startTime = slotRows[0]?.start_time ?? '00:00'
-    }
+    // Use appointment_time directly (appointments use time column, not legacy slot_id)
+    const startTime = apt.appointment_time ? apt.appointment_time.slice(0, 5) : '00:00'
 
     const lang = (clinic.language ?? 'en') as Lang
     const message = build2hReminderMessage({

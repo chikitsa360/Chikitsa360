@@ -64,7 +64,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await req.json()
+  const body: unknown = await req.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
   const parsed = clinicUpsertSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: 'Validation failed', issues: parsed.error.issues }, { status: 400 })
@@ -159,7 +162,10 @@ export async function PUT(req: NextRequest) {
   }
 
   // Settings page update — slug is read-only after first save
-  const body = await req.json()
+  const body: unknown = await req.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
   const settingsSchema = z.object({
     name: z.string().min(1).max(100),
     address: z.string().min(1).max(200),

@@ -92,7 +92,10 @@ export async function POST(req: NextRequest) {
   const clinicId = session.user.clinicId
   const schemaName = `clinic_${clinicId}`
 
-  const body: unknown = await req.json()
+  const body: unknown = await req.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
   const parsed = createPatientSchema.safeParse(body)
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid input', details: parsed.error.issues }, { status: 400 })
