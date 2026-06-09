@@ -68,6 +68,7 @@ interface RevenueData {
   }[]
   byDay: { period: string; revenue: number; paidCount: number }[]
   groupedByWeek: boolean
+  revenueUnavailable?: boolean
 }
 
 interface BookingSourceData {
@@ -112,6 +113,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
   const [dateRange, setDateRange] = useState<DateRange>(() => getPresetRange('this-month'))
   const [doctorId, setDoctorId] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [fetchError, setFetchError] = useState(false)
 
   // Data state per tab
   const [appointmentsData, setAppointmentsData] = useState<AppointmentsData | null>(null)
@@ -123,6 +125,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
 
   const fetchData = useCallback(async (tab: Tab, range: DateRange, dId: string | null) => {
     setLoading(true)
+    setFetchError(false)
     const { from, to } = range
     const dParam = dId ? `&doctorId=${dId}` : ''
 
@@ -148,6 +151,8 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
         const res = await fetch(`/api/v1/reports/patient-growth?from=${from}&to=${to}`)
         if (res.ok) setPatientGrowthData((await res.json()) as PatientGrowthData)
       }
+    } catch {
+      setFetchError(true)
     } finally {
       setLoading(false)
     }
@@ -229,7 +234,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
                 doctorFiltered={!!doctorId}
               />
             ) : (
-              <EmptyState />
+              <EmptyState error={fetchError} />
             )}
           </ReportSection>
 
@@ -237,7 +242,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
             {noshowData ? (
               <NoShowTrendChart trend={noshowData.trend} />
             ) : (
-              <EmptyState />
+              <EmptyState error={fetchError} />
             )}
           </ReportSection>
         </>
@@ -252,9 +257,10 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
                 summary={revenueData.summary}
                 byDoctor={revenueData.byDoctor}
                 doctorFiltered={!!doctorId}
+                revenueUnavailable={revenueData.revenueUnavailable}
               />
             ) : (
-              <EmptyState />
+              <EmptyState error={fetchError} />
             )}
           </ReportSection>
 
@@ -271,7 +277,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
             {bookingSourceData ? (
               <BookingSourceChart sources={bookingSourceData.sources} />
             ) : (
-              <EmptyState />
+              <EmptyState error={fetchError} />
             )}
           </ReportSection>
         </>
@@ -302,7 +308,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
                   groupedByMonth={patientGrowthData.groupedByMonth}
                 />
               ) : (
-                <EmptyState />
+                <EmptyState error={fetchError} />
               )}
             </ReportSection>
 
@@ -316,7 +322,7 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
                   returningPct={patientGrowthData.summary.returningPct}
                 />
               ) : (
-                <EmptyState />
+                <EmptyState error={fetchError} />
               )}
             </ReportSection>
           </div>
@@ -326,6 +332,9 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
   )
 }
 
-function EmptyState() {
-  return <p className="text-sm text-[var(--color-text-3)] text-center py-8">Loading...</p>
+function EmptyState({ error }: { error?: boolean }) {
+  if (error) {
+    return <p className="text-sm text-red-500 text-center py-8">Failed to load data. Please try again.</p>
+  }
+  return <p className="text-sm text-[var(--color-text-3)] text-center py-8">No data for this period.</p>
 }

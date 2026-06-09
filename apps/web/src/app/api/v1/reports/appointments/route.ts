@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     no_shows: string
   }[]>(
     `SELECT
-       COUNT(*) FILTER (WHERE status != 'cancelled' AND is_sample = false)  AS total,
+       COUNT(*) FILTER (WHERE is_sample = false)                            AS total,
        COUNT(*) FILTER (WHERE status = 'completed'  AND is_sample = false)  AS completed,
        COUNT(*) FILTER (WHERE status = 'cancelled'  AND is_sample = false)  AS cancelled,
        COUNT(*) FILTER (WHERE status = 'no-show'    AND is_sample = false)  AS no_shows
@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
       `SELECT
          a.doctor_id,
          d.name AS doctor_name,
-         COUNT(*) FILTER (WHERE a.status != 'cancelled')  AS total,
+         COUNT(*)                                          AS total,
          COUNT(*) FILTER (WHERE a.status = 'completed')   AS completed,
          COUNT(*) FILTER (WHERE a.status = 'cancelled')   AS cancelled,
          COUNT(*) FILTER (WHERE a.status = 'no-show')     AS no_shows

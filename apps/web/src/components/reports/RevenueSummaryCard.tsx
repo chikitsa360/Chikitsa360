@@ -19,13 +19,23 @@ interface RevenueSummaryCardProps {
   summary: RevenueSummary
   byDoctor: ByDoctor[]
   doctorFiltered: boolean
+  revenueUnavailable?: boolean
 }
 
 function formatINR(n: number): string {
   return '₹' + n.toLocaleString('en-IN')
 }
 
-export default function RevenueSummaryCard({ summary, byDoctor, doctorFiltered }: RevenueSummaryCardProps) {
+export default function RevenueSummaryCard({ summary, byDoctor, doctorFiltered, revenueUnavailable }: RevenueSummaryCardProps) {
+  if (revenueUnavailable) {
+    return (
+      <div className="flex flex-col items-center justify-center py-10 gap-2 text-center">
+        <p className="text-sm font-medium text-[var(--color-text-2)]">Revenue data is not available.</p>
+        <p className="text-xs text-[var(--color-text-3)]">Record consultation fees and payment status on appointments to see revenue reports.</p>
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* KPI row */}

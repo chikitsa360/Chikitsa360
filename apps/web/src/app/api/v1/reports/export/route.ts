@@ -21,20 +21,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
-  const body = await req.json() as {
+  const rawBody = await req.json().catch(() => null) as {
     reportType: 'appointments' | 'revenue' | 'patients'
     from: string
     to: string
     doctorId?: string
+  } | null
+  if (!rawBody) {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
   }
-  const { reportType, from, to, doctorId } = body
+  const { reportType, from, to, doctorId } = rawBody
 
   if (!reportType || !from || !to) {
     return NextResponse.json({ error: 'reportType, from and to are required' }, { status: 400 })
   }
 
+  const dateRe = /^\d{4}-\d{2}-\d{2}$/
+  if (!dateRe.test(from) || !dateRe.test(to)) {
+    return NextResponse.json({ error: 'Invalid date format. Use YYYY-MM-DD' }, { status: 400 })
+  }
+
   const fromDate = new Date(from)
   const toDate = new Date(to)
+  if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+    return NextResponse.json({ error: 'Invalid date value' }, { status: 400 })
+  }
   const rangeDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24))
 
   if (rangeDays > 365) {

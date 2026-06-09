@@ -3,12 +3,37 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
 /**
+ * HEAD /api/v1/reports/export/[jobId]
+ * Lightweight poll: 200=ready, 202=pending, 422=failed, 410=expired.
+ */
+export async function HEAD(
+  _req: NextRequest,
+  { params }: { params: Promise<{ jobId: string }> }
+) {
+  const session = await auth()
+  if (!session?.user?.clinicId) return new Response(null, { status: 401 })
+  if (session.user.role !== 'OWNER') return new Response(null, { status: 403 })
+
+  const { jobId } = await params
+  const job = await db.exportJob.findUnique({ where: { id: jobId } })
+
+  if (!job) return new Response(null, { status: 404 })
+  if (job.clinicId !== session.user.clinicId) return new Response(null, { status: 403 })
+  if (job.status === 'failed') return new Response(null, { status: 422 })
+  if (job.status === 'complete') {
+    if (new Date() > job.expiresAt) return new Response(null, { status: 410 })
+    return new Response(null, { status: 200 })
+  }
+  return new Response(null, { status: 202 }) // pending
+}
+
+/**
  * GET /api/v1/reports/export/[jobId]
  * Owner-only. Returns the status of an async export job.
  * If complete, returns the CSV as a download.
  */
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   { params }: { params: Promise<{ jobId: string }> }
 ) {
   const session = await auth()
