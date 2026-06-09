@@ -1,0 +1,7 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "turbo build --filter=@chikitsa360/web",
+  "outputDirectory": "apps/web/.next",
+  "installCommand": "pnpm install",
+  "regions": ["sin1"]
+}
