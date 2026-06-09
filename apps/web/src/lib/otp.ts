@@ -122,6 +122,14 @@ export async function verifyOtp(
     throw new OtpExpiredError()
   }
 
+  // Dev bypass: accept a fixed code without Redis (never active in production)
+  const devBypass = process.env.NODE_ENV !== 'production' ? process.env.DEV_OTP_BYPASS : undefined
+  if (devBypass && code === devBypass) {
+    await redis.del(`otp:${phone}:${nonce}`)
+    await redis.del(`otp:${phone}:attempts`)
+    return true
+  }
+
   // Verify
   if (stored !== code) {
     // Increment failed attempts
