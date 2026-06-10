@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Detail — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: rgba(10,110,255,0.08);
+    --c-secondary: #00B8A9; --c-secondary-light: rgba(0,184,169,0.08);
+    --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-text-2: #475569; --c-text-3: #94A3B8;
+    --c-danger: #EF4444; --c-warning: #F59E0B; --c-success: #10B981;
+    --c-violet: #8B5CF6;
+    --sidebar-w: 240px; --topbar-h: 56px;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+
+  /* SIDEBAR */
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--c-border); gap: 10px; }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; }
+  .logo-text { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 14px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin: 1px 8px; font-size: 13.5px; font-weight: 500; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 12px 12px 4px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); margin-top: auto; }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+
+  /* TOPBAR */
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--c-text-3); }
+  .breadcrumb-link { color: var(--c-primary); cursor: pointer; font-weight: 500; }
+  .breadcrumb-sep { color: var(--c-text-3); }
+  .breadcrumb-current { color: var(--c-text); font-weight: 600; }
+  .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; font-family: inherit; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--c-border); color: var(--c-text-2); }
+  .btn-destructive { background: transparent; border: 1px solid rgba(239,68,68,.3); color: var(--c-danger); }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); display: flex; flex-direction: column; min-height: calc(100vh - var(--topbar-h)); }
+
+  /* EVENT HEADER */
+  .event-header { background: var(--c-card); border-bottom: 1px solid var(--c-border); padding: 20px 24px 0; }
+  .event-header-top { display: flex; align-items: flex-start; gap: 16px; padding-bottom: 16px; }
+  .event-icon { width: 48px; height: 48px; background: var(--c-primary-light); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .event-title-group { flex: 1; }
+  .event-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 20px; font-weight: 700; color: var(--c-text); letter-spacing: -0.01em; }
+  .event-subtitle { font-size: 13px; color: var(--c-text-3); margin-top: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .event-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--c-bg); border: 1px solid var(--c-border); border-radius: 20px; padding: 2px 10px; font-size: 12px; color: var(--c-text-2); font-weight: 500; }
+  .event-chip svg { width: 11px; height: 11px; flex-shrink: 0; }
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .status-published { background: rgba(16,185,129,.10); color: var(--c-success); }
+  .header-actions { display: flex; gap: 8px; align-items: flex-start; }
+
+  /* STATS STRIP */
+  .stats-strip { display: flex; border-top: 1px solid var(--c-border); }
+  .stat-block { flex: 1; padding: 14px 20px; border-right: 1px solid var(--c-border); }
+  .stat-block:last-child { border-right: none; }
+  .stat-num { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 26px; font-weight: 700; color: var(--c-text); }
+  .stat-num.blue { color: var(--c-primary); }
+  .stat-num.green { color: var(--c-success); }
+  .stat-num.orange { color: var(--c-warning); }
+  .stat-num.violet { color: var(--c-violet); }
+  .stat-lbl { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; margin-top: 2px; }
+  .stat-sub { font-size: 11px; color: var(--c-text-3); margin-top: 2px; }
+
+  /* SEAT PROGRESS BAR */
+  .seat-progress { margin-top: 6px; height: 4px; background: var(--c-border); border-radius: 2px; overflow: hidden; }
+  .seat-fill { height: 100%; border-radius: 2px; background: var(--c-primary); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 0; border-bottom: none; padding: 0 0; }
+  .tab { padding: 12px 20px; font-size: 14px; font-weight: 500; color: var(--c-text-2); cursor: pointer; position: relative; border-bottom: 2px solid transparent; }
+  .tab:hover { color: var(--c-text); }
+  .tab.active { color: var(--c-primary); font-weight: 600; border-bottom-color: var(--c-primary); }
+  .tab-count { display: inline-flex; align-items: center; justify-content: center; background: var(--c-primary-light); color: var(--c-primary); border-radius: 10px; font-size: 10px; font-weight: 700; padding: 0 5px; min-width: 18px; height: 16px; margin-left: 6px; }
+
+  /* CONTENT AREA */
+  .content { padding: 24px; }
+
+  /* TOOLBAR */
+  .content-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-text-3); pointer-events: none; }
+  .search-input { height: 34px; border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 0 12px 0 34px; font-size: 13px; color: var(--c-text); background: var(--c-card); width: 240px; }
+  .filter-select { height: 34px; padding: 0 28px 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; color: var(--c-text-2); background: var(--c-card); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+
+  /* ATTENDANCE NOTICE */
+  .attendance-banner { background: rgba(16,185,129,.06); border: 1px solid rgba(16,185,129,.2); border-radius: var(--radius-md); padding: 10px 16px; display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 13px; color: #065F46; font-weight: 500; }
+  .attendance-banner svg { color: var(--c-success); flex-shrink: 0; }
+
+  /* REGISTRANT TABLE */
+  .table-wrap { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .table-header { display: grid; grid-template-columns: 36px 2fr 1.2fr 130px 120px 160px 80px; background: #F8FAFC; border-bottom: 1px solid var(--c-border); padding: 0 16px; align-items: center; height: 40px; gap: 12px; }
+  .th { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; }
+  .table-row { display: grid; grid-template-columns: 36px 2fr 1.2fr 130px 120px 160px 80px; padding: 0 16px; align-items: center; min-height: 60px; border-bottom: 1px solid var(--c-border); gap: 12px; transition: background .1s; }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: rgba(10,110,255,0.02); }
+
+  /* Patient avatar */
+  .pat-avatar { width: 34px; height: 34px; border-radius: 50%; background: rgba(0,184,169,.12); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--c-secondary); flex-shrink: 0; }
+  .pat-name { font-size: 14px; font-weight: 600; color: var(--c-text); }
+  .pat-meta { font-size: 12px; color: var(--c-text-3); margin-top: 2px; }
+
+  /* Ref badge */
+  .ref-num { font-size: 12px; color: var(--c-text-2); background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-sm); padding: 2px 8px; font-family: 'Geist Mono', 'JetBrains Mono', monospace; display: inline-block; }
+
+  /* Status badge */
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .badge-registered { background: var(--c-primary-light); color: var(--c-primary); }
+  .badge-attended { background: rgba(16,185,129,.10); color: var(--c-success); }
+  .badge-no-show { background: rgba(245,158,11,.10); color: var(--c-warning); }
+  .badge-cancelled { background: rgba(239,68,68,.10); color: var(--c-danger); }
+
+  /* Attendance buttons */
+  .attend-btns { display: flex; gap: 6px; }
+  .attend-btn { height: 28px; padding: 0 10px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid var(--c-border); background: var(--c-card); color: var(--c-text-2); display: inline-flex; align-items: center; gap: 5px; }
+  .attend-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+  .attend-btn.active-attended { background: rgba(16,185,129,.10); border-color: rgba(16,185,129,.3); color: var(--c-success); font-weight: 700; }
+  .attend-btn.no-show { }
+  .attend-btn.no-show:hover { border-color: var(--c-warning); color: var(--c-warning); }
+
+  /* Row actions */
+  .row-actions { display: flex; gap: 4px; opacity: 0; justify-content: flex-end; }
+  .table-row:hover .row-actions { opacity: 1; }
+  .row-btn { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .row-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+  /* Checkbox */
+  .checkbox { width: 16px; height: 16px; border: 1.5px solid var(--c-border); border-radius: 3px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; background: var(--c-card); }
+  .checkbox.checked { background: var(--c-primary); border-color: var(--c-primary); }
+  .checkbox.checked::after { content: ''; display: block; width: 9px; height: 6px; border-left: 2px solid #fff; border-bottom: 2px solid #fff; transform: rotate(-45deg) translate(1px, -1px); }
+
+  /* Bulk action bar */
+  .bulk-bar { background: var(--c-primary); color: #fff; padding: 10px 16px; display: flex; align-items: center; gap: 12px; font-size: 13px; font-weight: 600; border-radius: var(--radius-md) var(--radius-md) 0 0; }
+  .bulk-btn { height: 28px; padding: 0 12px; background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.3); border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: #fff; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Chikitsa360</span>
+  </div>
+  <nav style="padding: 8px; flex: 1; overflow-y: auto;">
+    <div class="nav-section">Main</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Appointments</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients</div>
+    <div class="nav-item active"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/><path d="M9 16l2 2 4-4"/></svg>Events</div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>Prescriptions</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Billing</div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>Reports</div>
+    <div class="nav-item"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Settings</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar-sm">SR</div>
+      <div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="breadcrumb">
+    <span class="breadcrumb-link">Events</span>
+    <span class="breadcrumb-sep">›</span>
+    <span style="color:var(--c-text-3);">Weight Management Program</span>
+    <span class="breadcrumb-sep">›</span>
+    <span class="breadcrumb-current">Session 2</span>
+  </div>
+  <div class="topbar-right">
+    <button class="btn btn-outline">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Invite Patients
+    </button>
+    <button class="btn btn-outline">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Edit Event
+    </button>
+    <button class="btn btn-destructive">Cancel Event</button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:12px;margin-left:4px;">SR</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- Event header -->
+  <div class="event-header">
+    <div class="event-header-top">
+      <div class="event-icon">
+        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#0A6EFF" stroke-width="2"><path d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/><path d="M9 16l2 2 4-4"/></svg>
+      </div>
+      <div class="event-title-group">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="event-title">Weight Management Program — Session 2</div>
+          <span class="status-badge status-published"><span class="status-dot"></span>Published</span>
+          <span style="background:rgba(10,110,255,.1);color:var(--c-primary);font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;">TODAY</span>
+        </div>
+        <div class="event-subtitle">
+          <span class="event-chip"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Wed, 11 Jun 2026 · 6:00 – 7:30 PM</span>
+          <span class="event-chip"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Clinic Hall, Ground Floor</span>
+          <span class="event-chip" style="color:var(--c-success);">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z"/></svg>
+            Free event
+          </span>
+          <span style="font-size:12px;color:var(--c-text-3);">Part of series · Session 2 of 8</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div class="stat-block">
+        <div class="stat-num" style="color:var(--c-text);">30</div>
+        <div class="stat-lbl">Total Seats</div>
+        <div class="seat-progress"><div class="seat-fill" style="width:73%;"></div></div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num blue">22</div>
+        <div class="stat-lbl">Registered</div>
+        <div class="stat-sub">73% fill rate</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num green">8</div>
+        <div class="stat-lbl">Seats Remaining</div>
+        <div class="stat-sub">Registration open</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num violet">3</div>
+        <div class="stat-lbl">Waiting List</div>
+        <div class="stat-sub">Auto-promotes on cancel</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-num" style="color:var(--c-text-3);">30</div>
+        <div class="stat-lbl">Invitations Sent</div>
+        <div class="stat-sub">22 converted (73%)</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab">Overview</div>
+      <div class="tab active">Registrants<span class="tab-count">22</span></div>
+      <div class="tab">Waiting List<span class="tab-count" style="background:rgba(139,92,246,.1);color:var(--c-violet);">3</span></div>
+      <div class="tab">Invitations<span class="tab-count" style="background:var(--c-bg);color:var(--c-text-2);">30</span></div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- Attendance banner — event has started -->
+    <div class="attendance-banner">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      Event is in progress — mark attendance as patients arrive. Attendance marking is now enabled.
+    </div>
+
+    <!-- Toolbar -->
+    <div class="content-toolbar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="search-input" type="text" placeholder="Search registrants…">
+      </div>
+      <select class="filter-select">
+        <option>All statuses</option>
+        <option>Registered</option>
+        <option>Attended</option>
+        <option>No Show</option>
+        <option>Cancelled</option>
+      </select>
+      <div style="flex:1;"></div>
+      <button class="btn btn-outline" style="height:34px;font-size:13px;">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+        Add Walk-in
+      </button>
+      <button class="btn" style="height:34px;font-size:13px;background:rgba(16,185,129,.08);color:var(--c-success);border:1px solid rgba(16,185,129,.3);">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        Mark All Attended
+      </button>
+    </div>
+
+    <!-- Bulk action bar (2 selected) -->
+    <div class="bulk-bar" style="margin-bottom:0;border-radius:var(--radius-lg) var(--radius-lg) 0 0;">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      2 patients selected
+      <div style="flex:1;"></div>
+      <button class="bulk-btn"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>Mark Attended</button>
+      <button class="bulk-btn"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>Mark No-Show</button>
+      <button class="bulk-btn" style="background:rgba(255,255,255,.12);"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Deselect</button>
+    </div>
+
+    <!-- Registrants table -->
+    <div class="table-wrap" style="border-top-left-radius:0;border-top-right-radius:0;">
+      <div class="table-header">
+        <div><div class="checkbox checked"></div></div>
+        <div class="th">Patient</div>
+        <div class="th">Registered</div>
+        <div class="th">Reference</div>
+        <div class="th">Status</div>
+        <div class="th">Attendance</div>
+        <div class="th"></div>
+      </div>
+
+      <!-- Row 1 — Attended -->
+      <div class="table-row">
+        <div><div class="checkbox checked"></div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="pat-avatar">AN</div>
+          <div><div class="pat-name">Anita Nair</div><div class="pat-meta">+91 98765 43210</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--c-text-3);">10 Jun, 2:14 PM</div>
+        <div><span class="ref-num">EVT-0002-001</span></div>
+        <div><span class="badge badge-attended"><span class="status-dot" style="background:var(--c-success);"></span>Attended</span></div>
+        <div class="attend-btns">
+          <button class="attend-btn active-attended"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Attended</button>
+        </div>
+        <div class="row-actions">
+          <div class="row-btn" title="View patient"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Row 2 — Registered, checked in now -->
+      <div class="table-row" style="background:rgba(10,110,255,0.02);">
+        <div><div class="checkbox checked"></div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="pat-avatar" style="background:rgba(10,110,255,.1);color:var(--c-primary);">RK</div>
+          <div><div class="pat-name">Rahul Kumar</div><div class="pat-meta">+91 91234 56789</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--c-text-3);">10 Jun, 4:02 PM</div>
+        <div><span class="ref-num">EVT-0002-002</span></div>
+        <div><span class="badge badge-registered"><span class="status-dot" style="background:var(--c-primary);"></span>Registered</span></div>
+        <div class="attend-btns">
+          <button class="attend-btn" style="border-color:rgba(16,185,129,.4);color:var(--c-success);"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Attended</button>
+          <button class="attend-btn no-show"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+        </div>
+        <div class="row-actions">
+          <div class="row-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Row 3 — Registered -->
+      <div class="table-row">
+        <div><div class="checkbox"></div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="pat-avatar" style="background:#FDE8FF;color:#9333EA;">SP</div>
+          <div><div class="pat-name">Sunita Patil</div><div class="pat-meta">+91 87654 32109</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--c-text-3);">9 Jun, 11:30 AM</div>
+        <div><span class="ref-num">EVT-0002-003</span></div>
+        <div><span class="badge badge-registered"><span class="status-dot" style="background:var(--c-primary);"></span>Registered</span></div>
+        <div class="attend-btns">
+          <button class="attend-btn" style="border-color:rgba(16,185,129,.4);color:var(--c-success);"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Attended</button>
+          <button class="attend-btn no-show"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></button>
+        </div>
+        <div class="row-actions">
+          <div class="row-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Row 4 — No Show -->
+      <div class="table-row" style="opacity:.75;">
+        <div><div class="checkbox"></div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="pat-avatar" style="background:#FEF3C7;color:#92400E;">VM</div>
+          <div><div class="pat-name">Vinod Mahajan</div><div class="pat-meta">+91 99887 76655</div></div>
+        </div>
+        <div style="font-size:12px;color:var(--c-text-3);">8 Jun, 9:45 AM</div>
+        <div><span class="ref-num">EVT-0002-004</span></div>
+        <div><span class="badge badge-no-show"><span class="status-dot" style="background:var(--c-warning);"></span>No Show</span></div>
+        <div class="attend-btns">
+          <button class="attend-btn no-show" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.3);color:var(--c-warning);font-weight:700;"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>No Show</button>
+        </div>
+        <div class="row-actions">
+          <div class="row-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Row 5 — Cancelled -->
+      <div class="table-row" style="opacity:.55;">
+        <div><div class="checkbox"></div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="pat-avatar" style="background:rgba(239,68,68,.08);color:var(--c-danger);">PD</div>
+          <div>
+            <div class="pat-name">Priya Desai</div>
+            <div class="pat-meta">+91 80001 12233 · <span style="color:var(--c-danger);">Self-cancelled via WhatsApp</span></div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--c-text-3);">7 Jun, 3:20 PM</div>
+        <div><span class="ref-num">EVT-0002-005</span></div>
+        <div><span class="badge badge-cancelled"><span class="status-dot" style="background:var(--c-danger);"></span>Cancelled</span></div>
+        <div style="font-size:12px;color:var(--c-text-3);">—</div>
+        <div class="row-actions">
+          <div class="row-btn"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--c-border);">
+        <div style="font-size:12px;color:var(--c-text-3);">Showing 5 of 22 registrants</div>
+        <div style="display:flex;gap:4px;">
+          <div style="width:30px;height:30px;border-radius:var(--radius-md);border:1px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--c-text-3);">‹</div>
+          <div style="width:30px;height:30px;border-radius:var(--radius-md);border:1px solid var(--c-border);background:var(--c-primary);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:600;">1</div>
+          <div style="width:30px;height:30px;border-radius:var(--radius-md);border:1px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--c-text-2);">2</div>
+          <div style="width:30px;height:30px;border-radius:var(--radius-md);border:1px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--c-text-2);">3</div>
+          <div style="width:30px;height:30px;border-radius:var(--radius-md);border:1px solid var(--c-border);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--c-text-2);">›</div>
+        </div>
+      </div>
+    </div><!-- /table-wrap -->
+
+  </div><!-- /content -->
+</main>
+</body>
+</html>

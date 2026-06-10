@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Events — Chikitsa360</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: rgba(10,110,255,0.08);
+    --c-secondary: #00B8A9; --c-secondary-light: rgba(0,184,169,0.08);
+    --c-bg: #F8FAFC; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-text-2: #475569; --c-text-3: #94A3B8;
+    --c-danger: #EF4444; --c-warning: #F59E0B; --c-success: #10B981;
+    --c-violet: #8B5CF6;
+    --sidebar-w: 240px; --topbar-h: 56px;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; }
+
+  /* SIDEBAR */
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--c-card); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; z-index: 100; }
+  .sidebar-logo { height: var(--topbar-h); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--c-border); gap: 10px; }
+  .logo-mark { width: 28px; height: 28px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 12px; font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+  .logo-text { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 14px; }
+  .nav-section { font-size: 10px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .08em; padding: 12px 12px 4px; }
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--radius-md); color: var(--c-text-2); cursor: pointer; margin: 1px 8px; font-size: 13.5px; font-weight: 500; }
+  .nav-item:hover { background: var(--c-bg); }
+  .nav-item.active { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+  .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .nav-badge { margin-left: auto; background: var(--c-primary); color: #fff; border-radius: 10px; font-size: 10px; font-weight: 700; padding: 1px 6px; }
+  .sidebar-footer { padding: 12px; border-top: 1px solid var(--c-border); }
+  .user-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); cursor: pointer; }
+  .avatar-sm { width: 30px; height: 30px; border-radius: 50%; background: var(--c-primary-light); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: var(--c-primary); flex-shrink: 0; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-role { font-size: 11px; color: var(--c-text-3); }
+
+  /* TOPBAR */
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: var(--c-card); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 12px; z-index: 90; }
+  .topbar-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; flex: 1; }
+  .topbar-right { display: flex; align-items: center; gap: 8px; }
+  .icon-btn { width: 34px; height: 34px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .btn { height: 36px; padding: 0 16px; border-radius: var(--radius-md); font-size: 13.5px; font-weight: 600; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 7px; font-family: inherit; }
+  .btn-primary { background: var(--c-primary); color: #fff; }
+  .btn-outline { background: transparent; border: 1px solid var(--c-border); color: var(--c-text-2); }
+
+  /* MAIN */
+  .main { margin-left: var(--sidebar-w); margin-top: var(--topbar-h); padding: 24px; }
+
+  /* STATS STRIP */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 18px 20px; }
+  .stat-value { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 28px; font-weight: 700; color: var(--c-text); font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .stat-label { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+  .stat-trend { font-size: 12px; color: var(--c-success); margin-top: 4px; font-weight: 500; }
+  .stat-value.blue { color: var(--c-primary); }
+  .stat-value.green { color: var(--c-success); }
+  .stat-value.orange { color: var(--c-warning); }
+  .stat-value.violet { color: var(--c-violet); }
+
+  /* FILTER BAR */
+  .filter-bar { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); padding: 12px 16px; display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .filter-tabs { display: flex; background: var(--c-bg); border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 3px; gap: 2px; }
+  .filter-tab { padding: 5px 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; color: var(--c-text-2); cursor: pointer; white-space: nowrap; }
+  .filter-tab.active { background: var(--c-card); color: var(--c-primary); font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  .filter-count { display: inline-flex; align-items: center; justify-content: center; background: var(--c-primary); color: #fff; border-radius: 10px; font-size: 10px; font-weight: 700; padding: 0 5px; min-width: 18px; height: 16px; margin-left: 4px; }
+  .filter-count.muted { background: var(--c-border); color: var(--c-text-2); }
+  .search-input { flex: 1; height: 34px; border: 1px solid var(--c-border); border-radius: var(--radius-md); padding: 0 12px 0 34px; font-size: 13px; color: var(--c-text); background: var(--c-bg); position: relative; }
+  .search-wrap { position: relative; flex: 1; max-width: 300px; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--c-text-3); pointer-events: none; }
+  .filter-select { height: 34px; padding: 0 28px 0 10px; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; color: var(--c-text-2); background: var(--c-card); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 8px center; }
+
+  /* TABLE */
+  .table-wrap { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .table-header { display: grid; grid-template-columns: 2fr 1.3fr 100px 160px 120px 80px; gap: 0; background: #F8FAFC; border-bottom: 1px solid var(--c-border); padding: 0 16px; align-items: center; height: 40px; }
+  .th { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; }
+  .table-row { display: grid; grid-template-columns: 2fr 1.3fr 100px 160px 120px 80px; gap: 0; padding: 0 16px; align-items: center; height: 60px; border-bottom: 1px solid var(--c-border); cursor: pointer; transition: background .1s; }
+  .table-row:last-child { border-bottom: none; }
+  .table-row:hover { background: rgba(10,110,255,0.03); }
+  .table-row.series-child { background: rgba(248,250,252,0.5); }
+
+  /* Series group */
+  .series-group-header { display: grid; grid-template-columns: 2fr 1.3fr 100px 160px 120px 80px; gap: 0; padding: 0 16px; align-items: center; height: 44px; border-bottom: 1px solid var(--c-border); background: rgba(10,110,255,0.03); cursor: pointer; }
+  .series-expand { display: flex; align-items: center; gap: 8px; }
+  .chevron { width: 16px; height: 16px; color: var(--c-text-3); transition: transform .15s; }
+  .series-label { font-size: 12px; font-weight: 600; color: var(--c-text-2); }
+  .series-count-badge { background: var(--c-primary-light); color: var(--c-primary); border-radius: 10px; font-size: 10px; font-weight: 700; padding: 1px 7px; }
+
+  /* Event name cell */
+  .event-name { font-size: 14px; font-weight: 600; color: var(--c-text); display: flex; align-items: center; gap: 8px; }
+  .event-meta { font-size: 12px; color: var(--c-text-3); margin-top: 2px; display: flex; align-items: center; gap: 6px; }
+  .event-type-chip { background: var(--c-secondary-light); color: var(--c-secondary); border-radius: 10px; font-size: 11px; font-weight: 600; padding: 1px 8px; }
+
+  /* Date cell */
+  .date-cell { display: flex; flex-direction: column; }
+  .date-main { font-size: 13px; font-weight: 600; color: var(--c-text); }
+  .date-sub { font-size: 11px; color: var(--c-text-3); margin-top: 1px; }
+
+  /* Status badge */
+  .status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+  .status-published { background: rgba(16,185,129,.10); color: var(--c-success); }
+  .status-draft { background: rgba(100,116,139,.10); color: #64748B; }
+  .status-cancelled { background: rgba(239,68,68,.10); color: var(--c-danger); }
+  .status-completed { background: rgba(107,114,128,.10); color: #6B7280; }
+
+  /* Seat progress */
+  .seat-cell { display: flex; flex-direction: column; gap: 4px; }
+  .seat-nums { font-size: 13px; font-weight: 600; color: var(--c-text); }
+  .seat-bar-wrap { height: 4px; background: var(--c-border); border-radius: 2px; overflow: hidden; }
+  .seat-bar { height: 100%; border-radius: 2px; background: var(--c-primary); }
+  .seat-bar.full { background: var(--c-warning); }
+  .seat-label { font-size: 11px; color: var(--c-text-3); }
+
+  /* Waiting list cell */
+  .waiting-cell { font-size: 13px; color: var(--c-text-2); display: flex; align-items: center; gap: 5px; }
+  .waiting-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--c-violet); }
+
+  /* Row actions */
+  .row-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; justify-content: flex-end; }
+  .table-row:hover .row-actions { opacity: 1; }
+  .series-group-header:hover .row-actions { opacity: 1; }
+  .row-action-btn { width: 28px; height: 28px; border-radius: var(--radius-sm); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--c-text-2); }
+  .row-action-btn:hover { border-color: var(--c-primary); color: var(--c-primary); }
+
+  /* Pagination */
+  .pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--c-border); }
+  .pagination-info { font-size: 12px; color: var(--c-text-3); }
+  .pagination-btns { display: flex; gap: 4px; }
+  .page-btn { width: 30px; height: 30px; border-radius: var(--radius-md); border: 1px solid var(--c-border); background: var(--c-card); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 13px; color: var(--c-text-2); font-weight: 500; }
+  .page-btn.active { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">C</div>
+    <span class="logo-text">Chikitsa360</span>
+  </div>
+  <nav style="padding: 8px; flex: 1; overflow-y: auto;">
+    <div class="nav-section">Main</div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+      Appointments
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Patients
+    </div>
+    <div class="nav-item active">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/><path d="M9 16l2 2 4-4"/></svg>
+      Events
+      <span class="nav-badge">4</span>
+    </div>
+    <div class="nav-section">Clinical</div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-3-3v6"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+      Prescriptions
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Billing
+    </div>
+    <div class="nav-section">Insights</div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 9l-5 5-3-3-4 4"/></svg>
+      Reports
+    </div>
+    <div class="nav-item">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Settings
+    </div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar-sm">SR</div>
+      <div><div class="user-name">Dr. S. Rao</div><div class="user-role">Clinic Owner</div></div>
+    </div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <span class="topbar-title">Events</span>
+  <div class="topbar-right">
+    <div class="icon-btn">
+      <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <button class="btn btn-primary">
+      <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Event
+    </button>
+    <div class="avatar-sm" style="width:34px;height:34px;font-size:12px;">SR</div>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value blue">12</div>
+      <div class="stat-label">Total Events</div>
+      <div class="stat-trend">↑ 3 this month</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value green">4</div>
+      <div class="stat-label">Published</div>
+      <div class="stat-trend">2 upcoming this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" style="color:var(--c-text);">147</div>
+      <div class="stat-label">Total Registrations</div>
+      <div class="stat-trend">↑ 22 this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value violet">9</div>
+      <div class="stat-label">On Waiting List</div>
+      <div class="stat-label" style="margin-top:2px;font-size:11px;color:var(--c-text-3);text-transform:none;letter-spacing:0;">across 3 events</div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-tabs">
+      <div class="filter-tab active">All<span class="filter-count">12</span></div>
+      <div class="filter-tab">Published<span class="filter-count" style="background:rgba(16,185,129,.15);color:var(--c-success);">4</span></div>
+      <div class="filter-tab">Draft<span class="filter-count muted">3</span></div>
+      <div class="filter-tab">Completed<span class="filter-count muted">4</span></div>
+      <div class="filter-tab">Cancelled<span class="filter-count" style="background:rgba(239,68,68,.1);color:var(--c-danger);">1</span></div>
+    </div>
+    <div style="flex:1;"></div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="search-input" type="text" placeholder="Search events…" style="width:100%;">
+    </div>
+    <select class="filter-select">
+      <option>Sort: Upcoming first</option>
+      <option>Sort: Newest first</option>
+      <option>Sort: Seats remaining</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap">
+    <!-- Table header -->
+    <div class="table-header">
+      <div class="th">Event</div>
+      <div class="th">Date &amp; Time</div>
+      <div class="th">Status</div>
+      <div class="th">Seats</div>
+      <div class="th">Waiting List</div>
+      <div class="th"></div>
+    </div>
+
+    <!-- ─── Series: Weight Management Program ─── -->
+    <div class="series-group-header">
+      <div class="series-expand">
+        <svg class="chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        <div>
+          <div class="series-label">Weight Management Program</div>
+          <div style="font-size:11px;color:var(--c-text-3);margin-top:1px;">Series · 8 occurrences · Weekly on Wednesdays</div>
+        </div>
+        <span class="series-count-badge">8 events</span>
+      </div>
+      <div></div>
+      <div></div>
+      <div style="font-size:12px;color:var(--c-text-3);">176 / 240 total seats</div>
+      <div style="font-size:12px;color:var(--c-text-3);">7 waiting</div>
+      <div class="row-actions">
+        <div class="row-action-btn" title="View series">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Session 1 — Completed -->
+    <div class="table-row series-child">
+      <div>
+        <div class="event-name" style="padding-left:24px;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--c-text-3);flex-shrink:0;"><path d="M3 12h18"/></svg>
+          Weight Management — Session 1
+        </div>
+        <div class="event-meta" style="padding-left:38px;"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Clinic Hall · Ground Floor</div>
+      </div>
+      <div class="date-cell"><div class="date-main">Wed, 4 Jun 2026</div><div class="date-sub">6:00 – 7:30 PM</div></div>
+      <div><span class="status-badge status-completed"><span class="status-dot"></span>Completed</span></div>
+      <div class="seat-cell">
+        <div class="seat-nums">30 <span style="color:var(--c-text-3);font-weight:400;font-size:12px;">/ 30</span></div>
+        <div class="seat-bar-wrap"><div class="seat-bar full" style="width:100%;background:var(--c-success);"></div></div>
+        <div class="seat-label">Full — 28 attended</div>
+      </div>
+      <div class="waiting-cell">—</div>
+      <div class="row-actions">
+        <div class="row-action-btn" title="View"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Session 2 — Published, today -->
+    <div class="table-row series-child" style="border-left: 3px solid var(--c-primary);">
+      <div>
+        <div class="event-name" style="padding-left:24px;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--c-text-3);flex-shrink:0;"><path d="M3 12h18"/></svg>
+          Weight Management — Session 2
+          <span style="background:rgba(10,110,255,.1);color:var(--c-primary);font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;">TODAY</span>
+        </div>
+        <div class="event-meta" style="padding-left:38px;"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Clinic Hall · Ground Floor</div>
+      </div>
+      <div class="date-cell"><div class="date-main" style="color:var(--c-primary);">Wed, 11 Jun 2026</div><div class="date-sub">6:00 – 7:30 PM</div></div>
+      <div><span class="status-badge status-published"><span class="status-dot"></span>Published</span></div>
+      <div class="seat-cell">
+        <div class="seat-nums">22 <span style="color:var(--c-text-3);font-weight:400;font-size:12px;">/ 30</span></div>
+        <div class="seat-bar-wrap"><div class="seat-bar" style="width:73%;"></div></div>
+        <div class="seat-label">8 remaining</div>
+      </div>
+      <div class="waiting-cell"><span class="waiting-dot"></span>3 waiting</div>
+      <div class="row-actions">
+        <div class="row-action-btn" title="View"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="row-action-btn" title="Edit"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="row-action-btn" title="Invite patients"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 1.1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6 6l.87-.87a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.46 16"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Session 3 — Published, upcoming -->
+    <div class="table-row series-child">
+      <div>
+        <div class="event-name" style="padding-left:24px;">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--c-text-3);flex-shrink:0;"><path d="M3 12h18"/></svg>
+          Weight Management — Session 3
+        </div>
+        <div class="event-meta" style="padding-left:38px;"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Clinic Conference Room · Updated</div>
+      </div>
+      <div class="date-cell"><div class="date-main">Wed, 18 Jun 2026</div><div class="date-sub">6:00 – 7:30 PM</div></div>
+      <div><span class="status-badge status-published"><span class="status-dot"></span>Published</span></div>
+      <div class="seat-cell">
+        <div class="seat-nums">14 <span style="color:var(--c-text-3);font-weight:400;font-size:12px;">/ 30</span></div>
+        <div class="seat-bar-wrap"><div class="seat-bar" style="width:47%;"></div></div>
+        <div class="seat-label">16 remaining</div>
+      </div>
+      <div class="waiting-cell" style="color:var(--c-text-3);">—</div>
+      <div class="row-actions">
+        <div class="row-action-btn" title="View"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="row-action-btn" title="Edit"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Standalone event: Diabetes Awareness Camp -->
+    <div class="table-row">
+      <div>
+        <div class="event-name">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--c-secondary);flex-shrink:0;"><path d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/><path d="M9 16l2 2 4-4"/></svg>
+          Diabetes Awareness Camp
+        </div>
+        <div class="event-meta">
+          <svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Community Hall, Sector 4
+          <span class="event-type-chip">Free</span>
+        </div>
+      </div>
+      <div class="date-cell"><div class="date-main">Sat, 21 Jun 2026</div><div class="date-sub">10:00 AM – 1:00 PM</div></div>
+      <div><span class="status-badge status-published"><span class="status-dot"></span>Published</span></div>
+      <div class="seat-cell">
+        <div class="seat-nums">38 <span style="color:var(--c-text-3);font-weight:400;font-size:12px;">/ 50</span></div>
+        <div class="seat-bar-wrap"><div class="seat-bar" style="width:76%;"></div></div>
+        <div class="seat-label">12 remaining</div>
+      </div>
+      <div class="waiting-cell" style="color:var(--c-text-3);">—</div>
+      <div class="row-actions">
+        <div class="row-action-btn" title="View"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <div class="row-action-btn" title="Edit"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="row-action-btn" title="Invite patients"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Draft event -->
+    <div class="table-row" style="opacity:.75;">
+      <div>
+        <div class="event-name">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="color:var(--c-text-3);flex-shrink:0;"><path d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Nutrition Workshop — Monsoon Edition
+        </div>
+        <div class="event-meta"><svg width="11" height="11" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Clinic Hall · Ground Floor</div>
+      </div>
+      <div class="date-cell"><div class="date-main">Fri, 28 Jun 2026</div><div class="date-sub">5:00 – 6:30 PM</div></div>
+      <div><span class="status-badge status-draft"><span class="status-dot"></span>Draft</span></div>
+      <div class="seat-cell">
+        <div class="seat-nums">0 <span style="color:var(--c-text-3);font-weight:400;font-size:12px;">/ 25</span></div>
+        <div class="seat-bar-wrap"><div class="seat-bar" style="width:0%;"></div></div>
+        <div class="seat-label">Not published yet</div>
+      </div>
+      <div class="waiting-cell" style="color:var(--c-text-3);">—</div>
+      <div class="row-actions">
+        <div class="row-action-btn" title="Edit"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+        <div class="row-action-btn" title="Publish" style="color:var(--c-success);border-color:rgba(16,185,129,.3);"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="row-action-btn" title="Delete" style="color:var(--c-danger);"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <div class="pagination-info">Showing 5 of 12 events</div>
+      <div class="pagination-btns">
+        <div class="page-btn" style="color:var(--c-text-3);">‹</div>
+        <div class="page-btn active">1</div>
+        <div class="page-btn">2</div>
+        <div class="page-btn">3</div>
+        <div class="page-btn">›</div>
+      </div>
+    </div>
+
+  </div><!-- /table-wrap -->
+
+</main>
+</body>
+</html>

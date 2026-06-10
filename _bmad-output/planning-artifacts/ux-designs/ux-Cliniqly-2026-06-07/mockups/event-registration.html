@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Register — Weight Management Program</title>
+<style>
+  :root {
+    --c-primary: #0A6EFF; --c-primary-light: rgba(10,110,255,0.08);
+    --c-secondary: #00B8A9;
+    --c-bg: #F0F4FF; --c-card: #FFFFFF; --c-border: #E2E8F0;
+    --c-text: #0F172A; --c-muted: #F1F5F9; --c-muted-fg: #64748B;
+    --c-text-3: #94A3B8; --c-success: #10B981;
+    --c-warning: #F59E0B; --c-danger: #EF4444; --c-violet: #8B5CF6;
+    --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--c-bg); color: var(--c-text); font-size: 14px; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* HEADER */
+  .public-header { background: var(--c-card); border-bottom: 1px solid var(--c-border); padding: 0 24px; height: 56px; display: flex; align-items: center; gap: 12px; }
+  .clinic-logo-wrap { display: flex; align-items: center; gap: 10px; }
+  .clinic-logo { width: 30px; height: 30px; background: var(--c-primary); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; }
+  .clinic-name { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-weight: 700; font-size: 14px; }
+  .powered-by { margin-left: auto; font-size: 11px; color: var(--c-text-3); }
+
+  /* MAIN CONTAINER */
+  .container { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; width: 100%; }
+
+  /* EVENT CARD */
+  .event-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-xl); overflow: hidden; margin-bottom: 20px; }
+
+  .event-banner { background: linear-gradient(135deg, #0A6EFF 0%, #0048CC 100%); padding: 24px; color: white; position: relative; overflow: hidden; }
+  .event-banner::after { content: ''; position: absolute; right: -40px; top: -40px; width: 160px; height: 160px; background: rgba(255,255,255,.06); border-radius: 50%; }
+  .event-banner::before { content: ''; position: absolute; right: 20px; bottom: -60px; width: 120px; height: 120px; background: rgba(255,255,255,.04); border-radius: 50%; }
+  .event-series-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; opacity: .7; margin-bottom: 8px; }
+  .event-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; line-height: 1.3; letter-spacing: -0.01em; margin-bottom: 12px; position: relative; }
+  .event-meta-chips { display: flex; gap: 8px; flex-wrap: wrap; position: relative; }
+  .meta-chip { display: inline-flex; align-items: center; gap: 5px; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 500; }
+  .meta-chip svg { width: 11px; height: 11px; opacity: .8; }
+
+  .event-body { padding: 20px 24px; }
+
+  /* Description */
+  .event-desc { font-size: 14px; color: var(--c-muted-fg); line-height: 1.6; margin-bottom: 20px; }
+
+  /* Seat availability */
+  .seat-availability { background: var(--c-muted); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 20px; }
+  .seat-row { display: flex; align-items: center; gap: 16px; margin-bottom: 8px; }
+  .seat-stat { display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1; }
+  .seat-num { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; }
+  .seat-num.primary { color: var(--c-primary); }
+  .seat-num.success { color: var(--c-success); }
+  .seat-num.violet { color: var(--c-violet); }
+  .seat-sep { width: 1px; height: 40px; background: var(--c-border); }
+  .seat-lbl { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; }
+  .progress-wrap { height: 6px; background: var(--c-border); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--c-primary); }
+  .progress-fill.full { background: var(--c-warning); }
+  .seat-caption { font-size: 12px; color: var(--c-muted-fg); text-align: center; margin-top: 4px; }
+
+  /* Registration form */
+  .form-card { background: var(--c-card); border: 1px solid var(--c-border); border-radius: var(--radius-xl); padding: 24px; }
+  .form-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+  .form-subtitle { font-size: 13px; color: var(--c-muted-fg); margin-bottom: 20px; }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 6px; }
+  .form-input { width: 100%; height: 42px; border: 1.5px solid var(--c-border); border-radius: var(--radius-md); padding: 0 14px; font-size: 14px; color: var(--c-text); background: var(--c-card); font-family: inherit; transition: border-color .15s; }
+  .form-input:focus { outline: none; border-color: var(--c-primary); box-shadow: 0 0 0 3px rgba(10,110,255,.1); }
+  .form-hint { font-size: 12px; color: var(--c-text-3); margin-top: 4px; }
+  .input-wrap { position: relative; }
+  .input-flag { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--c-muted-fg); font-weight: 500; }
+  .input-phone { padding-left: 42px; }
+
+  /* Submit button */
+  .btn-register { width: 100%; height: 46px; background: var(--c-primary); color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; }
+  .btn-register:hover { background: #0058CC; }
+
+  /* Privacy note */
+  .privacy-note { font-size: 12px; color: var(--c-text-3); text-align: center; margin-top: 12px; line-height: 1.5; }
+
+  /* ─── STATES ─── */
+
+  /* Waiting list variant */
+  .waitlist-banner { background: rgba(139,92,246,.06); border: 1.5px solid rgba(139,92,246,.2); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .waitlist-icon { width: 36px; height: 36px; background: rgba(139,92,246,.12); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .waitlist-title { font-size: 14px; font-weight: 700; color: var(--c-violet); margin-bottom: 3px; }
+  .waitlist-desc { font-size: 13px; color: var(--c-muted-fg); line-height: 1.5; }
+  .btn-waitlist { width: 100%; height: 46px; background: var(--c-violet); color: white; border: none; border-radius: var(--radius-md); font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+  /* Duplicate registration notice */
+  .existing-reg-banner { background: rgba(10,110,255,.05); border: 1.5px solid rgba(10,110,255,.2); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 16px; }
+  .existing-reg-title { font-size: 14px; font-weight: 700; color: var(--c-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 7px; }
+  .existing-ref { font-family: 'Geist Mono', monospace; background: var(--c-primary-light); padding: 2px 8px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--c-primary); }
+  .existing-details { font-size: 13px; color: var(--c-muted-fg); line-height: 1.5; }
+
+  /* Footer */
+  .public-footer { margin-top: auto; padding: 20px; text-align: center; font-size: 12px; color: var(--c-text-3); border-top: 1px solid var(--c-border); background: var(--c-card); }
+
+  /* ─── CONFIRMATION STATE (shown after successful registration) ─── */
+  .confirmation-card { background: var(--c-card); border: 1.5px solid rgba(16,185,129,.25); border-radius: var(--radius-xl); padding: 32px 24px; text-align: center; margin-top: 8px; }
+  .confirm-icon { width: 64px; height: 64px; background: rgba(16,185,129,.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+  .confirm-title { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 22px; font-weight: 700; color: var(--c-success); margin-bottom: 6px; }
+  .confirm-subtitle { font-size: 14px; color: var(--c-muted-fg); margin-bottom: 20px; }
+  .confirm-ref-block { background: var(--c-muted); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 20px; }
+  .confirm-ref-label { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+  .confirm-ref { font-family: 'Geist Mono', 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--c-text); letter-spacing: .04em; }
+  .confirm-details { text-align: left; background: var(--c-bg); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .confirm-detail-row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .confirm-detail-icon { width: 28px; height: 28px; background: var(--c-primary-light); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .confirm-detail-label { font-size: 11px; font-weight: 600; color: var(--c-text-3); text-transform: uppercase; letter-spacing: .05em; }
+  .confirm-detail-value { font-size: 13px; font-weight: 600; color: var(--c-text); }
+  .confirm-wa-note { background: rgba(37,211,102,.06); border: 1px solid rgba(37,211,102,.2); border-radius: var(--radius-md); padding: 10px 14px; font-size: 13px; color: #065F46; display: flex; align-items: center; gap: 8px; }
+  .btn-cancel-reg { width: 100%; height: 38px; background: transparent; border: 1px solid var(--c-border); border-radius: var(--radius-md); font-size: 13px; font-weight: 500; color: var(--c-muted-fg); cursor: pointer; font-family: inherit; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="public-header">
+  <div class="clinic-logo-wrap">
+    <div class="clinic-logo">M</div>
+    <span class="clinic-name">Mehta Wellness Clinic</span>
+  </div>
+  <span class="powered-by">Powered by Chikitsa360</span>
+</header>
+
+<!-- MAIN -->
+<div class="container">
+
+  <!-- EVENT DETAILS CARD -->
+  <div class="event-card">
+    <div class="event-banner">
+      <div class="event-series-label">Weekly Program · Session 2 of 8</div>
+      <div class="event-title">Weight Management Program</div>
+      <div class="event-meta-chips">
+        <span class="meta-chip">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Wed, 11 Jun 2026
+        </span>
+        <span class="meta-chip">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          6:00 PM – 7:30 PM
+        </span>
+        <span class="meta-chip">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Clinic Hall, Ground Floor
+        </span>
+        <span class="meta-chip" style="background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.3);">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 0 1 0 2.828l-7 7a2 2 0 0 1-2.828 0l-7-7A1.994 1.994 0 0 1 3 12V7a4 4 0 0 1 4-4z"/></svg>
+          Free Event
+        </span>
+      </div>
+    </div>
+
+    <div class="event-body">
+      <p class="event-desc">Join Dr. Mehta for an interactive session on weight management techniques, dietary planning, and lifestyle changes. This session is part of our 8-week structured program for patients managing obesity and metabolic conditions.</p>
+
+      <!-- Seat availability -->
+      <div class="seat-availability">
+        <div class="seat-row">
+          <div class="seat-stat">
+            <div class="seat-num primary">30</div>
+            <div class="seat-lbl">Total Seats</div>
+          </div>
+          <div class="seat-sep"></div>
+          <div class="seat-stat">
+            <div class="seat-num success">8</div>
+            <div class="seat-lbl">Available</div>
+          </div>
+          <div class="seat-sep"></div>
+          <div class="seat-stat">
+            <div class="seat-num" style="color:var(--c-text-3);">22</div>
+            <div class="seat-lbl">Registered</div>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-fill" style="width:73%;"></div>
+        </div>
+        <div class="seat-caption">8 seats remaining — register now to secure your spot</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- STATE A: Registration form (seats available)    -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="form-card">
+    <div class="form-title">Register for this Event</div>
+    <div class="form-subtitle">Enter your details to secure your seat. Your confirmation will be sent via WhatsApp.</div>
+
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" type="text" placeholder="Enter your full name" value="Anita Sharma">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Mobile Number</label>
+      <div class="input-wrap">
+        <span class="input-flag">+91</span>
+        <input class="form-input input-phone" type="tel" placeholder="10-digit mobile number" value="98765 43210">
+      </div>
+      <div class="form-hint">Your confirmation and event reminders will be sent to this number on WhatsApp</div>
+    </div>
+
+    <button class="btn-register">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Confirm Registration — Free
+    </button>
+    <div class="privacy-note">By registering, you agree to receive event updates on WhatsApp. You can opt out at any time.</div>
+  </div>
+
+  <!-- DIVIDER -->
+  <div style="display:flex;align-items:center;gap:12px;margin:24px 0;"><div style="flex:1;height:1px;background:var(--c-border);"></div><div style="font-size:12px;color:var(--c-text-3);font-weight:500;">OR — Other States</div><div style="flex:1;height:1px;background:var(--c-border);"></div></div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- STATE B: Fully booked — waiting list offer      -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="form-card" style="margin-bottom:20px;">
+    <div class="seat-availability" style="margin-bottom:16px;">
+      <div class="seat-row">
+        <div class="seat-stat"><div class="seat-num" style="color:var(--c-text);">30</div><div class="seat-lbl">Total Seats</div></div>
+        <div class="seat-sep"></div>
+        <div class="seat-stat"><div class="seat-num" style="color:var(--c-danger);">0</div><div class="seat-lbl">Available</div></div>
+        <div class="seat-sep"></div>
+        <div class="seat-stat"><div class="seat-num violet">3</div><div class="seat-lbl">Waiting</div></div>
+      </div>
+      <div class="progress-wrap"><div class="progress-fill full" style="width:100%;"></div></div>
+      <div class="seat-caption" style="color:var(--c-warning);font-weight:600;">All seats are filled</div>
+    </div>
+
+    <div class="waitlist-banner">
+      <div class="waitlist-icon">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#8B5CF6" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <div>
+        <div class="waitlist-title">Join the Waiting List</div>
+        <div class="waitlist-desc">This event is fully booked. Join the waiting list — you'll be automatically registered and notified if a seat opens up.</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Full Name</label>
+      <input class="form-input" type="text" placeholder="Enter your full name">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Mobile Number</label>
+      <div class="input-wrap">
+        <span class="input-flag">+91</span>
+        <input class="form-input input-phone" type="tel" placeholder="10-digit mobile number">
+      </div>
+    </div>
+    <button class="btn-waitlist">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Join Waiting List — Position #4
+    </button>
+    <div class="privacy-note">We'll notify you via WhatsApp if a seat becomes available.</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- STATE C: Confirmation page (after registration)  -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="confirmation-card">
+    <div class="confirm-icon">
+      <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="confirm-title">You're Registered!</div>
+    <div class="confirm-subtitle">Your seat is confirmed for this event. Save your reference number.</div>
+
+    <div class="confirm-ref-block">
+      <div class="confirm-ref-label">Your Reference Number</div>
+      <div class="confirm-ref">EVT-0002-023</div>
+    </div>
+
+    <div class="confirm-details">
+      <div class="confirm-detail-row">
+        <div class="confirm-detail-icon"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#0A6EFF" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div><div class="confirm-detail-label">Name</div><div class="confirm-detail-value">Anita Sharma</div></div>
+      </div>
+      <div class="confirm-detail-row">
+        <div class="confirm-detail-icon"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#0A6EFF" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+        <div><div class="confirm-detail-label">Date &amp; Time</div><div class="confirm-detail-value">Wednesday, 11 June 2026 · 6:00 – 7:30 PM</div></div>
+      </div>
+      <div class="confirm-detail-row">
+        <div class="confirm-detail-icon"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="#0A6EFF" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <div><div class="confirm-detail-label">Venue</div><div class="confirm-detail-value">Clinic Hall, Ground Floor · Mehta Wellness Clinic</div></div>
+      </div>
+    </div>
+
+    <div class="confirm-wa-note">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.9.5C5.6.5.5 5.6.5 11.9c0 2.1.55 4.1 1.6 5.85L.5 23.5l5.9-1.55c1.7.95 3.65 1.5 5.5 1.5h.05c6.3 0 11.4-5.1 11.4-11.4C23.4 5.65 18.2.5 11.9.5zm0 20.85h-.05c-1.75 0-3.5-.45-5-1.3l-.35-.2-3.65.95 1-3.55-.25-.35C2.6 15.35 2.05 13.65 2.05 11.9 2.05 6.75 6.75 2.05 11.9 2.05c2.5 0 4.85.95 6.6 2.7 1.75 1.75 2.75 4.1 2.75 6.6.05 5.15-4.65 9.8-9.85 9.8-.45 0-.05 0 0 0l-.5.2z"/></svg>
+      Confirmation and a 24h reminder will be sent to +91 98765 43210 on WhatsApp.
+    </div>
+
+    <div style="margin-top:16px;">
+      <button class="btn-cancel-reg">Cancel my registration</button>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer class="public-footer">
+  Mehta Wellness Clinic · Powered by <strong>Chikitsa360</strong>
+</footer>
+
+</body>
+</html>
