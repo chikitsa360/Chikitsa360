@@ -119,6 +119,15 @@ export async function POST(req: NextRequest) {
 
     const event = rows[0]
 
+    // Register slug in global lookup table for public /events/[slug] pages
+    if (event?.id) {
+      await db.$executeRawUnsafe(
+        `INSERT INTO event_slugs (slug, clinic_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        slug,
+        clinicId
+      )
+    }
+
     await writeAuditLog({
       clinicId,
       userId,
@@ -200,7 +209,16 @@ export async function POST(req: NextRequest) {
       slug,
       userId
     )
-    if (rows[0]) events.push(rows[0])
+    if (rows[0]) {
+      events.push(rows[0])
+      // Register each event slug in global lookup table
+      const evSlug = rows[0].slug
+      await db.$executeRawUnsafe(
+        `INSERT INTO event_slugs (slug, clinic_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+        evSlug,
+        clinicId
+      )
+    }
   }
 
   await writeAuditLog({

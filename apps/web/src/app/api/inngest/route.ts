@@ -9,6 +9,7 @@ import { appointmentCancellationSend } from '@/inngest/functions/appointment-can
 import { appointmentReminder24h } from '@/inngest/functions/appointment-reminder-24h'
 import { appointmentReminder2h } from '@/inngest/functions/appointment-reminder-2h'
 import { reportExportGenerate } from '@/inngest/functions/report-export-generate'
+import { eventInvitationBlast } from '@/inngest/functions/event-invitation-blast'
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -22,5 +23,6 @@ export const { GET, POST, PUT } = serve({
     appointmentReminder24h,
     appointmentReminder2h,
     reportExportGenerate,
+    eventInvitationBlast,
   ],
 })

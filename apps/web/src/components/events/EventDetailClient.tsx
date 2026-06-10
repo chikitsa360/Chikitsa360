@@ -4,6 +4,9 @@ import * as React from 'react'
 import Link from 'next/link'
 import { cn } from '@chikitsa360/core'
 import { EditEventModal } from './EditEventModal'
+import { EventRegistrantsTab } from './EventRegistrantsTab'
+import { EventWaitingListTab } from './EventWaitingListTab'
+import { EventInvitationsTab } from './EventInvitationsTab'
 import type { EventItem } from './EventsListClient'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -95,6 +98,12 @@ interface Props {
   event: EventDetail
 }
 
+interface TabData {
+  registrations: unknown[]
+  waitingList: unknown[]
+  invitations: unknown[]
+}
+
 export function EventDetailClient({ event: initialEvent }: Props) {
   const [event, setEvent] = React.useState(initialEvent)
   const [activeTab, setActiveTab] = React.useState<Tab>('overview')
@@ -102,6 +111,24 @@ export function EventDetailClient({ event: initialEvent }: Props) {
   const [showCancelConfirm, setShowCancelConfirm] = React.useState(false)
   const [actionLoading, setActionLoading] = React.useState(false)
   const [actionError, setActionError] = React.useState<string | null>(null)
+  const [tabData, setTabData] = React.useState<TabData | null>(null)
+  const [tabLoading, setTabLoading] = React.useState(false)
+  const tabDataLoadedRef = React.useRef(false)
+
+  const loadTabData = React.useCallback(async () => {
+    if (tabDataLoadedRef.current) return
+    tabDataLoadedRef.current = true
+    setTabLoading(true)
+    try {
+      const res = await fetch(`/api/v1/events/${event.id}/registrants`)
+      if (res.ok) {
+        const json = await res.json() as { data: TabData }
+        setTabData(json.data)
+      }
+    } finally {
+      setTabLoading(false)
+    }
+  }, [event.id])
 
   const handlePublish = async () => {
     setActionLoading(true)
@@ -241,7 +268,10 @@ export function EventDetailClient({ event: initialEvent }: Props) {
         {TABS.map(tab => (
           <button
             key={tab.key}
-            onClick={() => setActiveTab(tab.key)}
+            onClick={() => {
+              setActiveTab(tab.key)
+              if (tab.key !== 'overview') void loadTabData()
+            }}
             className={cn(
               'px-4 pb-2.5 pt-2 text-[13px] font-medium transition-colors border-b-2 -mb-px',
               activeTab === tab.key
@@ -374,21 +404,24 @@ export function EventDetailClient({ event: initialEvent }: Props) {
       )}
 
       {activeTab === 'registrants' && (
-        <div className="flex items-center justify-center rounded-xl border border-border bg-card py-16 text-[14px] text-muted-foreground">
-          Registrant management coming soon
-        </div>
+        <EventRegistrantsTab
+          registrations={(tabData?.registrations ?? []) as Parameters<typeof EventRegistrantsTab>[0]['registrations']}
+          loading={tabLoading}
+        />
       )}
 
       {activeTab === 'waiting-list' && (
-        <div className="flex items-center justify-center rounded-xl border border-border bg-card py-16 text-[14px] text-muted-foreground">
-          Waiting list management coming soon
-        </div>
+        <EventWaitingListTab
+          waitingList={(tabData?.waitingList ?? []) as Parameters<typeof EventWaitingListTab>[0]['waitingList']}
+          loading={tabLoading}
+        />
       )}
 
       {activeTab === 'invitations' && (
-        <div className="flex items-center justify-center rounded-xl border border-border bg-card py-16 text-[14px] text-muted-foreground">
-          Invitation management coming soon
-        </div>
+        <EventInvitationsTab
+          invitations={(tabData?.invitations ?? []) as Parameters<typeof EventInvitationsTab>[0]['invitations']}
+          loading={tabLoading}
+        />
       )}
 
       {/* Edit modal */}

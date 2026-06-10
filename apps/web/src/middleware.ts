@@ -21,6 +21,8 @@ const PUBLIC_API_PATHS = [
   '/api/v1/slots/available',
   '/api/v1/booking',
   '/api/og/',
+  '/api/v1/events/by-slug/',   // public event lookup by slug
+  '/api/v1/events/',           // covers /events/[slug]/register (public registration)
 ]
 
 export default auth(async function middleware(req: NextRequest & { auth: unknown }) {
@@ -45,8 +47,8 @@ export default auth(async function middleware(req: NextRequest & { auth: unknown
     return NextResponse.redirect(new URL('/dashboard', req.url))
   }
 
-  // Skip auth checks for public API routes and booking page
-  if (isPublicApi || pathname.startsWith('/book/')) {
+  // Skip auth checks for public API routes, booking pages, and public event pages
+  if (isPublicApi || pathname.startsWith('/book/') || pathname.startsWith('/event/')) {
     return NextResponse.next()
   }
 
