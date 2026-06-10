@@ -67,12 +67,6 @@ export function PatientLookup({
     }
   }
 
-  function validateName(value: string): string {
-    if (!value.trim()) return 'Name is required.'
-    if (!/\p{L}/u.test(value.trim())) return 'Please enter a valid patient name.'
-    return ''
-  }
-
   return (
     <div className="space-y-4">
       {/* Phone input */}

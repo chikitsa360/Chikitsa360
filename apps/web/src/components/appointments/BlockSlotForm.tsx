@@ -18,7 +18,7 @@ interface BlockSlotFormProps {
  * Supports one-time, daily, and weekly recurrence.
  */
 export function BlockSlotForm({
-  clinicId,
+  clinicId: _clinicId,
   doctors,
   defaultDate,
   defaultStartTime,

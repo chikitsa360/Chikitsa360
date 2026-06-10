@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { DayView } from '@/components/appointments/DayView'
 import { WeekView } from '@/components/appointments/WeekView'
 import { DateNavigator } from '@/components/appointments/DateNavigator'
@@ -44,15 +44,14 @@ interface CalendarClientProps {
 
 export function CalendarClient({
   clinicId,
-  userId,
-  userRole,
+  userId: _userId,
+  userRole: _userRole,
   initialDate,
   initialView,
   initialAppointments,
   doctors,
 }: CalendarClientProps) {
   const router = useRouter()
-  const searchParams = useSearchParams()
 
   const [currentDate, setCurrentDate] = React.useState(initialDate)
   const [view, setView] = React.useState<'day' | 'week'>(initialView)

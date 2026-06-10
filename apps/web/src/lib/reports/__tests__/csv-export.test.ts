@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateCsv, generateCsvFilename, appointmentsToCsvRows, revenueToCsvRows, patientGrowthToCsvRows } from '../csv-export'
+import { generateCsv, generateCsvFilename, appointmentsToCsvRows, patientGrowthToCsvRows } from '../csv-export'
 
 describe('generateCsv', () => {
   it('starts with UTF-8 BOM (\\uFEFF)', () => {

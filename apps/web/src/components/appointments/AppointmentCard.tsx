@@ -38,10 +38,6 @@ function formatTime(time: string | null): string {
   return `${displayH}:${m} ${period}`
 }
 
-function maskPhone(phone: string): string {
-  if (phone.length < 4) return phone
-  return `+91 XXXXXX${phone.slice(-4)}`
-}
 
 function bookingSourceBadge(source: string): string {
   switch (source) {

@@ -25,12 +25,6 @@ export function ReschedulePanel({ appointment, clinicId, onClose, onConfirm }: R
 
   React.useEffect(() => {
     setLoadingSlots(true)
-    const params = new URLSearchParams({
-      clinicId,
-      doctorId: appointment.doctor_id,
-      days: '7',
-    })
-    // Use slug-based slot API via clinicId
     fetch(`/api/v1/appointments?date=${appointment.appointment_date}`)
       .catch(() => null)
       .finally(() => setLoadingSlots(false))

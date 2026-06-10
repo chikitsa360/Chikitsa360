@@ -20,7 +20,7 @@ interface NewAppointmentPanelProps {
 export function NewAppointmentPanel({
   clinicId,
   doctors,
-  defaultDate,
+  defaultDate: _defaultDate,
   onClose,
   onCreated,
 }: NewAppointmentPanelProps) {

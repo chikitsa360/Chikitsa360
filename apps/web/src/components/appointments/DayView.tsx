@@ -13,7 +13,7 @@ interface DayViewProps {
 }
 
 export function DayView({
-  date,
+  date: _date,
   appointments,
   onAppointmentClick,
   onNewAppointment,

@@ -17,7 +17,7 @@ interface WeekViewProps {
  * Shows per-doctor appointment counts per day.
  * Clicking a day navigates to Day View for that date.
  */
-export function WeekView({ currentDate, clinicId, onDayClick }: WeekViewProps) {
+export function WeekView({ currentDate, clinicId: _clinicId, onDayClick }: WeekViewProps) {
   const weekDates = getWeekDates(currentDate)
   const [counts, setCounts] = React.useState<WeekDayCounts>({})
   const [loading, setLoading] = React.useState(false)

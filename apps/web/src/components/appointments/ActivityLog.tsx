@@ -51,7 +51,7 @@ function formatDateTime(dt: string): string {
  * Activity Log table for Settings → Activity Log (Story 5.4).
  * Read-only, paginated, filterable by action type and date range.
  */
-export function ActivityLog({ clinicId }: ActivityLogProps) {
+export function ActivityLog({ clinicId: _clinicId }: ActivityLogProps) {
   const [entries, setEntries] = React.useState<AuditEntry[]>([])
   const [loading, setLoading] = React.useState(false)
   const [page, setPage] = React.useState(1)
