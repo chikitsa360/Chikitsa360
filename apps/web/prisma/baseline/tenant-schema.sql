@@ -156,3 +156,83 @@ CREATE TABLE IF NOT EXISTS notification_settings (
     reminder_2h_enabled BOOLEAN NOT NULL DEFAULT true,
     CONSTRAINT notification_settings_pkey PRIMARY KEY (id)
 );
+
+-- ── Epic 12: Events Module ──────────────────────────────────────────────────
+
+-- event_series (must exist before events due to FK reference)
+CREATE TABLE IF NOT EXISTS event_series (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    clinic_id TEXT NOT NULL,
+    recurrence_type TEXT NOT NULL CHECK (recurrence_type IN ('daily','weekly')),
+    recurrence_day_of_week INTEGER CHECK (recurrence_day_of_week >= 0 AND recurrence_day_of_week <= 6),
+    total_occurrences INTEGER NOT NULL CHECK (total_occurrences >= 2 AND total_occurrences <= 52),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- events
+CREATE TABLE IF NOT EXISTS events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    clinic_id TEXT NOT NULL,
+    series_id UUID REFERENCES event_series(id) ON DELETE SET NULL,
+    title TEXT NOT NULL,
+    description TEXT,
+    start_time TIMESTAMPTZ NOT NULL,
+    end_time TIMESTAMPTZ NOT NULL,
+    venue TEXT,
+    meeting_link TEXT,
+    max_seats INTEGER NOT NULL CHECK (max_seats > 0 AND max_seats <= 500),
+    seats_registered INTEGER NOT NULL DEFAULT 0 CHECK (seats_registered >= 0),
+    registration_deadline TIMESTAMPTZ,
+    fee_paise INTEGER CHECK (fee_paise >= 0),
+    status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','published','cancelled','completed')),
+    slug TEXT NOT NULL,
+    created_by TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (slug)
+);
+
+-- event_registrations
+CREATE TABLE IF NOT EXISTS event_registrations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    patient_id UUID NOT NULL,
+    reference_number TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL DEFAULT 'registered' CHECK (status IN ('registered','attended','no_show','cancelled')),
+    cancellation_token TEXT UNIQUE,
+    token_expires_at TIMESTAMPTZ,
+    registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- event_waiting_list
+CREATE TABLE IF NOT EXISTS event_waiting_list (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    patient_id UUID NOT NULL,
+    position INTEGER NOT NULL,
+    status TEXT NOT NULL DEFAULT 'waiting' CHECK (status IN ('waiting','promoted','removed')),
+    joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- event_invitations
+CREATE TABLE IF NOT EXISTS event_invitations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+    patient_id UUID NOT NULL,
+    sent_at TIMESTAMPTZ,
+    delivery_status TEXT NOT NULL DEFAULT 'pending' CHECK (delivery_status IN ('pending','sent','failed')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (event_id, patient_id)
+);
+
+-- Indexes for events module
+CREATE INDEX IF NOT EXISTS events_clinic_status_idx ON events(clinic_id, status);
+CREATE INDEX IF NOT EXISTS events_slug_idx ON events(slug);
+CREATE INDEX IF NOT EXISTS events_series_id_idx ON events(series_id) WHERE series_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS event_registrations_event_id_idx ON event_registrations(event_id);
+CREATE INDEX IF NOT EXISTS event_registrations_event_patient_idx ON event_registrations(event_id, patient_id);
+CREATE INDEX IF NOT EXISTS event_registrations_token_idx ON event_registrations(cancellation_token) WHERE cancellation_token IS NOT NULL;
+CREATE INDEX IF NOT EXISTS event_waiting_list_event_position_idx ON event_waiting_list(event_id, position);
+CREATE INDEX IF NOT EXISTS event_invitations_event_id_idx ON event_invitations(event_id);

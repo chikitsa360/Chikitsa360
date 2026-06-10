@@ -21,6 +21,7 @@ const PatientsIcon = () => <Icon><path strokeLinecap="round" d="M20 21v-2a4 4 0 
 const DoctorsIcon = () => <Icon><path strokeLinecap="round" d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></Icon>
 const PrescriptionsIcon = () => <Icon><path strokeLinecap="round" d="M9 12l2 2 4-4" /><path strokeLinecap="round" d="M21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9 9 4 9 9z" /></Icon>
 const BillingIcon = () => <Icon><path strokeLinecap="round" d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></Icon>
+const EventsIcon = () => <Icon><path strokeLinecap="round" d="M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /><path strokeLinecap="round" d="M9 16l2 2 4-4" /></Icon>
 const ReportsIcon = () => <Icon><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></Icon>
 const ChevronDown = () => (
   <svg className="h-3.5 w-3.5 shrink-0 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -52,6 +53,7 @@ const NAV_ITEMS: NavItemDef[] = [
   { key: 'doctors',       href: '/doctors',       icon: <DoctorsIcon />,       section: 'main', roles: ['OWNER'] },
   { key: 'prescriptions', href: '/prescriptions', icon: <PrescriptionsIcon />, section: 'main' },
   { key: 'billing',       href: '/billing',       icon: <BillingIcon />,       section: 'main', roles: ['OWNER'] },
+  { key: 'events',        href: '/events',        icon: <EventsIcon />,        section: 'main' },
   { key: 'reports',       href: '/reports',       icon: <ReportsIcon />,       section: 'insights' },
 ]
 

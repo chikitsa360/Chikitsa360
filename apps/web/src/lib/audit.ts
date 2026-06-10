@@ -15,6 +15,10 @@ export type AuditAction =
   | 'LOGIN'
   | 'LOGOUT'
   | 'SETTINGS_CHANGE'
+  | 'EVENT_CREATED'
+  | 'EVENT_UPDATED'
+  | 'EVENT_PUBLISHED'
+  | 'EVENT_CANCELLED'
 
 export interface AuditLogParams {
   clinicId: string
