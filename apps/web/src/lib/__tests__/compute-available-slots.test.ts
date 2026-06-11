@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { generateSlotTimes, getDayOfWeek } from '../compute-available-slots'
+import { isPlanExpired } from '../plan/check-plan'
 
 describe('getDayOfWeek', () => {
   it('returns correct day for a known Monday', () => {
@@ -146,12 +147,7 @@ describe('mobile number validation', () => {
 })
 
 describe('soft paywall check (plan expired)', () => {
-  function isPlanExpired(trialEndsAt: Date | null): boolean {
-    if (trialEndsAt === null) return false
-    return trialEndsAt < new Date()
-  }
-
-  it('returns false when trialEndsAt is null', () => {
+  it('returns false when planExpiresAt is null', () => {
     expect(isPlanExpired(null)).toBe(false)
   })
 

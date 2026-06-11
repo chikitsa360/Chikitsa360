@@ -68,6 +68,12 @@ model Clinic {
   // Event reminder toggle (FR-14)
   eventReminder24hEnabled Boolean  @default(true) @map("event_reminder_24h_enabled")
 
+  // Subscription enforcement (Epic 11)
+  planExpiresAt       DateTime? @map("plan_expires_at")
+  doctorLimit         Int       @default(2) @map("doctor_limit")
+  lastExportUrl       String?   @map("last_export_url")
+  lastExportExpiresAt DateTime? @map("last_export_expires_at")
+
   users         User[]
   staffInvites  StaffInvite[]
 
@@ -75,12 +81,13 @@ model Clinic {
 }
 
 model User {
-  id        String    @id @default(uuid())
-  phone     String    @unique
-  name      String?
-  role      UserRole
-  clinicId  String?   @map("clinic_id")
-  createdAt DateTime  @default(now()) @map("created_at")
+  id         String    @id @default(uuid())
+  phone      String    @unique
+  name       String?
+  role       UserRole
+  clinicId   String?   @map("clinic_id")
+  systemRole String?   @map("system_role")
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   clinic    Clinic?   @relation(fields: [clinicId], references: [id])
 

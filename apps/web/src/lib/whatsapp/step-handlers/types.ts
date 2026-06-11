@@ -9,7 +9,7 @@ export interface ClinicContext {
   language: 'en' | 'hi'
   clinicPhone: string | null
   address: string | null
-  trialEndsAt: Date | null
+  planExpiresAt: Date | null
   whatsappConnected: boolean
 }
 

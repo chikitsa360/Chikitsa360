@@ -16,6 +16,7 @@ import { eventChangeNotification } from '@/inngest/functions/event-change-notifi
 import { eventCancelNotification } from '@/inngest/functions/event-cancel-notification'
 import { eventRegistrationCancelled } from '@/inngest/functions/event-registration-cancelled'
 import { eventAutoComplete } from '@/inngest/functions/event-auto-complete'
+import { clinicDataExport } from '@/inngest/functions/clinic-data-export'
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -36,5 +37,6 @@ export const { GET, POST, PUT } = serve({
     eventCancelNotification,
     eventRegistrationCancelled,
     eventAutoComplete,
+    clinicDataExport,
   ],
 })

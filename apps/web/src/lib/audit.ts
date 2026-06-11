@@ -24,6 +24,7 @@ export type AuditAction =
   | 'WAITLIST_PROMOTED'
   | 'WAITLIST_REMOVED'
   | 'EVENT_AUTO_COMPLETED'
+  | 'ERASE_PATIENT'
 
 export interface AuditLogParams {
   clinicId: string

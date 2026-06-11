@@ -54,7 +54,7 @@ const VALID_BODY = {
 
 const ACTIVE_CLINIC = {
   id: 'clinic-abc',
-  trialEndsAt: null,
+  planExpiresAt: null,
 }
 
 beforeEach(() => {
@@ -141,7 +141,7 @@ describe('POST /api/v1/booking - web booking creation', () => {
     const expiredDate = new Date(Date.now() - 86400000) // yesterday
     mockDb.clinic.findUnique.mockResolvedValue({
       id: 'clinic-abc',
-      trialEndsAt: expiredDate,
+      planExpiresAt: expiredDate,
     })
 
     const res = await POST(makeRequest(VALID_BODY))

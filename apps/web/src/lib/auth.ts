@@ -14,6 +14,7 @@ declare module 'next-auth' {
       role: string
       clinicId: string | null
       onboardingComplete: boolean
+      systemRole: string | null
     }
   }
 
@@ -21,6 +22,7 @@ declare module 'next-auth' {
     role: string
     clinicId: string | null
     onboardingComplete: boolean
+    systemRole: string | null
   }
 }
 
@@ -70,6 +72,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           role: user.role,
           clinicId: user.clinicId,
           onboardingComplete: user.clinic?.onboardingComplete ?? false,
+          systemRole: user.systemRole ?? null,
         }
       },
     }),
@@ -99,6 +102,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = user.role
         token.clinicId = user.clinicId
         token.onboardingComplete = user.onboardingComplete
+        token.systemRole = user.systemRole ?? null
       }
       return token
     },
@@ -108,6 +112,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.role = (token.role as string) ?? 'RECEPTIONIST'
       session.user.clinicId = (token.clinicId as string | null) ?? null
       session.user.onboardingComplete = (token.onboardingComplete as boolean) ?? false
+      session.user.systemRole = (token.systemRole as string | null) ?? null
       return session
     },
 

@@ -28,7 +28,7 @@ function makeRequest(params: Record<string, string>) {
   return new NextRequest(url.toString())
 }
 
-const ACTIVE_CLINIC = { id: 'clinic-xyz', trialEndsAt: null }
+const ACTIVE_CLINIC = { id: 'clinic-xyz', planExpiresAt: null }
 
 beforeEach(() => {
   vi.resetAllMocks()
@@ -51,7 +51,7 @@ describe('GET /api/v1/slots/available', () => {
 
   it('returns planExpired flag for expired clinics', async () => {
     const expiredDate = new Date(Date.now() - 86400000)
-    mockDb.clinic.findUnique.mockResolvedValue({ id: 'clinic-xyz', trialEndsAt: expiredDate })
+    mockDb.clinic.findUnique.mockResolvedValue({ id: 'clinic-xyz', planExpiresAt: expiredDate })
 
     const res = await GET(makeRequest({ slug: 'test-clinic' }))
     expect(res.status).toBe(200)

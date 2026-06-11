@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { computeAvailableSlots } from '@/lib/compute-available-slots'
+import { isPlanExpired } from '@/lib/plan/check-plan'
 
 /**
  * GET /api/v1/slots/available?slug=<slug>&doctorId=<doctorId>&days=7
@@ -28,7 +29,7 @@ export async function GET(req: NextRequest) {
 
     const clinic = await db.clinic.findUnique({
       where: { slug },
-      select: { id: true, trialEndsAt: true },
+      select: { id: true, planExpiresAt: true },
     })
 
     if (!clinic) {
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Soft paywall — return empty if plan expired
-    if (clinic.trialEndsAt !== null && clinic.trialEndsAt < new Date()) {
+    if (isPlanExpired(clinic.planExpiresAt)) {
       return NextResponse.json({ slots: [], planExpired: true })
     }
 

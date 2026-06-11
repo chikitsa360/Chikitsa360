@@ -167,7 +167,7 @@ describe('eventRegistrationConfirm handler', () => {
     mockDb.clinic.findUnique.mockResolvedValue(CLINIC)
     mockSendTemplateMessage.mockRejectedValue(new Error('network'))
 
-    const result = await capturedHandler({ event: { data: EVENT_DATA }, step: makeStep() })
+    await capturedHandler({ event: { data: EVENT_DATA }, step: makeStep() })
     expect(mockSendSms).toHaveBeenCalled()
   })
 

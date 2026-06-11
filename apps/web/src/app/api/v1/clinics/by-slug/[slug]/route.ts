@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { isPlanExpired as checkPlanExpired } from '@/lib/plan/check-plan'
 
 /**
  * GET /api/v1/clinics/by-slug/[slug]
@@ -27,7 +28,7 @@ export async function GET(
       city: true,
       clinicPhone: true,
       plan: true,
-      trialEndsAt: true,
+      planExpiresAt: true,
       whatsappConnected: true,
       whatsappPhoneNumberId: true,
     },
@@ -38,8 +39,7 @@ export async function GET(
   }
 
   // Soft paywall check (MON-3)
-  const isPlanExpired =
-    clinic.trialEndsAt !== null && clinic.trialEndsAt < new Date()
+  const isPlanExpired = checkPlanExpired(clinic.planExpiresAt)
 
   return NextResponse.json({
     id: clinic.id,

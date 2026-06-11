@@ -1,5 +1,6 @@
 import { inngest } from '@/lib/inngest'
 import { db } from '@/lib/db'
+import { isPlanExpired } from '@/lib/plan/check-plan'
 import { getConversationState } from '@/lib/whatsapp/conversation-state'
 import { detectKeyword } from '@/lib/whatsapp/keyword-detector'
 import { sendText } from '@/lib/whatsapp/message-sender'
@@ -40,7 +41,7 @@ export const whatsappMessageReceived = inngest.createFunction(
         language: true,
         clinicPhone: true,
         address: true,
-        trialEndsAt: true,
+        planExpiresAt: true,
         whatsappConnected: true,
         whatsappPhoneNumberId: true,
       },
@@ -65,14 +66,14 @@ export const whatsappMessageReceived = inngest.createFunction(
       language: clinic.language as 'en' | 'hi',
       clinicPhone: clinic.clinicPhone,
       address: clinic.address,
-      trialEndsAt: clinic.trialEndsAt,
+      planExpiresAt: clinic.planExpiresAt,
       whatsappConnected: clinic.whatsappConnected,
     }
 
     const lang = clinicCtx.language
 
-    // 2. Soft paywall check (MON-3): trial expired
-    if (clinic.trialEndsAt && clinic.trialEndsAt < new Date()) {
+    // 2. Soft paywall check (MON-3): plan expired
+    if (isPlanExpired(clinic.planExpiresAt)) {
       await sendText(
         phoneNumberId,
         patientPhone,

@@ -13,6 +13,7 @@ interface DashboardShellProps {
   userName?: string
   userRole?: string
   whatsAppBanner?: React.ReactNode
+  planBanner?: React.ReactNode
 }
 
 export function DashboardShell({
@@ -21,6 +22,7 @@ export function DashboardShell({
   userName,
   userRole,
   whatsAppBanner,
+  planBanner,
 }: DashboardShellProps) {
   const [searchOpen, setSearchOpen] = React.useState(false)
 
@@ -53,6 +55,8 @@ export function DashboardShell({
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top header */}
         <Header userName={userName} userRole={userRole} />
+        {/* Plan expiry banner */}
+        {planBanner}
         {/* WhatsApp pending banner */}
         {whatsAppBanner}
 

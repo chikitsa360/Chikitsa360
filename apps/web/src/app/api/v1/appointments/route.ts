@@ -7,6 +7,7 @@ import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
 import { writeAuditLog } from '@/lib/audit'
 import { UserRole } from '@prisma/client'
+import { isPlanExpired } from '@/lib/plan/check-plan'
 
 // ─── GET /api/v1/appointments ─────────────────────────────────────────────────
 // Returns appointments for a clinic+date (authenticated).
@@ -128,6 +129,15 @@ export async function POST(req: NextRequest) {
   const clinicId = session.user.clinicId
   const userId = session.user.id
   const schemaName = `clinic_${clinicId}`
+
+  // Plan expiry check — 402 if plan has expired (MON-3)
+  const clinic = await db.clinic.findUnique({ where: { id: clinicId }, select: { planExpiresAt: true } })
+  if (isPlanExpired(clinic?.planExpiresAt)) {
+    return NextResponse.json(
+      { error: 'plan_expired', expiredAt: clinic?.planExpiresAt?.toISOString() },
+      { status: 402 }
+    )
+  }
 
   let body: unknown
   try {

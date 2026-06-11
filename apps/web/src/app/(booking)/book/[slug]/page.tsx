@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { BookingClient } from './BookingClient'
+import { isPlanExpired } from '@/lib/plan/check-plan'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -20,7 +21,7 @@ async function getClinicData(slug: string) {
       city: true,
       clinicPhone: true,
       plan: true,
-      trialEndsAt: true,
+      planExpiresAt: true,
       whatsappConnected: true,
     },
   })
@@ -62,8 +63,7 @@ export default async function BookingPage({ params }: PageProps) {
 
   const doctors = await getDoctors(clinic.id)
 
-  const isPlanExpired =
-    clinic.trialEndsAt !== null && clinic.trialEndsAt < new Date()
+  const planExpired = isPlanExpired(clinic.planExpiresAt)
 
   const clinicInfo = {
     id: clinic.id,
@@ -73,7 +73,7 @@ export default async function BookingPage({ params }: PageProps) {
     address: clinic.address,
     city: clinic.city,
     clinicPhone: clinic.clinicPhone,
-    isPlanExpired,
+    isPlanExpired: planExpired,
     whatsappConnected: clinic.whatsappConnected,
   }
 
@@ -98,7 +98,7 @@ export default async function BookingPage({ params }: PageProps) {
 
       {/* Main content */}
       <main className="mx-auto max-w-[640px] px-4 py-5">
-        {isPlanExpired ? (
+        {planExpired ? (
           <div className="rounded-xl border border-border bg-card px-5 py-8 text-center shadow-sm">
             <p className="text-[14px] text-foreground">
               Online booking is temporarily unavailable. Please contact the clinic directly

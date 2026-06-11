@@ -8,6 +8,9 @@ vi.mock('@/lib/db', () => ({
   db: {
     $queryRawUnsafe: vi.fn(),
     $executeRawUnsafe: vi.fn(),
+    clinic: {
+      findUnique: vi.fn(),
+    },
   },
 }))
 
@@ -37,6 +40,7 @@ const mockAuth = auth as unknown as ReturnType<typeof vi.fn>
 const mockDb = db as unknown as {
   $queryRawUnsafe: ReturnType<typeof vi.fn>
   $executeRawUnsafe: ReturnType<typeof vi.fn>
+  clinic: { findUnique: ReturnType<typeof vi.fn> }
 }
 
 const SESSION = {
@@ -53,6 +57,8 @@ const PATIENT_ID = '22222222-2222-2222-2222-222222222222'
 beforeEach(() => {
   vi.resetAllMocks()
   mockAuth.mockResolvedValue(SESSION)
+  // Default: plan is active (no expiry)
+  mockDb.clinic.findUnique.mockResolvedValue({ planExpiresAt: null })
 })
 
 // ─── GET /api/v1/appointments ─────────────────────────────────────────────────

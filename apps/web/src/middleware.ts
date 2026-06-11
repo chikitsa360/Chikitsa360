@@ -28,12 +28,21 @@ const PUBLIC_API_PATHS = [
 export default auth(async function middleware(req: NextRequest & { auth: unknown }) {
   const { pathname } = req.nextUrl
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).auth as { user?: { clinicId?: string } } | null
+  const session = (req as any).auth as { user?: { clinicId?: string; systemRole?: string | null } } | null
 
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p))
   const isAuthPath = AUTH_PATHS.some((p) => pathname.startsWith(p))
   const isApiV1 = pathname.startsWith('/api/v1/')
+  const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/api/admin/')
   const isPublicApi = PUBLIC_API_PATHS.some((p) => pathname.startsWith(p))
+
+  // Admin routes: require system_role = 'super_admin'; silently redirect others to /dashboard
+  if (isAdminPath) {
+    if (!session?.user || session.user.systemRole !== 'super_admin') {
+      return NextResponse.redirect(new URL('/dashboard', req.url))
+    }
+    return NextResponse.next()
+  }
 
   // Redirect unauthenticated users away from protected pages
   if (isProtected && !session?.user) {

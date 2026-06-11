@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { requirePermission, isRbacError, getDoctorLimit } from '@/lib/rbac'
@@ -67,11 +67,11 @@ export async function POST(req: NextRequest) {
 
   const { phone, role } = parsed.data
 
-  // Enforce Doctor limit per plan
+  // Enforce Doctor limit per plan (MON-2)
   if (role === 'DOCTOR') {
     const clinic = await db.clinic.findUnique({
       where: { id: session.clinicId },
-      select: { plan: true },
+      select: { plan: true, doctorLimit: true },
     })
     const doctorCount = await db.user.count({
       where: { clinicId: session.clinicId, role: 'DOCTOR' },
@@ -79,12 +79,11 @@ export async function POST(req: NextRequest) {
     const pendingDoctors = await db.staffInvite.count({
       where: { clinicId: session.clinicId, role: 'DOCTOR', status: 'PENDING' },
     })
-    const limit = getDoctorLimit(clinic?.plan ?? 'STARTER')
+    const limit = clinic?.doctorLimit ?? getDoctorLimit(clinic?.plan ?? 'STARTER')
     if (doctorCount + pendingDoctors >= limit) {
-      return apiError(
-        'PLAN_LIMIT',
-        `You've reached your Doctor limit on the ${clinic?.plan ?? 'STARTER'} plan.`,
-        HTTP.BAD_REQUEST
+      return NextResponse.json(
+        { error: 'doctor_limit_reached', current: doctorCount + pendingDoctors, limit },
+        { status: 403 }
       )
     }
   }

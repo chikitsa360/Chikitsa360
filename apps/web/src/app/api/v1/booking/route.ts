@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { z } from 'zod'
+import { isPlanExpired } from '@/lib/plan/check-plan'
 import { scheduleConfirmation } from '@/lib/notifications/send-confirmation'
 import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
@@ -40,7 +41,7 @@ export async function POST(req: NextRequest) {
   // Resolve clinic
   const clinic = await db.clinic.findUnique({
     where: { slug: clinicSlug },
-    select: { id: true, trialEndsAt: true },
+    select: { id: true, planExpiresAt: true },
   })
 
   if (!clinic) {
@@ -48,7 +49,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Soft paywall check (MON-3)
-  if (clinic.trialEndsAt !== null && clinic.trialEndsAt < new Date()) {
+  if (isPlanExpired(clinic.planExpiresAt)) {
     return NextResponse.json(
       { error: 'Online booking is temporarily unavailable. Please contact the clinic directly.' },
       { status: 403 }

@@ -39,7 +39,7 @@ const CLINIC = {
   language: 'en' as const,
   clinicPhone: '1234567890',
   address: '12 Main St',
-  trialEndsAt: null,
+  planExpiresAt: null,
   whatsappConnected: true,
 }
 
