@@ -49,7 +49,7 @@ export const eventReminder24h = inngest.createFunction(
       venue: string | null
       meeting_link: string | null
     }[]>(
-      `SELECT title, start_time::text, end_time::text, venue, meeting_link
+      `SELECT title, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link
        FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
       registration.event_id
     )

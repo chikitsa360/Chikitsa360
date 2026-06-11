@@ -82,7 +82,7 @@ export async function POST(
 
     // Verify event start_time is still in the future
     const eventRows = await db.$queryRawUnsafe<{ id: string; start_time: string }[]>(
-      `SELECT id, start_time::text FROM "${schemaName}".events WHERE id = $1`,
+      `SELECT id, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1`,
       registration.event_id
     )
     const eventData = eventRows[0]

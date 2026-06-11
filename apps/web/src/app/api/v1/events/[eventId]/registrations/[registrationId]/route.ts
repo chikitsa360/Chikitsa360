@@ -44,7 +44,7 @@ export async function PATCH(
     clinic_id: string
     start_time: string
   }[]>(
-    `SELECT id, clinic_id, start_time::text FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2`,
+    `SELECT id, clinic_id, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2`,
     eventId,
     clinicId
   )

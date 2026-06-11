@@ -188,7 +188,7 @@ export const eventInvitationBlast = inngest.createFunction(
 
       // Rate-limit pause between batches (WhatsApp allows ~100/min)
       if (i < batches.length - 1) {
-        await step.sleep('rate-limit-pause', '60s')
+        await step.sleep(`rate-limit-pause-${i}`, '60s')
       }
     }
 

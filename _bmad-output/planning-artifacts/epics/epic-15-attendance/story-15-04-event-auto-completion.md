@@ -2,7 +2,7 @@
 story: 15.4
 epic: 15
 title: Event Auto-Completion
-status: review
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-22]

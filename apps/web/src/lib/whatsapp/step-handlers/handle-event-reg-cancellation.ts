@@ -61,7 +61,7 @@ export async function handleEventRegistrationCancellation(
 
   // Check event hasn't started
   const eventRows = await db.$queryRawUnsafe<{ start_time: string }[]>(
-    `SELECT start_time::text FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+    `SELECT start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
     registration.event_id
   )
   const eventData = eventRows[0]

@@ -28,7 +28,7 @@ export const eventCancelNotification = inngest.createFunction(
         title: string
         start_time: string
       }[]>(
-        `SELECT title, start_time::text FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+        `SELECT title, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
         eventId
       )
       return rows[0] ?? null
@@ -136,7 +136,7 @@ export const eventCancelNotification = inngest.createFunction(
 
       // Rate-limit pause between batches
       if (i < batches.length - 1) {
-        await step.sleep('rate-limit-pause', '60s')
+        await step.sleep(`rate-limit-pause-${i}`, '60s')
       }
     }
 

@@ -2,7 +2,7 @@
 story: 14.2
 epic: 14
 title: 24h Event Reminder
-status: review
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-14]

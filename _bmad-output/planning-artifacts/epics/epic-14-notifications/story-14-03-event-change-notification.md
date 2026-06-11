@@ -2,7 +2,7 @@
 story: 14.3
 epic: 14
 title: Event Change Notification
-status: review
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-15]

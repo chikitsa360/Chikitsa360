@@ -2,7 +2,7 @@
 story: 14.5
 epic: 14
 title: Patient Self-Cancellation via Token URL
-status: review
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-18]

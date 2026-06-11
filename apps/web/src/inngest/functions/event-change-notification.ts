@@ -38,7 +38,7 @@ export const eventChangeNotification = inngest.createFunction(
         venue: string | null
         meeting_link: string | null
       }[]>(
-        `SELECT id, title, slug, start_time::text, end_time::text, venue, meeting_link
+        `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link
          FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
         eventId
       )
@@ -137,7 +137,7 @@ export const eventChangeNotification = inngest.createFunction(
 
       // Rate-limit pause between batches
       if (i < batches.length - 1) {
-        await step.sleep('rate-limit-pause', '60s')
+        await step.sleep(`rate-limit-pause-${i}`, '60s')
       }
     }
 

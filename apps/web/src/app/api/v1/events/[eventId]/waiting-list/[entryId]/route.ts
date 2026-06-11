@@ -42,11 +42,10 @@ export async function PATCH(
   // Verify event belongs to this clinic
   const eventRows = await db.$queryRawUnsafe<{
     id: string
-    start_time: string
     max_seats: number
     seats_registered: number
   }[]>(
-    `SELECT id, start_time::text, max_seats, seats_registered
+    `SELECT id, max_seats, seats_registered
      FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2`,
     eventId,
     clinicId
@@ -113,7 +112,7 @@ export async function PATCH(
         slug: string
         start_time: string
       }[]>(
-        `SELECT id, seats_registered, max_seats, slug, start_time::text
+        `SELECT id, seats_registered, max_seats, slug, start_time AT TIME ZONE 'UTC' AS start_time
          FROM "${schemaName}".events WHERE id = $1 FOR UPDATE`,
         eventId
       )

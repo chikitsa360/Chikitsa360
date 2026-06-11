@@ -48,7 +48,7 @@ export const eventRegistrationCancelled = inngest.createFunction(
         max_seats: number
         seats_registered: number
       }[]>(
-        `SELECT id, title, slug, start_time::text, end_time::text, venue, meeting_link, fee_paise, max_seats, seats_registered
+        `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link, fee_paise, max_seats, seats_registered
          FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
         registration.event_id
       )
@@ -123,7 +123,7 @@ export const eventRegistrationCancelled = inngest.createFunction(
           slug: string
           start_time: string
         }[]>(
-          `SELECT id, seats_registered, max_seats, slug, start_time::text
+          `SELECT id, seats_registered, max_seats, slug, start_time AT TIME ZONE 'UTC' AS start_time
            FROM "${schemaName}".events WHERE id = $1 FOR UPDATE`,
           data.event.id
         )
@@ -209,12 +209,10 @@ export const eventRegistrationCancelled = inngest.createFunction(
 
     // Fire confirmation for the promoted patient (triggers Story 14.1)
     if (promoted?.newRegistrationId) {
-      await step.run('fire-promoted-confirmation', async () => {
-        await inngest.send({
-          name: 'event/registration.confirm' as never,
-          data: { registrationId: promoted.newRegistrationId, clinicId },
-          id: `${promoted.newRegistrationId}:reg-confirm`,
-        })
+      await step.sendEvent('fire-promoted-confirmation', {
+        name: 'event/registration.confirm' as never,
+        data: { registrationId: promoted.newRegistrationId, clinicId },
+        id: `${promoted.newRegistrationId}:reg-confirm`,
       })
     }
 

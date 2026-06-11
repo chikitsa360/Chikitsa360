@@ -2,7 +2,7 @@
 story: 15.2
 epic: 15
 title: Attendance Marking UI
-status: review
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-22]
