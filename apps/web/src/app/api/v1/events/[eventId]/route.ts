@@ -363,5 +363,15 @@ export async function PATCH(
     metadata: { scope, changedFields },
   })
 
+  // Fire change notification for material field changes on published events (Story 14.3)
+  const NOTIFY_FIELDS = new Set(['startTime', 'endTime', 'venue', 'meetingLink'])
+  const materialChanges = changedFields.filter(f => NOTIFY_FIELDS.has(f))
+  if (materialChanges.length > 0 && event.status === 'published') {
+    await inngest.send({
+      name: 'event/change.notify' as never,
+      data: { eventId, clinicId, changedFields: materialChanges },
+    })
+  }
+
   return NextResponse.json({ data: { event: updated[0] } })
 }

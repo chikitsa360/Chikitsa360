@@ -2,7 +2,7 @@
 story: 14.1
 epic: 14
 title: Registration Confirmation WhatsApp
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-13]
@@ -92,3 +92,18 @@ apps/web/src/components/event-registration/RegistrationForm.tsx ← MODIFY: use 
 | Unit | Function exits cleanly when registration not found or status=cancelled |
 | Unit | WA failure triggers SMS fallback |
 | Integration | Function sends WA with correct template variables |
+
+## Review Findings
+
+### Senior Developer Review (AI) — 2026-06-11
+
+**Outcome:** Changes Requested
+**Action Items:** 4 patch, 1 deferred
+
+#### Action Items
+
+- [x] [Review][Patch] Use `step.sendEvent()` instead of `inngest.send()` inside `step.run()` — calling `inngest.send()` inside a step bypasses Inngest's retry/dedup semantics; should be `await step.sendEvent('schedule-reminder', { name: 'event/reminder.24h', data: { registrationId, clinicId }, ts: reminderTs, id: \`${registrationId}:reminder-24h\` })` [event-registration-confirm.ts:138]
+- [x] [Review][Patch] Cast `start_time` as `TIMESTAMPTZ` not `TIMESTAMP::text` — `start_time::text` from PostgreSQL loses timezone context; `new Date('2026-06-15 10:00:00')` is parsed as UTC by Node.js, shifting the reminder 5.5h; fix: `start_time AT TIME ZONE 'UTC' as start_time` or `start_time::timestamptz::text` [event-registration-confirm.ts:52]
+- [x] [Review][Patch] Guard `clinic === null` in `load-data` step — if clinic row is deleted between registration and job execution, `clinic` is null but code proceeds; add `if (!clinic) return null` before the return statement [event-registration-confirm.ts:65]
+- [x] [Review][Patch] No tests implemented — spec requires unit tests for early-exit and SMS fallback, plus integration test for WA send; add test file `event-registration-confirm.test.ts`
+- [x] [Review][Defer] `'event/reminder.24h' as never` type cast — Inngest event type map not updated to include new event names; pre-existing pattern in codebase, not actionable in this story [event-registration-confirm.ts:141] — deferred, pre-existing

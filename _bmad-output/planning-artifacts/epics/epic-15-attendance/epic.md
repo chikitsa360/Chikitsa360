@@ -1,7 +1,7 @@
 ---
 epic: 15
 title: Attendance Tracking & Manual Management
-status: Not Started
+status: review
 created: 2026-06-10
 stories: 4
 ---

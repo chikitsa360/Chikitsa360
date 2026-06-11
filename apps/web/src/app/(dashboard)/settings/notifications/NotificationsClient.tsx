@@ -8,11 +8,12 @@ import { useToast } from '@/components/ui/ToastProvider'
 interface NotificationsClientProps {
   reminder24hEnabled: boolean
   reminder2hEnabled: boolean
+  eventReminder24hEnabled: boolean
   optOutCount: number
 }
 
 interface ConfirmDialog {
-  field: '24h' | '2h'
+  field: '24h' | '2h' | 'event-24h'
   message: string
 }
 
@@ -22,17 +23,19 @@ const TEMPLATE_STATUS: TemplateStatus = 'approved'
 export function NotificationsClient({
   reminder24hEnabled: initial24h,
   reminder2hEnabled: initial2h,
+  eventReminder24hEnabled: initialEvent24h,
   optOutCount,
 }: NotificationsClientProps) {
   const { addToast } = useToast()
   const [enabled24h, setEnabled24h] = React.useState(initial24h)
   const [enabled2h, setEnabled2h] = React.useState(initial2h)
+  const [enabledEvent24h, setEnabledEvent24h] = React.useState(initialEvent24h)
   const [saving, setSaving] = React.useState(false)
   const [confirmDialog, setConfirmDialog] = React.useState<ConfirmDialog | null>(null)
 
-  const bothDisabled = !enabled24h && !enabled2h
+  const allAptDisabled = !enabled24h && !enabled2h
 
-  async function patchSettings(field: 'reminder_24h_enabled' | 'reminder_2h_enabled', value: boolean) {
+  async function patchSettings(field: 'reminder_24h_enabled' | 'reminder_2h_enabled' | 'event_reminder_24h_enabled', value: boolean) {
     setSaving(true)
     try {
       const res = await fetch('/api/v1/clinics/settings', {
@@ -42,7 +45,8 @@ export function NotificationsClient({
       })
       if (!res.ok) throw new Error('Failed to save')
 
-      const label = field === 'reminder_24h_enabled' ? '24-hour' : '2-hour'
+      const labelMap = { reminder_24h_enabled: '24-hour appointment', reminder_2h_enabled: '2-hour appointment', event_reminder_24h_enabled: '24-hour event' }
+      const label = labelMap[field]
       addToast({
         variant: 'success',
         message: value
@@ -83,15 +87,30 @@ export function NotificationsClient({
     }
   }
 
+  function handleToggleEvent24h(value: boolean) {
+    if (!value) {
+      setConfirmDialog({
+        field: 'event-24h',
+        message:
+          'Disable event reminders? Registered participants will no longer receive a 24-hour reminder before events.',
+      })
+    } else {
+      setEnabledEvent24h(true)
+      void patchSettings('event_reminder_24h_enabled', true)
+    }
+  }
+
   function handleConfirmDisable() {
     if (!confirmDialog) return
-    const is24h = confirmDialog.field === '24h'
-    if (is24h) {
+    if (confirmDialog.field === '24h') {
       setEnabled24h(false)
       void patchSettings('reminder_24h_enabled', false)
-    } else {
+    } else if (confirmDialog.field === '2h') {
       setEnabled2h(false)
       void patchSettings('reminder_2h_enabled', false)
+    } else {
+      setEnabledEvent24h(false)
+      void patchSettings('event_reminder_24h_enabled', false)
     }
     setConfirmDialog(null)
   }
@@ -105,7 +124,7 @@ export function NotificationsClient({
         </p>
 
         {/* All-disabled amber banner */}
-        {bothDisabled && (
+        {allAptDisabled && (
           <div className="mb-4 flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-[13px] text-amber-700">
             <span aria-hidden>⚠</span>
             <span>All automated reminders are currently disabled for this clinic.</span>
@@ -138,6 +157,23 @@ export function NotificationsClient({
         </div>
       </div>
 
+      {/* Event reminders section */}
+      <div className="rounded-xl border border-border bg-card p-6">
+        <h2 className="mb-1 text-[15px] font-semibold text-foreground">Event Reminders</h2>
+        <p className="mb-4 text-[13px] text-muted-foreground">
+          Configure automated reminder messages sent to event registrants via WhatsApp.
+        </p>
+        <ReminderToggleRow
+          label="Event Reminder (24h before)"
+          description="Sent 24 hours before the event to all confirmed registrants with event details."
+          templateName="event_reminder_24h"
+          templateStatus={TEMPLATE_STATUS}
+          enabled={enabledEvent24h}
+          disabled={saving}
+          onChange={handleToggleEvent24h}
+        />
+      </div>
+
       {/* Confirmation dialog */}
       {confirmDialog && (
         <div
@@ -147,7 +183,7 @@ export function NotificationsClient({
         >
           <div className="w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg">
             <h3 className="mb-2 text-[15px] font-semibold text-foreground">
-              Disable {confirmDialog.field === '24h' ? '24-hour' : '2-hour'} reminders?
+              Disable {confirmDialog.field === '24h' ? '24-hour appointment' : confirmDialog.field === '2h' ? '2-hour appointment' : 'event 24-hour'} reminders?
             </h3>
             <p className="mb-6 text-[13px] text-muted-foreground">{confirmDialog.message}</p>
             <div className="flex justify-end gap-3">

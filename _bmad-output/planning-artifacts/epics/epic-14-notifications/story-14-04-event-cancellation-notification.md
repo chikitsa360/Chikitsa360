@@ -2,7 +2,7 @@
 story: 14.4
 epic: 14
 title: Event Cancellation Notification
-status: Not Started
+status: review
 created: 2026-06-10
 requirements:
   fr: [FR-16]

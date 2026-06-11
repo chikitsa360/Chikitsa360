@@ -65,6 +65,9 @@ model Clinic {
   reminder24hEnabled      Boolean  @default(true) @map("reminder_24h_enabled")
   reminder2hEnabled       Boolean  @default(true) @map("reminder_2h_enabled")
 
+  // Event reminder toggle (FR-14)
+  eventReminder24hEnabled Boolean  @default(true) @map("event_reminder_24h_enabled")
+
   users         User[]
   staffInvites  StaffInvite[]
 

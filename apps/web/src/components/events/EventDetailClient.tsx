@@ -130,6 +130,16 @@ export function EventDetailClient({ event: initialEvent }: Props) {
     }
   }, [event.id])
 
+  const refreshEventStats = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/v1/events/${event.id}`)
+      if (res.ok) {
+        const json = await res.json() as { data: { event: EventDetail } }
+        setEvent(json.data.event)
+      }
+    } catch { /* ignore */ }
+  }, [event.id])
+
   const handlePublish = async () => {
     setActionLoading(true)
     setActionError(null)
@@ -407,6 +417,8 @@ export function EventDetailClient({ event: initialEvent }: Props) {
         <EventRegistrantsTab
           registrations={(tabData?.registrations ?? []) as Parameters<typeof EventRegistrantsTab>[0]['registrations']}
           loading={tabLoading}
+          event={{ id: event.id, start_time: event.start_time, end_time: event.end_time }}
+          onRefreshEvent={refreshEventStats}
         />
       )}
 
@@ -414,6 +426,8 @@ export function EventDetailClient({ event: initialEvent }: Props) {
         <EventWaitingListTab
           waitingList={(tabData?.waitingList ?? []) as Parameters<typeof EventWaitingListTab>[0]['waitingList']}
           loading={tabLoading}
+          event={{ id: event.id, max_seats: event.max_seats, seats_registered: event.seats_registered }}
+          onRefreshEvent={refreshEventStats}
         />
       )}
 

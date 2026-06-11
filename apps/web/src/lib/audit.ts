@@ -19,6 +19,11 @@ export type AuditAction =
   | 'EVENT_UPDATED'
   | 'EVENT_PUBLISHED'
   | 'EVENT_CANCELLED'
+  | 'ATTENDANCE_MARKED'
+  | 'REGISTRANT_REMOVED'
+  | 'WAITLIST_PROMOTED'
+  | 'WAITLIST_REMOVED'
+  | 'EVENT_AUTO_COMPLETED'
 
 export interface AuditLogParams {
   clinicId: string

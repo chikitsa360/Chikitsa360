@@ -14,6 +14,7 @@ import { handleReturningPatientResponse } from '@/lib/whatsapp/step-handlers/han
 import { handleCancellation } from '@/lib/whatsapp/step-handlers/handle-cancellation'
 import { handleOptOut, handleOptIn } from '@/lib/whatsapp/step-handlers/handle-opt-out'
 import { handleReminderCancellation } from '@/lib/whatsapp/step-handlers/handle-reminder-cancellation'
+import { handleEventRegistrationCancellation } from '@/lib/whatsapp/step-handlers/handle-event-reg-cancellation'
 import type { ClinicContext } from '@/lib/whatsapp/step-handlers/types'
 
 export const whatsappMessageReceived = inngest.createFunction(
@@ -98,8 +99,20 @@ export const whatsappMessageReceived = inngest.createFunction(
       return
     }
 
-    // 5. Detect global keywords (highest priority — can fire from any step)
+    // 4b. Handle CANCEL_EVENT_REG:{uuid} keyword (text message) — must be checked BEFORE general keyword detection
     const rawText = messageBody ?? interactiveTitle ?? ''
+    const eventCancelMatch = rawText.match(/^CANCEL_EVENT_REG:([a-f0-9-]{36})$/i)
+    if (eventCancelMatch) {
+      await handleEventRegistrationCancellation(
+        clinic.id,
+        patientPhone,
+        eventCancelMatch[1]!,
+        clinicCtx.phoneNumberId
+      )
+      return
+    }
+
+    // 5. Detect global keywords
     const keyword = detectKeyword(rawText)
 
     if (keyword === 'STOP') {
@@ -117,7 +130,7 @@ export const whatsappMessageReceived = inngest.createFunction(
       return
     }
 
-    // 5. Load conversation state
+    // 6. Load conversation state
     const state = await getConversationState(clinic.id, patientPhone)
 
     const messageInput = { messageType, messageBody, interactiveType, interactiveId, interactiveTitle }

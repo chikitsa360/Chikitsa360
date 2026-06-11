@@ -2,7 +2,7 @@
 story: 14.6
 epic: 14
 title: Patient Self-Cancellation via WhatsApp Keyword + Auto-Promotion
-status: Not Started
+status: review
 created: 2026-06-10
 requirements:
   fr: [FR-17, FR-18, FR-12]

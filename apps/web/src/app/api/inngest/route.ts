@@ -10,6 +10,12 @@ import { appointmentReminder24h } from '@/inngest/functions/appointment-reminder
 import { appointmentReminder2h } from '@/inngest/functions/appointment-reminder-2h'
 import { reportExportGenerate } from '@/inngest/functions/report-export-generate'
 import { eventInvitationBlast } from '@/inngest/functions/event-invitation-blast'
+import { eventRegistrationConfirm } from '@/inngest/functions/event-registration-confirm'
+import { eventReminder24h } from '@/inngest/functions/event-reminder-24h'
+import { eventChangeNotification } from '@/inngest/functions/event-change-notification'
+import { eventCancelNotification } from '@/inngest/functions/event-cancel-notification'
+import { eventRegistrationCancelled } from '@/inngest/functions/event-registration-cancelled'
+import { eventAutoComplete } from '@/inngest/functions/event-auto-complete'
 
 export const { GET, POST, PUT } = serve({
   client: inngest,
@@ -24,5 +30,11 @@ export const { GET, POST, PUT } = serve({
     appointmentReminder2h,
     reportExportGenerate,
     eventInvitationBlast,
+    eventRegistrationConfirm,
+    eventReminder24h,
+    eventChangeNotification,
+    eventCancelNotification,
+    eventRegistrationCancelled,
+    eventAutoComplete,
   ],
 })

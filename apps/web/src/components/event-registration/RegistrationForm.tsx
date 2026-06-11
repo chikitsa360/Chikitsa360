@@ -25,7 +25,7 @@ interface Props {
 type RegistrationState =
   | { step: 'form' }
   | { step: 'seats_full' }
-  | { step: 'confirmed'; referenceNumber: string; name: string; phone: string }
+  | { step: 'confirmed'; referenceNumber: string; name: string; phone: string; cancellationUrl: string | null }
   | { step: 'waitlisted'; position: number }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -120,7 +120,7 @@ export function RegistrationForm({ event, slug }: Props) {
         body: JSON.stringify({ name: name.trim(), phone, joinWaitlist }),
       })
       const json = await res.json() as {
-        data?: { status: string; referenceNumber?: string; position?: number }
+        data?: { status: string; referenceNumber?: string; position?: number; cancellationUrl?: string }
         error?: { code?: string; message?: string; referenceNumber?: string }
       }
 
@@ -135,7 +135,7 @@ export function RegistrationForm({ event, slug }: Props) {
 
       const data = json.data!
       if (data.status === 'registered' && data.referenceNumber) {
-        setState({ step: 'confirmed', referenceNumber: data.referenceNumber, name: name.trim(), phone })
+        setState({ step: 'confirmed', referenceNumber: data.referenceNumber, name: name.trim(), phone, cancellationUrl: data.cancellationUrl ?? null })
       } else if (data.status === 'seats_full') {
         setState({ step: 'seats_full' })
       } else if (data.status === 'waitlisted' && data.position !== undefined) {
@@ -217,9 +217,18 @@ export function RegistrationForm({ event, slug }: Props) {
           Confirmation and a 24h reminder will be sent to +91 {state.phone} on WhatsApp.
         </div>
 
-        <button className="w-full h-10 rounded-lg border border-[#E2E8F0] bg-transparent text-[13px] font-medium text-[#64748B]">
-          Cancel my registration
-        </button>
+        {state.cancellationUrl ? (
+          <a
+            href={state.cancellationUrl}
+            className="block w-full h-10 rounded-lg border border-[#E2E8F0] bg-transparent text-[13px] font-medium text-[#64748B] flex items-center justify-center hover:bg-[#F8FAFC]"
+          >
+            Cancel my registration
+          </a>
+        ) : (
+          <button className="w-full h-10 rounded-lg border border-[#E2E8F0] bg-transparent text-[13px] font-medium text-[#64748B]">
+            Cancel my registration
+          </button>
+        )}
       </div>
     )
   }

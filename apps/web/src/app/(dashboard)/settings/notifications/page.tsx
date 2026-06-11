@@ -17,6 +17,7 @@ export default async function NotificationsSettingsPage() {
     select: {
       reminder24hEnabled: true,
       reminder2hEnabled: true,
+      eventReminder24hEnabled: true,
     },
   })
 
@@ -36,6 +37,7 @@ export default async function NotificationsSettingsPage() {
     <NotificationsClient
       reminder24hEnabled={clinic.reminder24hEnabled}
       reminder2hEnabled={clinic.reminder2hEnabled}
+      eventReminder24hEnabled={clinic.eventReminder24hEnabled}
       optOutCount={optOutCount}
     />
   )

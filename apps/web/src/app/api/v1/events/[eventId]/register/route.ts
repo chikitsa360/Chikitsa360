@@ -216,7 +216,10 @@ export async function POST(
       })
     }
 
-    return NextResponse.json({ data: { status: 'registered', referenceNumber } })
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.chikitsa360.com'
+    const cancellationUrl = `${appUrl}/event/${slug}/cancel?token=${cancellationToken}`
+
+    return NextResponse.json({ data: { status: 'registered', referenceNumber, cancellationUrl } })
   } catch (e) {
     await db.$executeRawUnsafe('ROLLBACK')
     throw e

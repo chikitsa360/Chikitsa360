@@ -1,7 +1,7 @@
 ---
 epic: 14
 title: Notifications & Patient Self-Cancellation
-status: Not Started
+status: review
 created: 2026-06-10
 stories: 6
 ---
