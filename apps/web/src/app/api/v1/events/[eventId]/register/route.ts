@@ -83,7 +83,7 @@ export async function POST(
     max_seats: number
     seats_registered: number
   }[]>(
-    `SELECT id, status, registration_deadline::text, start_time::text, max_seats, seats_registered
+    `SELECT id, status, registration_deadline AT TIME ZONE 'UTC' AS registration_deadline, start_time AT TIME ZONE 'UTC' AS start_time, max_seats, seats_registered
      FROM "${schemaName}".events WHERE slug = $1 LIMIT 1`,
     slug
   )

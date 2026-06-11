@@ -2,7 +2,7 @@
 story: 12.7
 epic: 12
 title: Edit Event
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-3]

@@ -52,11 +52,11 @@ export async function GET(
   })[]>(
     `SELECT
        e.*,
-       e.start_time::text AS start_time,
-       e.end_time::text AS end_time,
-       e.registration_deadline::text AS registration_deadline,
-       e.created_at::text AS created_at,
-       e.updated_at::text AS updated_at,
+       e.start_time AT TIME ZONE 'UTC' AS start_time,
+       e.end_time AT TIME ZONE 'UTC' AS end_time,
+       e.registration_deadline AT TIME ZONE 'UTC' AS registration_deadline,
+       e.created_at AT TIME ZONE 'UTC' AS created_at,
+       e.updated_at AT TIME ZONE 'UTC' AS updated_at,
        COALESCE(reg.registered_count, 0)::int AS registered_count,
        COALESCE(wl.waiting_count, 0)::int AS waiting_count,
        COALESCE(inv.invited_sent_count, 0)::int AS invited_sent_count,

@@ -2,7 +2,7 @@
 story: 12.5
 epic: 12
 title: Events List API
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-19]

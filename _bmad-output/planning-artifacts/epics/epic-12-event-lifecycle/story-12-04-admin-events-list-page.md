@@ -2,7 +2,7 @@
 story: 12.4
 epic: 12
 title: Admin Events List Page
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-19]

@@ -2,7 +2,7 @@
 story: 13.1
 epic: 13
 title: New Event Modal — Step 2 (Invite Patients)
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-6]

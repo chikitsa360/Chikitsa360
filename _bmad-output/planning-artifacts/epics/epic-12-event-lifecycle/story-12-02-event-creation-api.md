@@ -2,7 +2,7 @@
 story: 12.2
 epic: 12
 title: Event Creation API
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-1, FR-2]

@@ -42,9 +42,9 @@ export async function GET(
     slug: string
     series_id: string | null
   }[]>(
-    `SELECT id, title, description, start_time::text, end_time::text,
+    `SELECT id, title, description, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time,
             venue, meeting_link, max_seats, seats_registered,
-            registration_deadline::text, fee_paise, status, slug, series_id
+            registration_deadline AT TIME ZONE 'UTC' AS registration_deadline, fee_paise, status, slug, series_id
      FROM "${schemaName}".events
      WHERE slug = $1 LIMIT 1`,
     slug

@@ -2,7 +2,7 @@
 story: 13.5
 epic: 13
 title: Registration API — Seat Allocation & Waiting List
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-8, FR-9, FR-10, FR-11, FR-12]

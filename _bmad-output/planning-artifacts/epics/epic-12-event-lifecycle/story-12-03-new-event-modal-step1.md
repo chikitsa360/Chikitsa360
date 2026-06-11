@@ -2,7 +2,7 @@
 story: 12.3
 epic: 12
 title: New Event Modal — Step 1 (Event Details Form)
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-1, FR-2]

@@ -2,7 +2,7 @@
 story: 13.4
 epic: 13
 title: Public Registration Page
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-8, FR-23]

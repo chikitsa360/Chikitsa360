@@ -2,7 +2,7 @@
 story: 13.7
 epic: 13
 title: Event Detail — Registrants, Waiting List, and Invitations Tabs
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-20]

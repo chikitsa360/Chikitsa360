@@ -2,7 +2,7 @@
 story: 12.6
 epic: 12
 title: Event Detail Page — Overview Tab
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-20]

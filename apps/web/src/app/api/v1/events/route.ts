@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
          (clinic_id, title, description, start_time, end_time, venue, meeting_link,
           max_seats, registration_deadline, fee_paise, slug, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-       RETURNING id, title, slug, status, start_time::text, end_time::text, max_seats, seats_registered`,
+       RETURNING id, title, slug, status, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, max_seats, seats_registered`,
       clinicId,
       data.title,
       data.description ?? null,
@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
          (clinic_id, series_id, title, description, start_time, end_time, venue, meeting_link,
           max_seats, registration_deadline, fee_paise, slug, created_by)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
-       RETURNING id, title, slug, status, start_time::text, end_time::text`,
+       RETURNING id, title, slug, status, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time`,
       clinicId,
       seriesId,
       eventTitle,
@@ -280,7 +280,7 @@ export async function GET(req: NextRequest) {
 
   const events = await db.$queryRawUnsafe(
     `SELECT
-       e.id, e.title, e.slug, e.start_time::text, e.end_time::text,
+       e.id, e.title, e.slug, e.start_time AT TIME ZONE 'UTC' AS start_time, e.end_time AT TIME ZONE 'UTC' AS end_time,
        e.status, e.max_seats, e.seats_registered,
        e.venue, e.meeting_link, e.fee_paise, e.series_id,
        COALESCE(wl.waiting_count, 0)::int AS waiting_count,

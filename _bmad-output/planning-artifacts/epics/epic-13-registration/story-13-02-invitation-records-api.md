@@ -2,7 +2,7 @@
 story: 13.2
 epic: 13
 title: Invitation Records API
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-6, FR-7]

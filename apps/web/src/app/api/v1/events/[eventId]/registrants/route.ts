@@ -29,7 +29,7 @@ export async function GET(
 
   // Fetch registrations with patient info
   const registrations = await db.$queryRawUnsafe(
-    `SELECT er.id, er.reference_number, er.status, er.registered_at::text,
+    `SELECT er.id, er.reference_number, er.status, er.registered_at AT TIME ZONE 'UTC' AS registered_at,
             p.name, p.phone
      FROM "${schemaName}".event_registrations er
      JOIN "${schemaName}".patients p ON p.id = er.patient_id
@@ -40,7 +40,7 @@ export async function GET(
 
   // Fetch waiting list with patient info
   const waitingList = await db.$queryRawUnsafe(
-    `SELECT ewl.id, ewl.position, ewl.status, ewl.joined_at::text,
+    `SELECT ewl.id, ewl.position, ewl.status, ewl.joined_at AT TIME ZONE 'UTC' AS joined_at,
             p.name, p.phone
      FROM "${schemaName}".event_waiting_list ewl
      JOIN "${schemaName}".patients p ON p.id = ewl.patient_id
@@ -51,7 +51,7 @@ export async function GET(
 
   // Fetch invitations with patient info
   const invitations = await db.$queryRawUnsafe(
-    `SELECT ei.id, ei.delivery_status, ei.sent_at::text, ei.created_at::text,
+    `SELECT ei.id, ei.delivery_status, ei.sent_at AT TIME ZONE 'UTC' AS sent_at, ei.created_at AT TIME ZONE 'UTC' AS created_at,
             p.name, p.phone
      FROM "${schemaName}".event_invitations ei
      JOIN "${schemaName}".patients p ON p.id = ei.patient_id

@@ -2,7 +2,7 @@
 story: 13.3
 epic: 13
 title: WhatsApp Invitation Blast Inngest Job
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-7]

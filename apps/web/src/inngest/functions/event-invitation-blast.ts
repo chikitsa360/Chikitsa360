@@ -45,7 +45,7 @@ export const eventInvitationBlast = inngest.createFunction(
         max_seats: number
         seats_registered: number
       }[]>(
-        `SELECT id, title, slug, start_time::text, end_time::text, venue, meeting_link, fee_paise, max_seats, seats_registered
+        `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link, fee_paise, max_seats, seats_registered
          FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
         eventId
       )

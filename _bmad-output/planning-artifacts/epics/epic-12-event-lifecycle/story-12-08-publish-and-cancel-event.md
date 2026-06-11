@@ -2,7 +2,7 @@
 story: 12.8
 epic: 12
 title: Publish and Cancel Event
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: [FR-4, FR-5]

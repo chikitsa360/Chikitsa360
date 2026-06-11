@@ -2,7 +2,7 @@
 story: 12.1
 epic: 12
 title: Tenant DB Schema — Events Tables
-status: Not Started
+status: done
 created: 2026-06-10
 requirements:
   fr: []
