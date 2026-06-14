@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import Link from 'next/link'
 import { cn } from '@chikitsa360/core'
 import { Avatar } from '@chikitsa360/ui'
 import { useTranslations } from 'next-intl'
@@ -116,8 +117,14 @@ export function UserMenu({ userName, userRole, trigger, triggerClassName, dropUp
             </div>
           )}
 
-          {/* Profile */}
-          <MenuItem>{t('user-menu.profile')}</MenuItem>
+          {/* Settings / Profile */}
+          <Link
+            href="/settings/clinic"
+            onClick={() => setOpen(false)}
+            className="flex w-full items-center px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+          >
+            {t('user-menu.profile')}
+          </Link>
 
           {/* Language */}
           <div className="px-3 py-1.5">
@@ -178,14 +185,3 @@ export function UserMenu({ userName, userRole, trigger, triggerClassName, dropUp
   )
 }
 
-function MenuItem({ children, onClick }: { children: React.ReactNode; onClick?: () => void }) {
-  return (
-    <button
-      role="menuitem"
-      onClick={onClick}
-      className="flex w-full items-center px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-    >
-      {children}
-    </button>
-  )
-}

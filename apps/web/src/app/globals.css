@@ -38,6 +38,78 @@
   }
 }
 
+/* ── Entry / exit animation utilities (replaces tailwindcss-animate) ─────── */
+/*
+ * Usage: animate-in fade-in slide-in-from-right duration-200
+ * Variables set by modifier classes, consumed by the @keyframes enter.
+ */
+@layer utilities {
+  .animate-in {
+    animation-name: enter;
+    animation-duration: var(--tw-animate-duration, 200ms);
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    --tw-enter-opacity: 0;
+  }
+
+  .slide-in-from-top-1 {
+    --tw-enter-translate-y: -4px;
+  }
+
+  .slide-in-from-top-2 {
+    --tw-enter-translate-y: -8px;
+  }
+
+  .slide-in-from-top-4 {
+    --tw-enter-translate-y: -16px;
+  }
+
+  .slide-in-from-right {
+    --tw-enter-translate-x: 100%;
+  }
+
+  /* duration overrides for animations */
+  .animate-in.duration-150 {
+    --tw-animate-duration: 150ms;
+  }
+  .animate-in.duration-200 {
+    --tw-animate-duration: 200ms;
+  }
+  .animate-in.duration-250 {
+    --tw-animate-duration: 250ms;
+  }
+  .animate-in.duration-300 {
+    --tw-animate-duration: 300ms;
+  }
+}
+
+@keyframes enter {
+  from {
+    opacity: var(--tw-enter-opacity, 1);
+    transform:
+      translateX(var(--tw-enter-translate-x, 0))
+      translateY(var(--tw-enter-translate-y, 0))
+      scale(var(--tw-enter-scale, 1));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+  }
+}
+
+/* ── stat number count-up animation ─────────────────────────────────────── */
+@keyframes stat-pop {
+  0%   { transform: scale(0.96); opacity: 0.6; }
+  60%  { transform: scale(1.04); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+.stat-number-animate {
+  animation: stat-pop 350ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 @theme inline {
   --color-primary: rgb(var(--color-primary));
   --color-primary-foreground: rgb(var(--color-primary-foreground));

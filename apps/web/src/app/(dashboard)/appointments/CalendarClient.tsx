@@ -210,13 +210,25 @@ export function CalendarClient({
     (a) => a.status === 'confirmed' || a.status === 'completed' || a.status === 'no-show'
   ).length
 
+  // Human-readable date label
+  const dateLabel = React.useMemo(() => {
+    const today = new Date()
+    const todayIST = new Date(today.getTime() + 5.5 * 60 * 60 * 1000)
+    const todayStr = todayIST.toISOString().split('T')[0]
+    if (currentDate === todayStr) return 'today'
+    const [y, m, d] = currentDate.split('-').map(Number)
+    return new Date(y ?? 0, (m ?? 1) - 1, d ?? 1).toLocaleDateString('en-IN', {
+      weekday: 'short', day: 'numeric', month: 'short',
+    })
+  }, [currentDate])
+
   return (
     <div className="flex h-full flex-col gap-0">
       {/* Page header */}
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div>
           <h1 className="text-[18px] font-semibold text-foreground">
-            {activeCount} appointment{activeCount !== 1 ? 's' : ''} today
+            {activeCount} appointment{activeCount !== 1 ? 's' : ''} {dateLabel}
           </h1>
         </div>
         <div className="flex items-center gap-2 ml-auto">
