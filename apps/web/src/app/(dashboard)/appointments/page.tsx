@@ -76,7 +76,7 @@ export default async function AppointmentsPage({
     }))
 
     doctors = await db.$queryRawUnsafe<Doctor[]>(
-      `SELECT id, name, speciality, default_fee FROM "${schemaName}".doctors ORDER BY name ASC`
+      `SELECT id, name, speciality, default_fee::int FROM "${schemaName}".doctors ORDER BY name ASC`
     )
   } catch {
     // Tenant schema may not be provisioned yet

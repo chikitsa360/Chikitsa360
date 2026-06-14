@@ -159,8 +159,8 @@ export async function POST(req: NextRequest) {
     // Unique constraint violation → slot was taken by concurrent booking
     if (
       err instanceof Error &&
-      err.message.includes('23505') || err.message.includes('unique') ||
-      (err as { code?: string }).code === '23505'
+      (err.message.includes('23505') || err.message.includes('unique') ||
+      (err as { code?: string }).code === '23505')
     ) {
       return NextResponse.json(
         { error: 'SLOT_TAKEN', message: 'Sorry, that slot was just taken. Please choose another time.' },
