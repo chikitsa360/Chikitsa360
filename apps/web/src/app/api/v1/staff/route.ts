@@ -67,22 +67,33 @@ export async function POST(req: NextRequest) {
 
   const { phone, role } = parsed.data
 
-  // Enforce Doctor limit per plan (MON-2)
+  // Enforce Doctor limit per plan (MON-2) — atomic check via transaction to reduce race window
   if (role === 'DOCTOR') {
-    const clinic = await db.clinic.findUnique({
-      where: { id: session.clinicId },
-      select: { plan: true, doctorLimit: true },
+    const limitCheck = await db.$transaction(async (tx) => {
+      const clinic = await tx.clinic.findUnique({
+        where: { id: session.clinicId },
+        select: { plan: true, doctorLimit: true },
+      })
+      if (!clinic) return { error: 'clinic_not_found' as const }
+      const doctorCount = await tx.user.count({
+        where: { clinicId: session.clinicId, role: 'DOCTOR' },
+      })
+      const pendingDoctors = await tx.staffInvite.count({
+        where: { clinicId: session.clinicId, role: 'DOCTOR', status: 'PENDING' },
+      })
+      const limit = clinic.doctorLimit ?? getDoctorLimit(clinic.plan ?? 'STARTER')
+      if (doctorCount + pendingDoctors >= limit) {
+        return { error: 'limit_reached' as const, current: doctorCount + pendingDoctors, limit }
+      }
+      return { error: null as null }
     })
-    const doctorCount = await db.user.count({
-      where: { clinicId: session.clinicId, role: 'DOCTOR' },
-    })
-    const pendingDoctors = await db.staffInvite.count({
-      where: { clinicId: session.clinicId, role: 'DOCTOR', status: 'PENDING' },
-    })
-    const limit = clinic?.doctorLimit ?? getDoctorLimit(clinic?.plan ?? 'STARTER')
-    if (doctorCount + pendingDoctors >= limit) {
+
+    if (limitCheck.error === 'clinic_not_found') {
+      return NextResponse.json({ error: 'Clinic not found' }, { status: 404 })
+    }
+    if (limitCheck.error === 'limit_reached') {
       return NextResponse.json(
-        { error: 'doctor_limit_reached', current: doctorCount + pendingDoctors, limit },
+        { error: 'doctor_limit_reached', current: limitCheck.current, limit: limitCheck.limit },
         { status: 403 }
       )
     }

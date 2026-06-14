@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     })
     return NextResponse.json(updated)
   } else {
-    // Create new clinic
+    // Create new clinic — set trial defaults (Epic 11: MON-1, MON-4)
     const generatedSlug = slugToUse || generateSlug(name)
     const clinic = await db.clinic.create({
       data: {
@@ -139,6 +139,8 @@ export async function POST(req: NextRequest) {
         tosAcceptedAt: now,
         privacyAcceptedAt: now,
         dpaAcceptedAt: now,
+        planExpiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14-day trial
+        doctorLimit: 2,
         users: {
           connect: { id: session.user.id },
         },

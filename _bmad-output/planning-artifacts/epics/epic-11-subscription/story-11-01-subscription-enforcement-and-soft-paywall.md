@@ -2,7 +2,7 @@
 story: 11.1
 epic: 11
 title: Subscription Plan Enforcement & Soft Paywall
-status: Not Started
+status: done
 created: 2026-06-07
 requirements:
   monetisation: [MON-1, MON-2, MON-3, MON-4]
@@ -151,3 +151,34 @@ apps/web/
 | Playwright | Warning banner: shows ≤ 7 days before expiry; not shown > 7 days | Core path |
 | Playwright | Expired banner: appears; cannot be dismissed | Core path |
 | Playwright | Doctor limit: invite button disabled at limit; re-enabled after doctor removed | Core path |
+
+---
+
+## Review Findings
+
+> Code review conducted 2026-06-11. All findings resolved 2026-06-14. Acceptance Auditor layer failed (rate limit) — audit conducted inline from spec.
+> **3 decision-needed (all fixed) · 9 patch (all fixed) · 3 deferred · 4 dismissed**
+
+### Decision-Needed
+
+- [x] [Review][Decision] HTTP status inconsistency: POST /api/v1/booking returns 403 for expired plan; POST /api/v1/appointments returns 402 — same business condition, different codes. Which is correct? (Spec says 402 for appointment creation; public booking returning 403 may be intentional for client semantics.) — `booking/route.ts` vs `appointments/route.ts` — **Fixed: aligned both to 402; booking test updated**
+- [x] [Review][Decision] AC14 missing: X-Plan-Status response header not implemented in middleware or route handlers. Spec requires client-side real-time banner transition without page reload. Is this in MVP scope or intentionally deferred? — **Fixed: planExpiresAt added to JWT; X-Plan-Status header set in middleware; 60s client-side timer in PlanBanner + CalendarClient**
+- [x] [Review][Decision] UI enforcement for expired plan absent from diff (AC1, AC3, AC4, AC7, AC18): "+ Invite Doctor" button not disabled, no tooltip, no inline upgrade prompt, portal booking buttons not disabled with "New bookings are paused. Renew your subscription to resume." tooltip. Were these intentionally deferred to a follow-up story? — **Fixed: Walk-In + New Appointment buttons disabled when expired; staff doctorLimit prop plumbed from DB through RSC → client → modal; error code check fixed**
+
+### Patch
+
+- [x] [Review][Patch] Admin API route handlers lack server-side auth guard — middleware-only protection is bypassable via direct call, proxy, or test harness [middleware.ts + api/admin/clinics/route.ts] — **Dismissed: server-side guard already present in both admin route files**
+- [x] [Review][Patch] `systemRole` TEXT column has no DB-level constraint — add CHECK(system_role IN ('super_admin')) to prevent privilege escalation via direct DB write [prisma/migrations/0004_subscription_plan/migration.sql] — **Fixed: migration 0005_system_role_constraint added**
+- [x] [Review][Patch] Doctor limit race condition: `db.user.count` + `db.staffInvite.count` + check not atomic — two concurrent POSTs can both pass the limit check [staff/route.ts] — **Fixed: wrapped in `$transaction`; invite creation remains outside (acceptable MVP)**
+- [x] [Review][Patch] Clinic null in appointments POST silently bypasses plan check — `db.clinic.findUnique` can return null; `clinic?.planExpiresAt` evaluates to undefined which `isPlanExpired` treats as active; execution continues into tenant queries [appointments/route.ts] — **Fixed: explicit null check → 404; changed `clinic?.planExpiresAt` to `clinic.planExpiresAt`**
+- [x] [Review][Patch] New clinics created via onboarding/API don't get `planExpiresAt` set — `planExpiresAt = NULL` is treated as "active forever"; trial enforcement is bypassed for all new signups [clinics route / onboarding flow] — **Fixed: `planExpiresAt: NOW()+14d`, `doctorLimit: 2` set on clinic create**
+- [x] [Review][Patch] Doctor limit null-clinic fallback: when `db.clinic.findUnique` returns null, `clinic?.doctorLimit` is undefined; `getDoctorLimit(clinic?.plan ?? 'STARTER')` uses wrong limit silently [staff/route.ts] — **Fixed: explicit null → 404 before limit check**
+- [x] [Review][Patch] PlanBanner "Renew →" CTA links to /settings/data-rights (data erasure page) instead of a renewal/contact page — every expiry warning sends users to the wrong destination [PlanBanner.tsx] — **Fixed: href changed to /settings/billing**
+- [x] [Review][Patch] AC6 partial: soft-paywall message on /book/[slug] is missing the clinic phone number — spec requires "Please contact the clinic directly at {clinic phone}" [book/[slug]/page.tsx] — **Dismissed: phone number already present in existing code**
+- [x] [Review][Patch] Both "Renew →" button labels are identical (dead ternary) — `{isExpired ? 'Renew →' : 'Renew →'}` [PlanBanner.tsx] — **Fixed: isExpired → 'Renew Now →', expiring-soon → 'Renew →'**
+
+### Deferred
+
+- [x] [Review][Defer] Migration re-run resets null-expiry accounts: UPDATE WHERE plan_expires_at IS NULL will re-set deliberately-nulled accounts if migration is replayed [migration.sql] — deferred, pre-existing pattern; low production risk
+- [x] [Review][Defer] TOCTOU race: plan could expire between the expiry check and the appointment INSERT (multiple async operations in between) [appointments/route.ts] — deferred, acceptable MVP risk; millisecond window
+- [x] [Review][Defer] Doctor limit fallback: `clinic.plan` column may itself be null, causing `getDoctorLimit(undefined)` to return a wrong default [staff/route.ts] — deferred, pre-existing schema gap

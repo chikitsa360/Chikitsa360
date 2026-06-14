@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { auth } from '@/lib/auth'
 import { checkApiRateLimit } from '@/lib/rate-limit'
+import { getPlanStatus } from '@/lib/plan/check-plan'
 
 const PROTECTED_PATHS = [
   '/dashboard',
@@ -28,7 +29,7 @@ const PUBLIC_API_PATHS = [
 export default auth(async function middleware(req: NextRequest & { auth: unknown }) {
   const { pathname } = req.nextUrl
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const session = (req as any).auth as { user?: { clinicId?: string; systemRole?: string | null } } | null
+  const session = (req as any).auth as { user?: { clinicId?: string; systemRole?: string | null; planExpiresAt?: string | null } } | null
 
   const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p))
   const isAuthPath = AUTH_PATHS.some((p) => pathname.startsWith(p))
@@ -86,7 +87,13 @@ export default auth(async function middleware(req: NextRequest & { auth: unknown
     )
   }
 
-  return NextResponse.next()
+  // Add X-Plan-Status header to authenticated portal API responses for client-side real-time updates (AC14)
+  const response = NextResponse.next()
+  if (isApiV1 && session?.user?.clinicId) {
+    const expiresAt = session.user.planExpiresAt ? new Date(session.user.planExpiresAt) : null
+    response.headers.set('X-Plan-Status', getPlanStatus(expiresAt))
+  }
+  return response
 })
 
 export const config = {

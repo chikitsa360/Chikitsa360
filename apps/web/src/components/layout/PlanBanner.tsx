@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { getPlanStatus } from '@/lib/plan/check-plan'
 
 export type PlanStatus = 'active' | 'expiring_soon' | 'expired'
 
@@ -18,7 +19,18 @@ function formatDate(iso: string): string {
   })
 }
 
-export function PlanBanner({ status, expiresAt }: PlanBannerProps) {
+export function PlanBanner({ status: initialStatus, expiresAt }: PlanBannerProps) {
+  // Re-check client-side every minute so the banner transitions in real-time
+  // without a page reload (complements the X-Plan-Status header, AC14)
+  const [status, setStatus] = React.useState<PlanStatus>(initialStatus)
+
+  React.useEffect(() => {
+    if (!expiresAt) return
+    const check = () => setStatus(getPlanStatus(new Date(expiresAt)))
+    const id = setInterval(check, 60_000)
+    return () => clearInterval(id)
+  }, [expiresAt])
+
   if (status === 'active') return null
 
   const isExpired = status === 'expired'
@@ -43,11 +55,11 @@ export function PlanBanner({ status, expiresAt }: PlanBannerProps) {
             : 'Your subscription is expiring soon.'}
       </div>
       <a
-        href="/settings/data-rights"
+        href="/settings/billing"
         className="shrink-0 rounded px-3 py-1 text-[12px] font-semibold text-white"
         style={isExpired ? { background: 'rgb(220 38 38)' } : { background: 'rgb(217 119 6)' }}
       >
-        {isExpired ? 'Renew →' : 'Renew →'}
+        {isExpired ? 'Renew Now →' : 'Renew →'}
       </a>
     </div>
   )

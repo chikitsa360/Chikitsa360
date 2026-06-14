@@ -137,7 +137,7 @@ describe('POST /api/v1/booking - web booking creation', () => {
     expect(data.error).toBe('SLOT_TAKEN')
   })
 
-  it('returns 403 when plan is expired (soft paywall)', async () => {
+  it('returns 402 when plan is expired (soft paywall)', async () => {
     const expiredDate = new Date(Date.now() - 86400000) // yesterday
     mockDb.clinic.findUnique.mockResolvedValue({
       id: 'clinic-abc',
@@ -145,7 +145,7 @@ describe('POST /api/v1/booking - web booking creation', () => {
     })
 
     const res = await POST(makeRequest(VALID_BODY))
-    expect(res.status).toBe(403)
+    expect(res.status).toBe(402)
   })
 
   it('returns 404 when clinic not found', async () => {

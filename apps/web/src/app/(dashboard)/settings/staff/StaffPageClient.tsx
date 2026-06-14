@@ -12,7 +12,7 @@ interface StaffPageClientProps {
   pendingInvites: PendingInvite[]
   currentUserId: string
   clinicName: string
-  clinicPlan: string
+  doctorLimit: number
   currentDoctorCount: number
   canManageStaff: boolean
   pageTitle: string
@@ -23,7 +23,7 @@ export function StaffPageClient({
   pendingInvites,
   currentUserId,
   clinicName,
-  clinicPlan,
+  doctorLimit,
   currentDoctorCount,
   canManageStaff,
   pageTitle,
@@ -56,7 +56,7 @@ export function StaffPageClient({
 
       {showInvite && (
         <InviteStaffModal
-          clinicPlan={clinicPlan}
+          doctorLimit={doctorLimit}
           currentDoctorCount={currentDoctorCount}
           onClose={() => setShowInvite(false)}
           onSuccess={handleSuccess}

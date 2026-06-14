@@ -8,14 +8,14 @@ import { inviteStaffSchema } from '@chikitsa360/core'
 import { useToast } from '@/components/ui/ToastProvider'
 
 interface InviteStaffModalProps {
-  clinicPlan: string
+  doctorLimit: number
   currentDoctorCount: number
   onClose: () => void
   onSuccess: () => void
 }
 
 export function InviteStaffModal({
-  clinicPlan,
+  doctorLimit,
   currentDoctorCount,
   onClose,
   onSuccess,
@@ -27,8 +27,6 @@ export function InviteStaffModal({
   const [loading, setLoading] = React.useState(false)
   const [errors, setErrors] = React.useState<{ phone?: string; role?: string }>({})
 
-  const doctorLimits: Record<string, number> = { STARTER: 1, GROWTH: 3, PRO: 10 }
-  const doctorLimit = doctorLimits[clinicPlan] ?? 1
   const doctorLimitReached = currentDoctorCount >= doctorLimit
 
   // Close on Escape
@@ -65,10 +63,10 @@ export function InviteStaffModal({
       const data = await res.json()
 
       if (!res.ok) {
-        if (data?.error?.code === 'PLAN_LIMIT') {
-          addToast({ variant: 'error', message: t('invite-limit-reached', { plan: clinicPlan }) })
+        if (data?.error === 'doctor_limit_reached') {
+          addToast({ variant: 'error', message: t('invite-limit-reached', { limit: String(doctorLimit) }) })
         } else {
-          addToast({ variant: 'error', message: data?.error?.message ?? 'Failed to send invite' })
+          addToast({ variant: 'error', message: data?.message ?? 'Failed to send invite' })
         }
         return
       }
@@ -117,7 +115,7 @@ export function InviteStaffModal({
 
         {doctorLimitReached && role === 'DOCTOR' && (
           <div className="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-warning">
-            {t('invite-limit-reached', { plan: clinicPlan })}
+            {t('invite-limit-reached', { limit: String(doctorLimit) })}
           </div>
         )}
 

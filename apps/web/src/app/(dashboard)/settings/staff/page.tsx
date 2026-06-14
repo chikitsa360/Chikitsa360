@@ -34,11 +34,15 @@ export default async function StaffPage() {
     }),
     db.clinic.findUnique({
       where: { id: clinicId },
-      select: { name: true, plan: true },
+      select: { name: true, plan: true, doctorLimit: true },
     }),
   ])
 
   const doctorCount = staff.filter((s: { role: string }) => s.role === 'DOCTOR').length
+  const pendingDoctorCount = pendingInvites.filter((i: { role: string }) => i.role === 'DOCTOR').length
+
+  const PLAN_DOCTOR_LIMITS: Record<string, number> = { STARTER: 1, GROWTH: 3, PRO: 10 }
+  const effectiveDoctorLimit = clinic?.doctorLimit ?? PLAN_DOCTOR_LIMITS[clinic?.plan ?? 'STARTER'] ?? 1
 
   const t = await getTranslations('staff')
 
@@ -62,8 +66,8 @@ export default async function StaffPage() {
       }))}
       currentUserId={userId}
       clinicName={clinic?.name ?? ''}
-      clinicPlan={clinic?.plan ?? 'STARTER'}
-      currentDoctorCount={doctorCount}
+      doctorLimit={effectiveDoctorLimit}
+      currentDoctorCount={doctorCount + pendingDoctorCount}
       canManageStaff={hasPermission(userRole, 'staff:invite')}
       pageTitle={t('title')}
     />

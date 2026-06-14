@@ -48,11 +48,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Clinic not found' }, { status: 404 })
   }
 
-  // Soft paywall check (MON-3)
+  // Soft paywall check (MON-3) — 402 Payment Required consistent with POST /api/v1/appointments
   if (isPlanExpired(clinic.planExpiresAt)) {
     return NextResponse.json(
-      { error: 'Online booking is temporarily unavailable. Please contact the clinic directly.' },
-      { status: 403 }
+      { error: 'plan_expired', message: 'Online booking is temporarily unavailable. Please contact the clinic directly.' },
+      { status: 402 }
     )
   }
 

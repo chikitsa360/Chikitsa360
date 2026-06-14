@@ -132,9 +132,12 @@ export async function POST(req: NextRequest) {
 
   // Plan expiry check — 402 if plan has expired (MON-3)
   const clinic = await db.clinic.findUnique({ where: { id: clinicId }, select: { planExpiresAt: true } })
-  if (isPlanExpired(clinic?.planExpiresAt)) {
+  if (!clinic) {
+    return NextResponse.json({ error: 'Clinic not found' }, { status: 404 })
+  }
+  if (isPlanExpired(clinic.planExpiresAt)) {
     return NextResponse.json(
-      { error: 'plan_expired', expiredAt: clinic?.planExpiresAt?.toISOString() },
+      { error: 'plan_expired', expiredAt: clinic.planExpiresAt?.toISOString() },
       { status: 402 }
     )
   }

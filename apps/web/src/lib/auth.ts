@@ -15,6 +15,7 @@ declare module 'next-auth' {
       clinicId: string | null
       onboardingComplete: boolean
       systemRole: string | null
+      planExpiresAt: string | null
     }
   }
 
@@ -23,6 +24,7 @@ declare module 'next-auth' {
     clinicId: string | null
     onboardingComplete: boolean
     systemRole: string | null
+    planExpiresAt: string | null
   }
 }
 
@@ -60,7 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Look up user by phone
         const user = await db.user.findUnique({
           where: { phone },
-          include: { clinic: { select: { id: true, onboardingComplete: true } } },
+          include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
         })
 
         if (!user) return null
@@ -73,6 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           clinicId: user.clinicId,
           onboardingComplete: user.clinic?.onboardingComplete ?? false,
           systemRole: user.systemRole ?? null,
+          planExpiresAt: user.clinic?.planExpiresAt?.toISOString() ?? null,
         }
       },
     }),
@@ -103,6 +106,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.clinicId = user.clinicId
         token.onboardingComplete = user.onboardingComplete
         token.systemRole = user.systemRole ?? null
+        token.planExpiresAt = user.planExpiresAt ?? null
       }
       return token
     },
@@ -113,6 +117,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.clinicId = (token.clinicId as string | null) ?? null
       session.user.onboardingComplete = (token.onboardingComplete as boolean) ?? false
       session.user.systemRole = (token.systemRole as string | null) ?? null
+      session.user.planExpiresAt = (token.planExpiresAt as string | null) ?? null
       return session
     },
 

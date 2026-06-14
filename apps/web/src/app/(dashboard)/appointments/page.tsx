@@ -82,6 +82,9 @@ export default async function AppointmentsPage({
     // Tenant schema may not be provisioned yet
   }
 
+  // planExpiresAt comes from the JWT — no extra DB call needed (AC7, AC18)
+  const planExpiresAt = (session.user as { planExpiresAt?: string | null }).planExpiresAt ?? null
+
   return (
     <CalendarClient
       clinicId={clinicId}
@@ -91,6 +94,7 @@ export default async function AppointmentsPage({
       initialView={view as 'day' | 'week'}
       initialAppointments={initialAppointments}
       doctors={doctors}
+      planExpiresAt={planExpiresAt}
     />
   )
 }

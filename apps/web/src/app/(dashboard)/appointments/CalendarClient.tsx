@@ -9,6 +9,7 @@ import { AppointmentDetailPanel } from '@/components/appointments/AppointmentDet
 import { NewAppointmentPanel } from '@/components/appointments/NewAppointmentPanel'
 import { WalkInPanel } from '@/components/appointments/WalkInPanel'
 import { useAppointmentUpdates } from '@/lib/pusher/useAppointmentUpdates'
+import { getPlanStatus } from '@/lib/plan/check-plan'
 
 export interface Appointment {
   id: string
@@ -40,6 +41,7 @@ interface CalendarClientProps {
   initialView: 'day' | 'week'
   initialAppointments: Appointment[]
   doctors: Doctor[]
+  planExpiresAt: string | null
 }
 
 export function CalendarClient({
@@ -50,8 +52,20 @@ export function CalendarClient({
   initialView,
   initialAppointments,
   doctors,
+  planExpiresAt,
 }: CalendarClientProps) {
   const router = useRouter()
+
+  // Real-time plan expiry tracking — re-checks every minute (AC7, AC18)
+  const [planExpired, setPlanExpired] = React.useState(() =>
+    getPlanStatus(planExpiresAt ? new Date(planExpiresAt) : null) === 'expired'
+  )
+  React.useEffect(() => {
+    if (!planExpiresAt) return
+    const check = () => setPlanExpired(getPlanStatus(new Date(planExpiresAt)) === 'expired')
+    const id = setInterval(check, 60_000)
+    return () => clearInterval(id)
+  }, [planExpiresAt])
 
   const [currentDate, setCurrentDate] = React.useState(initialDate)
   const [view, setView] = React.useState<'day' | 'week'>(initialView)
@@ -230,10 +244,12 @@ export function CalendarClient({
             </button>
           </div>
 
-          {/* Walk-In button (amber) */}
+          {/* Walk-In button (amber) — disabled when plan expired (AC7, AC18) */}
           <button
-            onClick={() => setShowWalkIn(true)}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 text-[12px] font-medium hover:bg-amber-100 transition-colors"
+            onClick={() => !planExpired && setShowWalkIn(true)}
+            disabled={planExpired}
+            title={planExpired ? 'New bookings are paused. Renew your subscription to resume.' : undefined}
+            className={`flex items-center gap-1.5 h-8 px-3 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 text-[12px] font-medium transition-colors ${planExpired ? 'opacity-50 cursor-not-allowed' : 'hover:bg-amber-100'}`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M16 11l-4 4-2-2" /><circle cx="12" cy="8" r="3" /><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" />
@@ -241,10 +257,12 @@ export function CalendarClient({
             Walk-In
           </button>
 
-          {/* New Appointment button */}
+          {/* New Appointment button — disabled when plan expired (AC7, AC18) */}
           <button
-            onClick={() => setShowNewPanel(true)}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-white text-[12px] font-medium hover:bg-primary/90 transition-colors"
+            onClick={() => !planExpired && setShowNewPanel(true)}
+            disabled={planExpired}
+            title={planExpired ? 'New bookings are paused. Renew your subscription to resume.' : undefined}
+            className={`flex items-center gap-1.5 h-8 px-3 rounded-lg bg-primary text-white text-[12px] font-medium transition-colors ${planExpired ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary/90'}`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
