@@ -60,7 +60,7 @@ export async function GET(
   const waitingRows = await db.$queryRawUnsafe<{ waiting_count: string }[]>(
     `SELECT COUNT(*)::text AS waiting_count
      FROM "${schemaName}".event_waiting_list
-     WHERE event_id = $1 AND status = 'waiting'`,
+     WHERE event_id = $1::uuid AND status = 'waiting'`,
     event.id
   )
   const waitingCount = parseInt(waitingRows[0]?.waiting_count ?? '0', 10)
@@ -73,7 +73,7 @@ export async function GET(
       total_occurrences: number
     }[]>(
       `SELECT recurrence_type, total_occurrences
-       FROM "${schemaName}".event_series WHERE id = $1 LIMIT 1`,
+       FROM "${schemaName}".event_series WHERE id = $1::uuid LIMIT 1`,
       event.series_id
     )
     if (seriesRows[0]) {

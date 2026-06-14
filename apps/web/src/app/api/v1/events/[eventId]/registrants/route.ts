@@ -19,7 +19,7 @@ export async function GET(
 
   // Verify event belongs to this clinic
   const eventRows = await db.$queryRawUnsafe<{ id: string }[]>(
-    `SELECT id FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2 LIMIT 1`,
+    `SELECT id FROM "${schemaName}".events WHERE id = $1::uuid AND clinic_id = $2 LIMIT 1`,
     eventId,
     clinicId
   )
@@ -33,7 +33,7 @@ export async function GET(
             p.name, p.phone
      FROM "${schemaName}".event_registrations er
      JOIN "${schemaName}".patients p ON p.id = er.patient_id
-     WHERE er.event_id = $1
+     WHERE er.event_id = $1::uuid
      ORDER BY er.registered_at ASC`,
     eventId
   )
@@ -44,7 +44,7 @@ export async function GET(
             p.name, p.phone
      FROM "${schemaName}".event_waiting_list ewl
      JOIN "${schemaName}".patients p ON p.id = ewl.patient_id
-     WHERE ewl.event_id = $1
+     WHERE ewl.event_id = $1::uuid
      ORDER BY ewl.position ASC`,
     eventId
   )
@@ -55,7 +55,7 @@ export async function GET(
             p.name, p.phone
      FROM "${schemaName}".event_invitations ei
      JOIN "${schemaName}".patients p ON p.id = ei.patient_id
-     WHERE ei.event_id = $1
+     WHERE ei.event_id = $1::uuid
      ORDER BY ei.created_at ASC`,
     eventId
   )

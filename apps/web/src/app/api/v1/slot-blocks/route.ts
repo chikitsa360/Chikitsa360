@@ -104,7 +104,7 @@ export async function POST(req: NextRequest) {
   const blockRows = await db.$queryRawUnsafe<{ id: string }[]>(
     `INSERT INTO "${schemaName}".slot_blocks
        (doctor_id, block_date, start_time, end_time, reason, recurrence, created_by)
-     VALUES ($1, $2::date, $3::time, $4::time, $5, $6, $7::uuid)
+     VALUES ($1::uuid, $2::date, $3::time, $4::time, $5, $6, $7::uuid)
      RETURNING id`,
     doctorId ?? null,
     date,

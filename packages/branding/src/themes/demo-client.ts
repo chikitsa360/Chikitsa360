@@ -103,6 +103,8 @@ export const demoClientTheme: BrandTheme = {
     '--color-accent-foreground': '255 255 255',
     '--color-background': '255 255 255',
     '--color-foreground': '17 24 39',
+    '--color-card': '255 255 255',
+    '--color-card-foreground': '17 24 39',
     '--color-muted': '243 244 246',
     '--color-muted-foreground': '107 114 128',
     '--color-border': '229 231 235',

@@ -4,6 +4,20 @@ const OTP_TTL_SECONDS = 600 // 10 minutes
 const MAX_ATTEMPTS = 3
 const LOCKOUT_TTL_SECONDS = 900 // 15 minutes
 
+// ── Dev mode (no Redis) ───────────────────────────────────────────────────
+// When running locally without Upstash, skip Redis entirely and accept a
+// hardcoded OTP so the auth flow can be tested end-to-end.
+// No in-memory store is used — the static OTP is accepted for any nonce,
+// because Next.js runs different API routes in separate module contexts and
+// a module-level Map cannot be shared between them reliably.
+
+const isDev = process.env.NODE_ENV !== 'production'
+const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
+
+/** Static OTP accepted in dev-without-Redis. Set DEV_OTP_BYPASS in .env.local to override. */
+const DEV_STATIC_OTP: string | null =
+  isDev && !hasRedis ? (process.env.DEV_OTP_BYPASS ?? '123456') : null
+
 // ── Error types ───────────────────────────────────────────────────────────
 
 export class OtpError extends Error {
@@ -43,7 +57,6 @@ export class OtpRateLimitError extends OtpError {
 // ── Helpers ───────────────────────────────────────────────────────────────
 
 function generateOtp(): string {
-  // Cryptographically random 6-digit OTP
   const array = new Uint32Array(1)
   crypto.getRandomValues(array)
   return String(100000 + (array[0]! % 900000))
@@ -54,7 +67,6 @@ async function sendViaMSG91(phone: string, otp: string): Promise<void> {
   const templateId = process.env.MSG91_TEMPLATE_ID
 
   if (!apiKey || !templateId) {
-    // Development mode: log OTP instead of sending
     console.log(`[DEV] OTP for +91${phone}: ${otp}`)
     return
   }
@@ -79,10 +91,15 @@ async function sendViaMSG91(phone: string, otp: string): Promise<void> {
 /**
  * Generate a 6-digit OTP and send it to the given phone via MSG91.
  * Returns a nonce to be stored client-side for the verify step.
- * OTP is NOT stored in the database — only in Redis with TTL (security).
+ *
+ * In dev mode without Redis, uses an in-memory store and logs the OTP.
  */
 export async function sendOtp(phone: string): Promise<{ nonce: string }> {
-  // Check if phone is locked
+  if (DEV_STATIC_OTP !== null) {
+    console.log(`[DEV] OTP for ${phone}: ${DEV_STATIC_OTP}`)
+    return { nonce: 'dev' }
+  }
+
   const lockoutTtl = await redis.ttl(`otp:${phone}:lockout`)
   if (lockoutTtl > 0) {
     throw new OtpLockedError(Math.ceil(lockoutTtl / 60))
@@ -91,9 +108,7 @@ export async function sendOtp(phone: string): Promise<{ nonce: string }> {
   const nonce = crypto.randomUUID()
   const otp = generateOtp()
 
-  // Store OTP in Redis: key includes nonce to prevent cross-session reuse
   await redis.set(`otp:${phone}:${nonce}`, otp, { ex: OTP_TTL_SECONDS })
-
   await sendViaMSG91(phone, otp)
 
   return { nonce }
@@ -102,14 +117,18 @@ export async function sendOtp(phone: string): Promise<{ nonce: string }> {
 /**
  * Verify the OTP for a phone number.
  * Tracks failed attempts; locks phone after MAX_ATTEMPTS failures.
- * Deletes OTP from Redis on success.
- * Throws typed OtpError on failure.
+ * Deletes OTP from Redis (or dev store) on success.
  */
 export async function verifyOtp(
   phone: string,
   nonce: string,
   code: string
 ): Promise<true> {
+  if (DEV_STATIC_OTP !== null) {
+    if (code !== DEV_STATIC_OTP) throw new OtpInvalidError(2)
+    return true
+  }
+
   // Check lockout first
   const lockoutTtl = await redis.ttl(`otp:${phone}:lockout`)
   if (lockoutTtl > 0) {
@@ -122,27 +141,23 @@ export async function verifyOtp(
     throw new OtpExpiredError()
   }
 
-  // Dev bypass: accept a fixed code without Redis (never active in production)
-  const devBypass = process.env.NODE_ENV !== 'production' ? process.env.DEV_OTP_BYPASS : undefined
+  // Dev bypass: accept a fixed code (only active in non-production WITH Redis)
+  const devBypass = isDev ? process.env.DEV_OTP_BYPASS : undefined
   if (devBypass && code === devBypass) {
     await redis.del(`otp:${phone}:${nonce}`)
     await redis.del(`otp:${phone}:attempts`)
     return true
   }
 
-  // Verify
   if (stored !== code) {
-    // Increment failed attempts
     const attemptsKey = `otp:${phone}:attempts`
     const attempts = await redis.incr(attemptsKey)
 
-    // Set TTL on first attempt
     if (attempts === 1) {
       await redis.expire(attemptsKey, OTP_TTL_SECONDS)
     }
 
     if (attempts >= MAX_ATTEMPTS) {
-      // Lock the phone number
       await redis.set(`otp:${phone}:lockout`, '1', { ex: LOCKOUT_TTL_SECONDS })
       await redis.del(attemptsKey)
       await redis.del(`otp:${phone}:${nonce}`)
@@ -152,7 +167,6 @@ export async function verifyOtp(
     throw new OtpInvalidError(MAX_ATTEMPTS - attempts)
   }
 
-  // Success — clean up
   await redis.del(`otp:${phone}:${nonce}`)
   await redis.del(`otp:${phone}:attempts`)
 

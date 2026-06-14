@@ -35,7 +35,7 @@ export const eventReminder24h = inngest.createFunction(
       event_id: string
     }[]>(
       `SELECT status, reference_number, patient_id, event_id
-       FROM "${schemaName}".event_registrations WHERE id = $1 LIMIT 1`,
+       FROM "${schemaName}".event_registrations WHERE id = $1::uuid LIMIT 1`,
       registrationId
     )
     const registration = regRows[0]
@@ -50,7 +50,7 @@ export const eventReminder24h = inngest.createFunction(
       meeting_link: string | null
     }[]>(
       `SELECT title, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link
-       FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+       FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
       registration.event_id
     )
     const eventData = eventRows[0]
@@ -61,7 +61,7 @@ export const eventReminder24h = inngest.createFunction(
       phone: string
       whatsapp_opt_out_at: string | null
     }[]>(
-      `SELECT name, phone, whatsapp_opt_out_at FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+      `SELECT name, phone, whatsapp_opt_out_at FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
       registration.patient_id
     )
     const patient = patientRows[0]

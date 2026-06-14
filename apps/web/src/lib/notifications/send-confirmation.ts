@@ -17,5 +17,8 @@ export async function scheduleConfirmation(
     id: `${appointmentId}:confirmation`, // Idempotency key — prevents duplicate sends
     name: 'appointment/confirmation.send',
     data: { appointmentId, clinicId },
+  }).catch((err: unknown) => {
+    // Non-fatal: Inngest not running in dev is expected. Log and continue.
+    console.warn('[inngest] scheduleConfirmation failed (Inngest not running?):', err)
   })
 }

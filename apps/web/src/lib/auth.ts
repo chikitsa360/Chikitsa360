@@ -48,34 +48,54 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         nonce: { label: 'Nonce', type: 'text' },
       },
       async authorize(credentials) {
-        const parsed = credentialsSchema.safeParse(credentials)
-        if (!parsed.success) return null
-
-        const { phone, otp, nonce } = parsed.data
-
         try {
-          await verifyOtp(phone, nonce, otp)
-        } catch {
+          const parsed = credentialsSchema.safeParse(credentials)
+          if (!parsed.success) {
+            console.error('[auth] credentials schema failed:', parsed.error.issues)
+            return null
+          }
+
+          const { phone, otp, nonce } = parsed.data
+
+          try {
+            await verifyOtp(phone, nonce, otp)
+          } catch (err) {
+            console.error('[auth] verifyOtp failed:', err)
+            return null
+          }
+
+          // Look up user by phone
+          let user = await db.user.findUnique({
+            where: { phone },
+            include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
+          })
+
+          // Dev mode: auto-create an OWNER user so any phone can log in without seeding
+          if (!user && process.env.NODE_ENV !== 'production') {
+            user = await db.user.create({
+              data: { phone, name: 'Dev User', role: 'OWNER' },
+              include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
+            })
+          }
+
+          if (!user) {
+            console.error('[auth] no user found for phone:', phone)
+            return null
+          }
+
+          return {
+            id: user.id,
+            name: user.name ?? undefined,
+            email: undefined,
+            role: user.role,
+            clinicId: user.clinicId,
+            onboardingComplete: user.clinic?.onboardingComplete ?? false,
+            systemRole: user.systemRole ?? null,
+            planExpiresAt: user.clinic?.planExpiresAt?.toISOString() ?? null,
+          }
+        } catch (err) {
+          console.error('[auth] authorize threw unexpectedly:', err)
           return null
-        }
-
-        // Look up user by phone
-        const user = await db.user.findUnique({
-          where: { phone },
-          include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
-        })
-
-        if (!user) return null
-
-        return {
-          id: user.id,
-          name: user.name ?? undefined,
-          email: undefined,
-          role: user.role,
-          clinicId: user.clinicId,
-          onboardingComplete: user.clinic?.onboardingComplete ?? false,
-          systemRole: user.systemRole ?? null,
-          planExpiresAt: user.clinic?.planExpiresAt?.toISOString() ?? null,
         }
       },
     }),

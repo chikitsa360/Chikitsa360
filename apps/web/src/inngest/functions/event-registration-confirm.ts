@@ -31,7 +31,7 @@ export const eventRegistrationConfirm = inngest.createFunction(
         patient_id: string
       }[]>(
         `SELECT id, status, reference_number, cancellation_token, event_id, patient_id
-         FROM "${schemaName}".event_registrations WHERE id = $1 LIMIT 1`,
+         FROM "${schemaName}".event_registrations WHERE id = $1::uuid LIMIT 1`,
         registrationId
       )
       const registration = regRows[0]
@@ -48,14 +48,14 @@ export const eventRegistrationConfirm = inngest.createFunction(
         fee_paise: number | null
       }[]>(
         `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link, fee_paise
-         FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+         FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
         registration.event_id
       )
       const eventData = eventRows[0]
       if (!eventData) return null
 
       const patientRows = await db.$queryRawUnsafe<{ id: string; name: string; phone: string }[]>(
-        `SELECT id, name, phone FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+        `SELECT id, name, phone FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
         registration.patient_id
       )
       const patient = patientRows[0]

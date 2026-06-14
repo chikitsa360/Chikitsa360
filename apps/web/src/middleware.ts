@@ -18,6 +18,7 @@ const AUTH_PATHS = ['/login']
 
 // Public API routes — no auth required (rate-limited separately per route)
 const PUBLIC_API_PATHS = [
+  '/api/v1/auth/',             // OTP send/verify — unauthenticated by definition
   '/api/v1/clinics/by-slug/',
   '/api/v1/slots/available',
   '/api/v1/booking',

@@ -46,7 +46,7 @@ export async function PATCH(
     seats_registered: number
   }[]>(
     `SELECT id, max_seats, seats_registered
-     FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2`,
+     FROM "${schemaName}".events WHERE id = $1::uuid AND clinic_id = $2::uuid`,
     eventId,
     clinicId
   )
@@ -65,7 +65,7 @@ export async function PATCH(
   }[]>(
     `SELECT id, status, patient_id, position, event_id
      FROM "${schemaName}".event_waiting_list
-     WHERE id = $1 AND event_id = $2 LIMIT 1`,
+     WHERE id = $1::uuid AND event_id = $2::uuid LIMIT 1`,
     entryId,
     eventId
   )
@@ -86,7 +86,7 @@ export async function PATCH(
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".event_waiting_list
        SET status = 'removed', updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1::uuid`,
       entryId
     )
     await writeAuditLog({
@@ -113,7 +113,7 @@ export async function PATCH(
         start_time: string
       }[]>(
         `SELECT id, seats_registered, max_seats, slug, start_time AT TIME ZONE 'UTC' AS start_time
-         FROM "${schemaName}".events WHERE id = $1 FOR UPDATE`,
+         FROM "${schemaName}".events WHERE id = $1::uuid FOR UPDATE`,
         eventId
       )
       const locked = lockedRows[0]
@@ -127,7 +127,7 @@ export async function PATCH(
 
       // Generate reference number
       const countRows = await db.$queryRawUnsafe<{ cnt: string }[]>(
-        `SELECT COUNT(*)::text AS cnt FROM "${schemaName}".event_registrations WHERE event_id = $1`,
+        `SELECT COUNT(*)::text AS cnt FROM "${schemaName}".event_registrations WHERE event_id = $1::uuid`,
         eventId
       )
       const seq = (parseInt(countRows[0]?.cnt ?? '0', 10) + 1).toString().padStart(3, '0')
@@ -153,14 +153,14 @@ export async function PATCH(
       // Increment seats_registered
       await db.$executeRawUnsafe(
         `UPDATE "${schemaName}".events SET seats_registered = seats_registered + 1, updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1::uuid`,
         eventId
       )
 
       // Mark waitlist entry as promoted
       await db.$executeRawUnsafe(
         `UPDATE "${schemaName}".event_waiting_list SET status = 'promoted', updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1::uuid`,
         entryId
       )
 

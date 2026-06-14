@@ -12,25 +12,33 @@
     "onboarding": "Setup"
   },
   "auth": {
-    "login.title": "Welcome back",
-    "login.subtitle": "Sign in to your clinic portal",
-    "login.phone.label": "Mobile Number",
-    "login.phone.placeholder": "Enter 10-digit mobile number",
-    "login.otp.label": "Enter OTP",
-    "login.otp.placeholder": "6-digit code",
-    "login.send-otp": "Send OTP",
-    "login.verify": "Verify & Login",
-    "login.sending": "Sending...",
-    "login.verifying": "Verifying...",
-    "login.otp-sent": "Code sent to +91 XXXXXX{last4}",
-    "login.otp-resend": "Didn't receive it? Resend OTP",
-    "login.otp-resend-in": "Resend OTP in {seconds}s",
-    "login.change-number": "Change number",
-    "login.error.invalid-phone": "Enter a valid 10-digit Indian mobile number",
-    "login.error.invalid-otp": "Incorrect OTP. {remaining} attempts remaining.",
-    "login.error.locked": "Too many attempts. Try again in {minutes} minutes.",
-    "login.error.expired": "OTP expired. Please request a new code.",
-    "login.error.generic": "Something went wrong. Please try again."
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your clinic portal",
+      "phone": {
+        "label": "Mobile Number",
+        "placeholder": "Enter 10-digit mobile number"
+      },
+      "otp": {
+        "label": "Enter OTP",
+        "placeholder": "6-digit code"
+      },
+      "send-otp": "Send OTP",
+      "verify": "Verify & Login",
+      "sending": "Sending...",
+      "verifying": "Verifying...",
+      "otp-sent": "Code sent to +91 XXXXXX{last4}",
+      "otp-resend": "Didn't receive it? Resend OTP",
+      "otp-resend-in": "Resend OTP in {seconds}s",
+      "change-number": "Change number",
+      "error": {
+        "invalid-phone": "Enter a valid 10-digit Indian mobile number",
+        "invalid-otp": "Incorrect OTP. {remaining} attempts remaining.",
+        "locked": "Too many attempts. Try again in {minutes} minutes.",
+        "expired": "OTP expired. Please request a new code.",
+        "generic": "Something went wrong. Please try again."
+      }
+    }
   },
   "common": {
     "save": "Save",
@@ -42,10 +50,14 @@
     "loading": "Loading...",
     "back": "Back",
     "close": "Close",
-    "empty.no-data": "No data for this period",
-    "error.generic": "Something went wrong. Please try again.",
-    "error.unauthorized": "You don't have permission to do this.",
-    "error.not-found": "The requested resource was not found."
+    "empty": {
+      "no-data": "No data for this period"
+    },
+    "error": {
+      "generic": "Something went wrong. Please try again.",
+      "unauthorized": "You don't have permission to do this.",
+      "not-found": "The requested resource was not found."
+    }
   },
   "staff": {
     "title": "Staff Management",
@@ -56,15 +68,19 @@
     "invite-role-placeholder": "Select role",
     "invite-submit": "Send Invite",
     "invite-success": "Invite sent to {phone}",
-    "invite-limit-reached": "You've reached your Doctor limit on the {plan} plan. Upgrade to add more Doctors.",
+    "invite-limit-reached": "You've reached your Doctor limit ({limit}). Upgrade to add more Doctors.",
     "remove-title": "Remove Staff Member",
     "remove-confirm": "Remove {name} from {clinic}? They will lose access immediately.",
     "remove-submit": "Remove",
-    "roles.OWNER": "Owner",
-    "roles.DOCTOR": "Doctor",
-    "roles.RECEPTIONIST": "Receptionist",
-    "status.active": "Active",
-    "status.pending": "Pending",
+    "roles": {
+      "OWNER": "Owner",
+      "DOCTOR": "Doctor",
+      "RECEPTIONIST": "Receptionist"
+    },
+    "status": {
+      "active": "Active",
+      "pending": "Pending"
+    },
     "invite-expired": "This invitation has expired. Ask your Clinic Owner to resend it."
   },
   "theme": {
@@ -95,61 +111,75 @@
     "clinic-slug-locked": "Contact support to change your booking URL."
   },
   "onboarding": {
-    "step1.title": "Let's set up your clinic",
-    "step1.subtitle": "Tell us about your practice. This takes less than 2 minutes.",
-    "step1.name-label": "Clinic Name",
-    "step1.name-placeholder": "e.g. City Dental Clinic",
-    "step1.address-label": "Address Line",
-    "step1.address-placeholder": "e.g. 12, MG Road",
-    "step1.city-label": "City",
-    "step1.city-placeholder": "e.g. Bengaluru",
-    "step1.speciality-label": "Speciality",
-    "step1.speciality-placeholder": "Select speciality",
-    "step1.phone-label": "Clinic Phone Number (optional)",
-    "step1.phone-placeholder": "10-digit number",
-    "step1.slug-label": "Booking URL Slug",
-    "step1.slug-locked": "Slug cannot be changed after first save.",
-    "step1.slug-use-suggestion": "Use {suggestion}",
-    "step1.legal-intro": "Before we start, please review and accept these agreements. They protect both you and your patients.",
-    "step1.legal-tos": "I have read and accept the <a href='/legal/terms' target='_blank'>Terms of Service</a>",
-    "step1.legal-privacy": "I have read and accept the <a href='/legal/privacy' target='_blank'>Privacy Policy</a>",
-    "step1.legal-dpa": "I accept the <a href='/legal/dpa' target='_blank'>Data Processing Agreement</a> as a Data Fiduciary under the DPDP Act 2023",
-    "step1.save-later": "I'll finish this later",
-    "step1.submit": "Save & Continue",
-    "step2.title": "Add your first doctor",
-    "step2.subtitle": "You can add more doctors later from Settings.",
-    "step2.name-label": "Doctor Name",
-    "step2.name-placeholder": "e.g. Dr. Priya Sharma",
-    "step2.speciality-label": "Speciality",
-    "step2.speciality-placeholder": "e.g. General Medicine",
-    "step2.fee-label": "Default Consultation Fee (₹)",
-    "step2.fee-placeholder": "e.g. 500",
-    "step2.submit": "Save & Continue",
-    "step2.save-later": "I'll finish this later",
-    "step2.add-another": "Add another doctor",
-    "step3.title": "Set working hours",
-    "step3.subtitle": "Set when your clinic is open for appointments.",
-    "step3.slot-duration-label": "Appointment Slot Duration",
-    "step3.submit": "Save & Continue",
-    "step3.save-later": "I'll finish this later",
-    "step4.title": "Connect WhatsApp Business",
-    "step4.subtitle": "Send appointment reminders and confirmations via WhatsApp.",
-    "step4.connect-cta": "Connect via Meta",
-    "step4.skip": "Skip for now",
-    "step4.connected": "WhatsApp Connected",
-    "complete.title": "You're all set!",
-    "complete.subtitle": "Your clinic is ready. Let's look at a sample appointment.",
-    "complete.go-to-dashboard": "Go to Dashboard",
-    "common.saving": "Saving...",
-    "error.name-required": "Clinic name is required",
-    "error.address-required": "Address is required",
-    "error.city-required": "City is required",
-    "error.speciality-required": "Please select a speciality",
-    "error.phone-invalid": "Enter a valid 10-digit phone number",
-    "error.slug-invalid": "Slug must contain only lowercase letters, numbers, and hyphens",
-    "error.legal-required": "Please accept all three agreements to continue",
-    "error.generic": "Something went wrong. Please try again.",
-    "error.doctor-name-required": "Doctor name is required",
-    "error.fee-invalid": "Fee must be a positive number"
+    "step1": {
+      "title": "Let's set up your clinic",
+      "subtitle": "Tell us about your practice. This takes less than 2 minutes.",
+      "name-label": "Clinic Name",
+      "name-placeholder": "e.g. City Dental Clinic",
+      "address-label": "Address Line",
+      "address-placeholder": "e.g. 12, MG Road",
+      "city-label": "City",
+      "city-placeholder": "e.g. Bengaluru",
+      "speciality-label": "Speciality",
+      "speciality-placeholder": "Select speciality",
+      "phone-label": "Clinic Phone Number (optional)",
+      "phone-placeholder": "10-digit number",
+      "slug-label": "Booking URL Slug",
+      "slug-locked": "Slug cannot be changed after first save.",
+      "slug-use-suggestion": "Use {suggestion}",
+      "legal-intro": "Before we start, please review and accept these agreements. They protect both you and your patients.",
+      "legal-tos": "I have read and accept the <a href='/legal/terms' target='_blank'>Terms of Service</a>",
+      "legal-privacy": "I have read and accept the <a href='/legal/privacy' target='_blank'>Privacy Policy</a>",
+      "legal-dpa": "I accept the <a href='/legal/dpa' target='_blank'>Data Processing Agreement</a> as a Data Fiduciary under the DPDP Act 2023",
+      "save-later": "I'll finish this later",
+      "submit": "Save & Continue"
+    },
+    "step2": {
+      "title": "Add your first doctor",
+      "subtitle": "You can add more doctors later from Settings.",
+      "name-label": "Doctor Name",
+      "name-placeholder": "e.g. Dr. Priya Sharma",
+      "speciality-label": "Speciality",
+      "speciality-placeholder": "e.g. General Medicine",
+      "fee-label": "Default Consultation Fee (₹)",
+      "fee-placeholder": "e.g. 500",
+      "submit": "Save & Continue",
+      "save-later": "I'll finish this later",
+      "add-another": "Add another doctor"
+    },
+    "step3": {
+      "title": "Set working hours",
+      "subtitle": "Set when your clinic is open for appointments.",
+      "slot-duration-label": "Appointment Slot Duration",
+      "submit": "Save & Continue",
+      "save-later": "I'll finish this later"
+    },
+    "step4": {
+      "title": "Connect WhatsApp Business",
+      "subtitle": "Send appointment reminders and confirmations via WhatsApp.",
+      "connect-cta": "Connect via Meta",
+      "skip": "Skip for now",
+      "connected": "WhatsApp Connected"
+    },
+    "complete": {
+      "title": "You're all set!",
+      "subtitle": "Your clinic is ready. Let's look at a sample appointment.",
+      "go-to-dashboard": "Go to Dashboard"
+    },
+    "common": {
+      "saving": "Saving..."
+    },
+    "error": {
+      "name-required": "Clinic name is required",
+      "address-required": "Address is required",
+      "city-required": "City is required",
+      "speciality-required": "Please select a speciality",
+      "phone-invalid": "Enter a valid 10-digit phone number",
+      "slug-invalid": "Slug must contain only lowercase letters, numbers, and hyphens",
+      "legal-required": "Please accept all three agreements to continue",
+      "generic": "Something went wrong. Please try again.",
+      "doctor-name-required": "Doctor name is required",
+      "fee-invalid": "Fee must be a positive number"
+    }
   }
 }

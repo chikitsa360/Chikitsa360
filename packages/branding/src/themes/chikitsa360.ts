@@ -114,6 +114,8 @@ export const chikitsa360Theme: BrandTheme = {
 
     '--color-background':        '255 255 255',
     '--color-foreground':        '15 23 42',
+    '--color-card':              '255 255 255',
+    '--color-card-foreground':   '15 23 42',
     '--color-muted':             '241 245 249',
     '--color-muted-foreground':  '100 116 139',
     '--color-border':            '226 232 240',

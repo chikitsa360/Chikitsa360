@@ -24,7 +24,7 @@ export async function DELETE(
   const schemaName = `clinic_${session.user.clinicId}`
 
   const rows = await db.$queryRawUnsafe<{ id: string; is_sample: boolean }[]>(
-    `SELECT id, is_sample FROM "${schemaName}".appointments WHERE id = $1`,
+    `SELECT id, is_sample FROM "${schemaName}".appointments WHERE id = $1::uuid`,
     id
   )
 
@@ -41,7 +41,7 @@ export async function DELETE(
   }
 
   await db.$executeRawUnsafe(
-    `DELETE FROM "${schemaName}".appointments WHERE id = $1 AND is_sample = true`,
+    `DELETE FROM "${schemaName}".appointments WHERE id = $1::uuid AND is_sample = true`,
     id
   )
 
@@ -108,7 +108,7 @@ export async function PATCH(
     is_sample: boolean
   }[]>(
     `SELECT id, status, appointment_date::text, appointment_time::text, doctor_id, patient_id, is_sample
-     FROM "${schemaName}".appointments WHERE id = $1 LIMIT 1`,
+     FROM "${schemaName}".appointments WHERE id = $1::uuid LIMIT 1`,
     id
   )
   const appt = rows[0]
@@ -138,7 +138,7 @@ export async function PATCH(
              appointment_time = $2::time,
              updated_at = NOW(),
              updated_by = $3::uuid
-         WHERE id = $4`,
+         WHERE id = $4::uuid`,
         newDate,
         newTime,
         userId,
@@ -218,7 +218,7 @@ export async function PATCH(
            cancelled_at = NOW(),
            cancelled_by = $1::uuid,
            updated_at = NOW()
-       WHERE id = $2`,
+       WHERE id = $2::uuid`,
       userId,
       id
     )
@@ -228,6 +228,8 @@ export async function PATCH(
       id: `${id}:cancellation`,
       name: 'appointment/cancellation.send',
       data: { appointmentId: id, clinicId },
+    }).catch((err: unknown) => {
+      console.warn('[inngest] cancellation.send failed (Inngest not running?):', err)
     })
 
     // Audit
@@ -269,7 +271,7 @@ export async function PATCH(
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".appointments
        SET status = 'completed', updated_at = NOW(), updated_by = $1::uuid
-       WHERE id = $2`,
+       WHERE id = $2::uuid`,
       userId,
       id
     )
@@ -301,7 +303,7 @@ export async function PATCH(
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".appointments
        SET status = 'no-show', updated_at = NOW(), updated_by = $1::uuid
-       WHERE id = $2`,
+       WHERE id = $2::uuid`,
       userId,
       id
     )

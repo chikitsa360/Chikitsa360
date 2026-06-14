@@ -23,7 +23,7 @@ export function SplashScreen({ onComplete }: { onComplete?: () => void }) {
   return (
     <div
       className="splash-screen"
-      style={{ opacity: phase === 'fading' ? 0 : 1 }}
+      style={{ opacity: phase === 'fading' ? 0 : 1, pointerEvents: phase === 'fading' ? 'none' : 'auto' }}
       aria-hidden="true"
     >
       {/* Animated background orbs */}

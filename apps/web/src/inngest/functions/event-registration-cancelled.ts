@@ -30,7 +30,7 @@ export const eventRegistrationCancelled = inngest.createFunction(
         patient_id: string
       }[]>(
         `SELECT id, status, reference_number, event_id, patient_id
-         FROM "${schemaName}".event_registrations WHERE id = $1 LIMIT 1`,
+         FROM "${schemaName}".event_registrations WHERE id = $1::uuid LIMIT 1`,
         registrationId
       )
       const registration = regRows[0]
@@ -49,14 +49,14 @@ export const eventRegistrationCancelled = inngest.createFunction(
         seats_registered: number
       }[]>(
         `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link, fee_paise, max_seats, seats_registered
-         FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+         FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
         registration.event_id
       )
       const eventData = eventRows[0]
       if (!eventData) return null
 
       const patientRows = await db.$queryRawUnsafe<{ id: string; name: string; phone: string }[]>(
-        `SELECT id, name, phone FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+        `SELECT id, name, phone FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
         registration.patient_id
       )
       const patient = patientRows[0]
@@ -124,7 +124,7 @@ export const eventRegistrationCancelled = inngest.createFunction(
           start_time: string
         }[]>(
           `SELECT id, seats_registered, max_seats, slug, start_time AT TIME ZONE 'UTC' AS start_time
-           FROM "${schemaName}".events WHERE id = $1 FOR UPDATE`,
+           FROM "${schemaName}".events WHERE id = $1::uuid FOR UPDATE`,
           data.event.id
         )
         const lockedEvent = lockedRows[0]
@@ -146,7 +146,7 @@ export const eventRegistrationCancelled = inngest.createFunction(
           position: number
         }[]>(
           `SELECT id, patient_id, position FROM "${schemaName}".event_waiting_list
-           WHERE event_id = $1 AND status = 'waiting'
+           WHERE event_id = $1::uuid AND status = 'waiting'
            ORDER BY position ASC
            LIMIT 1
            FOR UPDATE`,
@@ -160,7 +160,7 @@ export const eventRegistrationCancelled = inngest.createFunction(
 
         // Generate reference number for promoted registration
         const countRows = await db.$queryRawUnsafe<{ cnt: string }[]>(
-          `SELECT COUNT(*)::text AS cnt FROM "${schemaName}".event_registrations WHERE event_id = $1`,
+          `SELECT COUNT(*)::text AS cnt FROM "${schemaName}".event_registrations WHERE event_id = $1::uuid`,
           data.event.id
         )
         const seq = (parseInt(countRows[0]?.cnt ?? '0', 10) + 1).toString().padStart(3, '0')
@@ -187,14 +187,14 @@ export const eventRegistrationCancelled = inngest.createFunction(
         // Increment seats_registered
         await db.$executeRawUnsafe(
           `UPDATE "${schemaName}".events SET seats_registered = seats_registered + 1, updated_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1::uuid`,
           data.event.id
         )
 
         // Mark waitlist entry as promoted
         await db.$executeRawUnsafe(
           `UPDATE "${schemaName}".event_waiting_list SET status = 'promoted', updated_at = NOW()
-           WHERE id = $1`,
+           WHERE id = $1::uuid`,
           waitlistEntry.id
         )
 

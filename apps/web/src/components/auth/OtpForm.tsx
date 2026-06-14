@@ -85,6 +85,8 @@ export function OtpForm({ phone, nonce: initialNonce, last4, onChangeNumber }: O
     }
   }
 
+  const devOtp = process.env.NODE_ENV === 'development' ? '123456' : null
+
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <div>
@@ -93,6 +95,13 @@ export function OtpForm({ phone, nonce: initialNonce, last4, onChangeNumber }: O
           {t('login.otp-sent', { last4: last4 ?? phone.slice(-4) })}
         </p>
       </div>
+
+      {devOtp && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <span className="font-semibold">Dev mode</span> — use OTP{' '}
+          <code className="font-mono font-bold tracking-widest">{devOtp}</code>
+        </div>
+      )}
 
       <Input
         label={t('login.otp.label')}

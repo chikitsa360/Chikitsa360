@@ -46,7 +46,7 @@ export const eventInvitationBlast = inngest.createFunction(
         seats_registered: number
       }[]>(
         `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link, fee_paise, max_seats, seats_registered
-         FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+         FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
         eventId
       )
       return rows[0] ?? null
@@ -66,7 +66,7 @@ export const eventInvitationBlast = inngest.createFunction(
     const alreadySentRows = await step.run('load-already-sent', async () => {
       return db.$queryRawUnsafe<{ patient_id: string }[]>(
         `SELECT patient_id FROM "${schemaName}".event_invitations
-         WHERE event_id = $1 AND delivery_status = 'sent'`,
+         WHERE event_id = $1::uuid AND delivery_status = 'sent'`,
         eventId
       )
     })
@@ -95,7 +95,7 @@ export const eventInvitationBlast = inngest.createFunction(
           try {
             // Fetch patient phone
             const patientRows = await db.$queryRawUnsafe<{ phone: string; name: string }[]>(
-              `SELECT phone, name FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+              `SELECT phone, name FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
               patientId
             )
             const patient = patientRows[0]
@@ -145,7 +145,7 @@ export const eventInvitationBlast = inngest.createFunction(
               await db.$executeRawUnsafe(
                 `UPDATE "${schemaName}".event_invitations
                  SET delivery_status = 'sent', sent_at = NOW()
-                 WHERE event_id = $1 AND patient_id = $2`,
+                 WHERE event_id = $1::uuid AND patient_id = $2::uuid`,
                 eventId,
                 patientId
               )
@@ -153,7 +153,7 @@ export const eventInvitationBlast = inngest.createFunction(
             } else {
               // SMS fallback
               const patientRows2 = await db.$queryRawUnsafe<{ phone: string }[]>(
-                `SELECT phone FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+                `SELECT phone FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
                 patientId
               )
               const phone = patientRows2[0]?.phone
@@ -164,7 +164,7 @@ export const eventInvitationBlast = inngest.createFunction(
                   await db.$executeRawUnsafe(
                     `UPDATE "${schemaName}".event_invitations
                      SET delivery_status = 'sent', sent_at = NOW()
-                     WHERE event_id = $1 AND patient_id = $2`,
+                     WHERE event_id = $1::uuid AND patient_id = $2::uuid`,
                     eventId,
                     patientId
                   )
@@ -173,7 +173,7 @@ export const eventInvitationBlast = inngest.createFunction(
                   await db.$executeRawUnsafe(
                     `UPDATE "${schemaName}".event_invitations
                      SET delivery_status = 'failed'
-                     WHERE event_id = $1 AND patient_id = $2`,
+                     WHERE event_id = $1::uuid AND patient_id = $2::uuid`,
                     eventId,
                     patientId
                   )

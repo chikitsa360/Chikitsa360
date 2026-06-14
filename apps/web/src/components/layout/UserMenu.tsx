@@ -24,9 +24,13 @@ interface UserMenuProps {
   userRole?: string
   /** Custom trigger element. Defaults to an avatar button. */
   trigger?: React.ReactNode
+  /** Extra classes applied to the trigger button (e.g. for full-width row layout). */
+  triggerClassName?: string
+  /** Whether the dropdown opens above the trigger (use when trigger is near the bottom of the screen). */
+  dropUp?: boolean
 }
 
-export function UserMenu({ userName, userRole, trigger }: UserMenuProps) {
+export function UserMenu({ userName, userRole, trigger, triggerClassName, dropUp = false }: UserMenuProps) {
   const t = useTranslations()
   const [open, setOpen] = React.useState(false)
   const [theme, setTheme] = React.useState<Theme>('light')
@@ -82,7 +86,8 @@ export function UserMenu({ userName, userRole, trigger }: UserMenuProps) {
         onClick={() => setOpen((v) => !v)}
         className={cn(
           'flex items-center gap-2 rounded-full',
-          'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2'
+          'focus-visible:outline-2 focus-visible:outline-primary focus-visible:outline-offset-2',
+          triggerClassName
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -95,7 +100,8 @@ export function UserMenu({ userName, userRole, trigger }: UserMenuProps) {
         <div
           role="menu"
           className={cn(
-            'absolute right-0 top-full mt-2 z-50',
+            'absolute right-0 z-50',
+            dropUp ? 'bottom-full mb-2' : 'top-full mt-2',
             'w-56 rounded-lg border border-border bg-background shadow-[var(--shadow-dropdown)]',
             'py-1'
           )}

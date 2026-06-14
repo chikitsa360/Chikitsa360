@@ -26,7 +26,7 @@ export async function handleEventRegistrationCancellation(
     `SELECT er.id, er.status, er.event_id, er.reference_number, p.phone AS patient_phone
      FROM "${schemaName}".event_registrations er
      JOIN "${schemaName}".patients p ON p.id = er.patient_id
-     WHERE er.id = $1 LIMIT 1`,
+     WHERE er.id = $1::uuid LIMIT 1`,
     registrationId
   )
 
@@ -61,7 +61,7 @@ export async function handleEventRegistrationCancellation(
 
   // Check event hasn't started
   const eventRows = await db.$queryRawUnsafe<{ start_time: string }[]>(
-    `SELECT start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+    `SELECT start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
     registration.event_id
   )
   const eventData = eventRows[0]
@@ -81,13 +81,13 @@ export async function handleEventRegistrationCancellation(
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".event_registrations
        SET status = 'cancelled', cancellation_token = NULL, updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1::uuid`,
       registration.id
     )
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".events
        SET seats_registered = GREATEST(0, seats_registered - 1), updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1::uuid`,
       registration.event_id
     )
     await db.$executeRawUnsafe('COMMIT')

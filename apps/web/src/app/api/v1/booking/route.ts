@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   // Validate doctor belongs to this clinic
   const doctorRows = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
-    `SELECT id, name FROM "${schemaName}".doctors WHERE id = $1`,
+    `SELECT id, name FROM "${schemaName}".doctors WHERE id = $1::uuid`,
     doctorId
   )
   const doctor = doctorRows[0]
@@ -159,7 +159,7 @@ export async function POST(req: NextRequest) {
     // Unique constraint violation → slot was taken by concurrent booking
     if (
       err instanceof Error &&
-      err.message.includes('unique') ||
+      err.message.includes('23505') || err.message.includes('unique') ||
       (err as { code?: string }).code === '23505'
     ) {
       return NextResponse.json(

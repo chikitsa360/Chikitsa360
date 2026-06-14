@@ -28,7 +28,7 @@ export const eventCancelNotification = inngest.createFunction(
         title: string
         start_time: string
       }[]>(
-        `SELECT title, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+        `SELECT title, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
         eventId
       )
       return rows[0] ?? null
@@ -48,12 +48,12 @@ export const eventCancelNotification = inngest.createFunction(
     const recipients = await step.run('load-recipients', async () => {
       const registrants = await db.$queryRawUnsafe<{ patient_id: string }[]>(
         `SELECT patient_id FROM "${schemaName}".event_registrations
-         WHERE event_id = $1 AND status = 'registered'`,
+         WHERE event_id = $1::uuid AND status = 'registered'`,
         eventId
       )
       const waitlisted = await db.$queryRawUnsafe<{ patient_id: string }[]>(
         `SELECT patient_id FROM "${schemaName}".event_waiting_list
-         WHERE event_id = $1 AND status = 'waiting'`,
+         WHERE event_id = $1::uuid AND status = 'waiting'`,
         eventId
       )
       // Deduplicate by patient_id
@@ -84,7 +84,7 @@ export const eventCancelNotification = inngest.createFunction(
         for (const patientId of batch) {
           try {
             const patientRows = await db.$queryRawUnsafe<{ phone: string; name: string }[]>(
-              `SELECT phone, name FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+              `SELECT phone, name FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
               patientId
             )
             const patient = patientRows[0]

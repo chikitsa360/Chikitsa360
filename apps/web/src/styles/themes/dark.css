@@ -6,6 +6,8 @@
 [data-theme='dark'] {
   --color-background: 10 10 15;
   --color-foreground: 248 250 252;
+  --color-card: 17 24 39;
+  --color-card-foreground: 248 250 252;
   --color-muted: 17 24 39;
   --color-muted-foreground: 148 163 184;
   --color-border: 30 41 59;

@@ -82,7 +82,7 @@ export async function POST(
 
     // Verify event start_time is still in the future
     const eventRows = await db.$queryRawUnsafe<{ id: string; start_time: string }[]>(
-      `SELECT id, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1`,
+      `SELECT id, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1::uuid`,
       registration.event_id
     )
     const eventData = eventRows[0]
@@ -99,7 +99,7 @@ export async function POST(
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".event_registrations
        SET status = 'cancelled', cancellation_token = NULL, updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1::uuid`,
       registration.id
     )
 
@@ -107,7 +107,7 @@ export async function POST(
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".events
        SET seats_registered = GREATEST(0, seats_registered - 1), updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1::uuid`,
       registration.event_id
     )
 

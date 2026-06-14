@@ -41,6 +41,11 @@ export function useAppointmentUpdates(
     if (typeof window === 'undefined') return
 
     const pusher = createPusherClient()
+    // Pusher not configured (dev without env vars) — polling fallback handles updates
+    if (!pusher) {
+      setPusherConnected(false)
+      return
+    }
     const channel = pusher.subscribe(clinicChannel(clinicId))
 
     channel.bind('appointment.created', () => {

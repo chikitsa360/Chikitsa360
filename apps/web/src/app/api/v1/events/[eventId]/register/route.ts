@@ -120,7 +120,7 @@ export async function POST(
   // Check for duplicate registration
   const dupRows = await db.$queryRawUnsafe<{ reference_number: string }[]>(
     `SELECT reference_number FROM "${schemaName}".event_registrations
-     WHERE event_id = $1 AND patient_id = $2 AND status != 'cancelled' LIMIT 1`,
+     WHERE event_id = $1::uuid AND patient_id = $2::uuid AND status != 'cancelled' LIMIT 1`,
     eventId,
     patientId
   )
@@ -135,7 +135,7 @@ export async function POST(
   if (joinWaitlist) {
     const positionRows = await db.$queryRawUnsafe<{ pos: string }[]>(
       `SELECT COUNT(*)::text AS pos FROM "${schemaName}".event_waiting_list
-       WHERE event_id = $1 AND status = 'waiting'`,
+       WHERE event_id = $1::uuid AND status = 'waiting'`,
       eventId
     )
     const position = parseInt(positionRows[0]?.pos ?? '0', 10) + 1
@@ -162,7 +162,7 @@ export async function POST(
       max_seats: number
     }[]>(
       `SELECT id, seats_registered, max_seats
-       FROM "${schemaName}".events WHERE id = $1 FOR UPDATE`,
+       FROM "${schemaName}".events WHERE id = $1::uuid FOR UPDATE`,
       eventId
     )
     const lockedEvent = lockedRows[0]
@@ -174,7 +174,7 @@ export async function POST(
 
     // Generate reference number: EVT-{first4 of eventId uppercase}-{seq 3-digit}
     const countRows = await db.$queryRawUnsafe<{ cnt: string }[]>(
-      `SELECT COUNT(*)::text AS cnt FROM "${schemaName}".event_registrations WHERE event_id = $1`,
+      `SELECT COUNT(*)::text AS cnt FROM "${schemaName}".event_registrations WHERE event_id = $1::uuid`,
       eventId
     )
     const seq = (parseInt(countRows[0]?.cnt ?? '0', 10) + 1).toString().padStart(3, '0')
@@ -201,7 +201,7 @@ export async function POST(
     // Increment seats_registered
     await db.$executeRawUnsafe(
       `UPDATE "${schemaName}".events SET seats_registered = seats_registered + 1, updated_at = NOW()
-       WHERE id = $1`,
+       WHERE id = $1::uuid`,
       eventId
     )
 

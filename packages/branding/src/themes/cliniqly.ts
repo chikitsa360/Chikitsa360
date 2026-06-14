@@ -124,6 +124,8 @@ export const cliniqlyTheme: BrandTheme = {
     '--color-accent-foreground': '255 255 255',
     '--color-background': '255 255 255',
     '--color-foreground': '15 23 42',     // slate-900
+    '--color-card': '255 255 255',
+    '--color-card-foreground': '15 23 42',
     '--color-muted': '241 245 249',       // slate-100
     '--color-muted-foreground': '100 116 139',
     '--color-border': '226 232 240',      // slate-200

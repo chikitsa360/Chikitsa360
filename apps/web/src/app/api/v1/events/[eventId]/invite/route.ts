@@ -25,7 +25,7 @@ export async function POST(
 
   // Verify event belongs to this clinic
   const eventRows = await db.$queryRawUnsafe<{ id: string }[]>(
-    `SELECT id FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2 LIMIT 1`,
+    `SELECT id FROM "${schemaName}".events WHERE id = $1::uuid AND clinic_id = $2 LIMIT 1`,
     eventId,
     clinicId
   )

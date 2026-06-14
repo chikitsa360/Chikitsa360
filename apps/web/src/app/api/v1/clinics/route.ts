@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { generateSlug } from '@/lib/slug'
+import { provisionClinicSchema } from '@/lib/tenant'
 import { z } from 'zod'
 
 const clinicUpsertSchema = z.object({
@@ -146,6 +147,9 @@ export async function POST(req: NextRequest) {
         },
       },
     })
+
+    // Provision the per-clinic PostgreSQL schema and baseline tables
+    await provisionClinicSchema(clinic.id)
 
     // Update the user's clinicId
     await db.user.update({

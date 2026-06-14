@@ -27,6 +27,8 @@ export async function scheduleReminders(
       name: 'appointment/reminder-24h.send',
       data: { appointmentId, clinicId },
       ts: remind24h.getTime(),
+    }).catch((err: unknown) => {
+      console.warn('[inngest] scheduleReminders 24h failed (Inngest not running?):', err)
     })
   }
 
@@ -36,6 +38,8 @@ export async function scheduleReminders(
       name: 'appointment/reminder-2h.send',
       data: { appointmentId, clinicId },
       ts: remind2h.getTime(),
+    }).catch((err: unknown) => {
+      console.warn('[inngest] scheduleReminders 2h failed (Inngest not running?):', err)
     })
   }
 }

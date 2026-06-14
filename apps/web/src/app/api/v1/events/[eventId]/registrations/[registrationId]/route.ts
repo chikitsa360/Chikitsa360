@@ -44,7 +44,7 @@ export async function PATCH(
     clinic_id: string
     start_time: string
   }[]>(
-    `SELECT id, clinic_id, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2`,
+    `SELECT id, clinic_id, start_time AT TIME ZONE 'UTC' AS start_time FROM "${schemaName}".events WHERE id = $1::uuid AND clinic_id = $2::uuid`,
     eventId,
     clinicId
   )
@@ -60,7 +60,7 @@ export async function PATCH(
     event_id: string
   }[]>(
     `SELECT id, status, event_id FROM "${schemaName}".event_registrations
-     WHERE id = $1 AND event_id = $2 LIMIT 1`,
+     WHERE id = $1::uuid AND event_id = $2::uuid LIMIT 1`,
     registrationId,
     eventId
   )
@@ -91,7 +91,7 @@ export async function PATCH(
     const updated = await db.$queryRawUnsafe<{ id: string; status: string }[]>(
       `UPDATE "${schemaName}".event_registrations
        SET status = 'attended', updated_at = NOW()
-       WHERE id = $1
+       WHERE id = $1::uuid
        RETURNING id, status`,
       registrationId
     )
@@ -111,7 +111,7 @@ export async function PATCH(
     const updated = await db.$queryRawUnsafe<{ id: string; status: string }[]>(
       `UPDATE "${schemaName}".event_registrations
        SET status = 'no_show', updated_at = NOW()
-       WHERE id = $1
+       WHERE id = $1::uuid
        RETURNING id, status`,
       registrationId
     )
@@ -139,21 +139,21 @@ export async function PATCH(
     try {
       // Lock event row
       await db.$queryRawUnsafe(
-        `SELECT id, seats_registered FROM "${schemaName}".events WHERE id = $1 FOR UPDATE`,
+        `SELECT id, seats_registered FROM "${schemaName}".events WHERE id = $1::uuid FOR UPDATE`,
         eventId
       )
       // Cancel registration
       await db.$executeRawUnsafe(
         `UPDATE "${schemaName}".event_registrations
          SET status = 'cancelled', cancellation_token = NULL, updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1::uuid`,
         registrationId
       )
       // Decrement seats (guarded)
       await db.$executeRawUnsafe(
         `UPDATE "${schemaName}".events
          SET seats_registered = GREATEST(0, seats_registered - 1), updated_at = NOW()
-         WHERE id = $1`,
+         WHERE id = $1::uuid`,
         eventId
       )
       await db.$executeRawUnsafe('COMMIT')

@@ -161,7 +161,7 @@ export async function POST(req: NextRequest) {
 
   // Validate doctor belongs to this clinic
   const doctorRows = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
-    `SELECT id, name FROM "${schemaName}".doctors WHERE id = $1`,
+    `SELECT id, name FROM "${schemaName}".doctors WHERE id = $1::uuid`,
     doctorId
   )
   const doctor = doctorRows[0]
@@ -173,7 +173,7 @@ export async function POST(req: NextRequest) {
   let resolvedPatientId: string
   if (patientId) {
     const rows = await db.$queryRawUnsafe<{ id: string }[]>(
-      `SELECT id FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+      `SELECT id FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
       patientId
     )
     if (!rows[0]) return NextResponse.json({ error: 'Patient not found' }, { status: 404 })
@@ -218,7 +218,7 @@ export async function POST(req: NextRequest) {
     const apptRows = await db.$queryRawUnsafe<{ id: string; token_number: number }[]>(
       `INSERT INTO "${schemaName}".appointments
          (patient_id, doctor_id, status, booking_source, appointment_date, appointment_time, token_number, updated_by)
-       VALUES ($1, $2, 'confirmed', $3, $4::date, $5::time, $6, $7::uuid)
+       VALUES ($1::uuid, $2::uuid, 'confirmed', $3, $4::date, $5::time, $6, $7::uuid)
        RETURNING id, token_number`,
       resolvedPatientId,
       doctorId,
@@ -279,7 +279,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     if (
       err instanceof Error &&
-      (err.message.includes('unique') || (err as { code?: string }).code === '23505')
+      (err.message.includes('23505') || err.message.includes('unique') || (err as { code?: string }).code === '23505')
     ) {
       return NextResponse.json(
         { error: 'SLOT_TAKEN', message: 'That slot was just taken. Please choose another time.' },

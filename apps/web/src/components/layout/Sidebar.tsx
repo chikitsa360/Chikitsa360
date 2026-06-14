@@ -212,28 +212,36 @@ export function Sidebar({ userRole, userName, clinicName, onSearchClick }: Sideb
 
       {/* ── User footer ───────────────────────────────────────────────── */}
       <div className="shrink-0 border-t border-border p-3">
-        <div className="flex items-center gap-2.5 rounded-md px-2 py-2 hover:bg-muted transition-colors">
-          {/* Avatar */}
-          <div
-            className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
-            style={{ background: 'rgba(10,110,255,0.1)', color: '#0A6EFF' }}
-          >
-            {userName ? initials(userName) : 'U'}
-          </div>
-          {/* Name + role */}
-          <div className="flex-1 min-w-0">
-            <div className="truncate text-[12px] font-semibold text-foreground leading-tight">
-              {userName ?? 'User'}
-            </div>
-            <div className="text-[11px] text-muted-foreground leading-tight">
-              {userRole
-                ? userRole.charAt(0) + userRole.slice(1).toLowerCase()
-                : 'Staff'}
-            </div>
-          </div>
-          {/* 3-dot user menu */}
-          <UserMenu userName={userName} userRole={userRole} trigger={<DotsIcon />} />
-        </div>
+        <UserMenu
+          userName={userName}
+          userRole={userRole}
+          dropUp
+          triggerClassName="w-full rounded-md px-2 py-2 gap-2.5 hover:bg-muted transition-colors"
+          trigger={
+            <>
+              {/* Avatar */}
+              <div
+                className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-full text-[11px] font-semibold"
+                style={{ background: 'rgba(10,110,255,0.1)', color: '#0A6EFF' }}
+              >
+                {userName ? initials(userName) : 'U'}
+              </div>
+              {/* Name + role */}
+              <div className="flex-1 min-w-0 text-left">
+                <div className="truncate text-[12px] font-semibold text-foreground leading-tight">
+                  {userName ?? 'User'}
+                </div>
+                <div className="text-[11px] text-muted-foreground leading-tight">
+                  {userRole
+                    ? userRole.charAt(0) + userRole.slice(1).toLowerCase()
+                    : 'Staff'}
+                </div>
+              </div>
+              {/* 3-dot icon */}
+              <DotsIcon />
+            </>
+          }
+        />
       </div>
     </aside>
   )

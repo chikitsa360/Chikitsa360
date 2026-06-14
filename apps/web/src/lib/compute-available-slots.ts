@@ -139,7 +139,7 @@ export async function computeAvailableSlots(
   // Fetch doctors
   const doctors = await db.$queryRawUnsafe<DoctorRow[]>(
     doctorId
-      ? `SELECT id, name FROM "${schemaName}".doctors WHERE id = $1`
+      ? `SELECT id, name FROM "${schemaName}".doctors WHERE id = $1::uuid`
       : `SELECT id, name FROM "${schemaName}".doctors ORDER BY name ASC`,
     ...(doctorId ? [doctorId] : [])
   )
@@ -149,8 +149,8 @@ export async function computeAvailableSlots(
   // Fetch working hours for these doctors
   const doctorIds = doctors.map((d) => d.id)
   const whRows = await db.$queryRawUnsafe<WorkingHoursRow[]>(
-    `SELECT doctor_id, day_of_week, start_time, end_time, slot_duration,
-            lunch_start_time, lunch_end_time, is_active
+    `SELECT doctor_id, day_of_week, start_time::text, end_time::text, slot_duration,
+            lunch_start_time::text, lunch_end_time::text, is_active
      FROM "${schemaName}".working_hours
      WHERE doctor_id = ANY($1::uuid[]) AND is_active = true`,
     doctorIds

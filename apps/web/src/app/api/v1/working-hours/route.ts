@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     is_active: boolean
   }[]>(
     doctorId
-      ? `SELECT * FROM "${schemaName}".working_hours WHERE doctor_id = $1 ORDER BY day_of_week ASC`
+      ? `SELECT * FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid ORDER BY day_of_week ASC`
       : `SELECT * FROM "${schemaName}".working_hours ORDER BY doctor_id, day_of_week ASC`,
     ...(doctorId ? [doctorId] : [])
   )
@@ -75,7 +75,7 @@ export async function POST(req: NextRequest) {
   const doctorIds = [...new Set(parsed.data.map((wh) => wh.doctorId))]
   for (const doctorId of doctorIds) {
     await db.$executeRawUnsafe(
-      `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1`,
+      `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid`,
       doctorId
     )
   }
@@ -142,7 +142,7 @@ export async function PUT(req: NextRequest) {
   const doctorIds = [...new Set(parsed.data.map((wh) => wh.doctorId))]
   for (const doctorId of doctorIds) {
     await db.$executeRawUnsafe(
-      `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1`,
+      `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid`,
       doctorId
     )
   }

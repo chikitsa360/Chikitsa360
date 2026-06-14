@@ -39,7 +39,7 @@ export const eventChangeNotification = inngest.createFunction(
         meeting_link: string | null
       }[]>(
         `SELECT id, title, slug, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, venue, meeting_link
-         FROM "${schemaName}".events WHERE id = $1 LIMIT 1`,
+         FROM "${schemaName}".events WHERE id = $1::uuid LIMIT 1`,
         eventId
       )
       return rows[0] ?? null
@@ -59,7 +59,7 @@ export const eventChangeNotification = inngest.createFunction(
     const registrants = await step.run('load-registrants', async () => {
       return db.$queryRawUnsafe<{ patient_id: string; reference_number: string }[]>(
         `SELECT patient_id, reference_number FROM "${schemaName}".event_registrations
-         WHERE event_id = $1 AND status = 'registered'`,
+         WHERE event_id = $1::uuid AND status = 'registered'`,
         eventId
       )
     })
@@ -84,7 +84,7 @@ export const eventChangeNotification = inngest.createFunction(
         for (const reg of batch) {
           try {
             const patientRows = await db.$queryRawUnsafe<{ phone: string; name: string }[]>(
-              `SELECT phone, name FROM "${schemaName}".patients WHERE id = $1 LIMIT 1`,
+              `SELECT phone, name FROM "${schemaName}".patients WHERE id = $1::uuid LIMIT 1`,
               reg.patient_id
             )
             const patient = patientRows[0]

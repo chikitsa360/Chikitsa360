@@ -141,7 +141,7 @@ export async function PUT(req: NextRequest) {
 
   const schemaName = `clinic_${session.user.clinicId}`
   const result = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
-    `UPDATE "${schemaName}".doctors SET name = $1, speciality = $2, default_fee = $3 WHERE id = $4 RETURNING id, name`,
+    `UPDATE "${schemaName}".doctors SET name = $1, speciality = $2, default_fee = $3 WHERE id = $4::uuid RETURNING id, name`,
     parsed.data.name,
     parsed.data.speciality ?? null,
     parsed.data.defaultFee ?? null,

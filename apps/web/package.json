@@ -14,7 +14,8 @@
     "check-translations": "tsx ../../scripts/check-translations.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@chikitsa360/branding": "workspace:*",

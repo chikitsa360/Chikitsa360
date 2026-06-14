@@ -5,6 +5,11 @@ vi.mock('@/lib/auth', () => ({
   auth: vi.fn(),
 }))
 
+// Mock tenant provisioning
+vi.mock('@/lib/tenant', () => ({
+  provisionClinicSchema: vi.fn().mockResolvedValue(undefined),
+}))
+
 // Mock Prisma db
 vi.mock('@/lib/db', () => ({
   db: {

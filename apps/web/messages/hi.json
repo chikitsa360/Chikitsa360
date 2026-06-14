@@ -1,35 +1,44 @@
 {
   "nav": {
     "dashboard": "डैशबोर्ड",
-    "appointments": "Appointments",
-    "patients": "Patients",
-    "doctors": "Doctors",
-    "prescriptions": "Prescriptions",
-    "billing": "Billing",
-    "events": "Events",
-    "reports": "Reports",
-    "settings": "Settings"
+    "appointments": "अपॉइंटमेंट",
+    "patients": "मरीज़",
+    "doctors": "डॉक्टर",
+    "prescriptions": "पर्चे",
+    "billing": "बिलिंग",
+    "events": "कार्यक्रम",
+    "reports": "रिपोर्ट",
+    "settings": "सेटिंग",
+    "onboarding": "सेटअप"
   },
   "auth": {
-    "login.title": "Wapas aaye hain!",
-    "login.subtitle": "Apne clinic portal mein sign in karein",
-    "login.phone.label": "Mobile Number",
-    "login.phone.placeholder": "10-digit mobile number enter karein",
-    "login.otp.label": "OTP enter karein",
-    "login.otp.placeholder": "6-digit code",
-    "login.send-otp": "OTP bhejein",
-    "login.verify": "Verify karein",
-    "login.sending": "Bhej rahe hain...",
-    "login.verifying": "Verify ho raha hai...",
-    "login.otp-sent": "+91 XXXXXX{last4} pe code bheja gaya",
-    "login.otp-resend": "Code nahi aaya? OTP dubara bhejein",
-    "login.otp-resend-in": "OTP {seconds}s mein dubara bhejein",
-    "login.change-number": "Number badlein",
-    "login.error.invalid-phone": "Valid 10-digit Indian mobile number enter karein",
-    "login.error.invalid-otp": "OTP galat hai. {remaining} attempts bache hain.",
-    "login.error.locked": "Bahut zyada attempts. {minutes} minute baad try karein.",
-    "login.error.expired": "OTP expire ho gaya. Naya code maangein.",
-    "login.error.generic": "Kuch gadbad ho gayi. Dobara try karein."
+    "login": {
+      "title": "Wapas aaye hain!",
+      "subtitle": "Apne clinic portal mein sign in karein",
+      "phone": {
+        "label": "Mobile Number",
+        "placeholder": "10-digit mobile number enter karein"
+      },
+      "otp": {
+        "label": "OTP enter karein",
+        "placeholder": "6-digit code"
+      },
+      "send-otp": "OTP bhejein",
+      "verify": "Verify karein",
+      "sending": "Bhej rahe hain...",
+      "verifying": "Verify ho raha hai...",
+      "otp-sent": "+91 XXXXXX{last4} pe code bheja gaya",
+      "otp-resend": "Code nahi aaya? OTP dubara bhejein",
+      "otp-resend-in": "OTP {seconds}s mein dubara bhejein",
+      "change-number": "Number badlein",
+      "error": {
+        "invalid-phone": "Valid 10-digit Indian mobile number enter karein",
+        "invalid-otp": "OTP galat hai. {remaining} attempts bache hain.",
+        "locked": "Bahut zyada attempts. {minutes} minute baad try karein.",
+        "expired": "OTP expire ho gaya. Naya code maangein.",
+        "generic": "Kuch gadbad ho gayi. Dobara try karein."
+      }
+    }
   },
   "common": {
     "save": "Save karein",
@@ -41,114 +50,136 @@
     "loading": "Load ho raha hai...",
     "back": "Wapas",
     "close": "Band karein",
-    "empty.no-data": "Is period ke liye koi data nahi",
-    "error.generic": "Kuch gadbad ho gayi. Dobara try karein.",
-    "error.unauthorized": "Aapko yeh karne ki permission nahi hai.",
-    "error.not-found": "Requested resource nahi mila."
+    "empty": {
+      "no-data": "Is period ke liye koi data nahi"
+    },
+    "error": {
+      "generic": "Kuch gadbad ho gayi. Dobara try karein.",
+      "unauthorized": "Aapko yeh karne ki permission nahi hai.",
+      "not-found": "Requested resource nahi mila."
+    }
   },
   "staff": {
-    "title": "Staff Management",
-    "invite-button": "Staff ko Invite karein",
-    "invite-title": "Staff Member ko Invite karein",
-    "invite-phone-label": "Mobile Number",
-    "invite-role-label": "Role",
-    "invite-role-placeholder": "Role select karein",
-    "invite-submit": "Invite bhejein",
-    "invite-success": "{phone} pe invite bheja gaya",
-    "invite-limit-reached": "{plan} plan pe Doctor limit poori ho gayi. Zyada Doctors ke liye upgrade karein.",
-    "remove-title": "Staff Member Hataein",
-    "remove-confirm": "{name} ko {clinic} se hataein? Unka access turant band ho jaayega.",
-    "remove-submit": "Hataein",
-    "roles.OWNER": "Owner",
-    "roles.DOCTOR": "Doctor",
-    "roles.RECEPTIONIST": "Receptionist",
-    "status.active": "Active",
-    "status.pending": "Pending",
-    "invite-expired": "Yeh invitation expire ho gaya. Apne Clinic Owner se dobara bhejwaein."
+    "title": "स्टाफ प्रबंधन",
+    "invite-button": "स्टाफ को आमंत्रित करें",
+    "invite-title": "स्टाफ सदस्य को आमंत्रित करें",
+    "invite-phone-label": "मोबाइल नंबर",
+    "invite-role-label": "भूमिका",
+    "invite-role-placeholder": "भूमिका चुनें",
+    "invite-submit": "आमंत्रण भेजें",
+    "invite-success": "{phone} पर आमंत्रण भेजा गया",
+    "invite-limit-reached": "आपकी Doctor सीमा ({limit}) पूरी हो गई है। अधिक Doctors जोड़ने के लिए अपग्रेड करें।",
+    "remove-title": "स्टाफ सदस्य हटाएं",
+    "remove-confirm": "{name} को {clinic} से हटाएं? उनका एक्सेस तुरंत बंद हो जाएगा।",
+    "remove-submit": "हटाएं",
+    "roles": {
+      "OWNER": "मालिक",
+      "DOCTOR": "डॉक्टर",
+      "RECEPTIONIST": "रिसेप्शनिस्ट"
+    },
+    "status": {
+      "active": "सक्रिय",
+      "pending": "लंबित"
+    },
+    "invite-expired": "यह आमंत्रण समाप्त हो गया। अपने Clinic Owner से दोबारा भेजने को कहें।"
   },
   "theme": {
-    "light": "Light",
-    "dark": "Dark",
-    "high-contrast": "High Contrast"
+    "light": "लाइट",
+    "dark": "डार्क",
+    "high-contrast": "हाई कंट्रास्ट"
   },
   "language": {
-    "label": "Bhasha",
+    "label": "भाषा",
     "en": "English",
     "hi": "हिंदी"
   },
   "user-menu": {
-    "profile": "Profile",
-    "logout": "Logout"
+    "profile": "प्रोफ़ाइल",
+    "logout": "लॉगआउट"
   },
   "settings": {
-    "title": "Settings",
-    "clinic-profile": "Clinic Profile",
-    "working-hours": "Working Hours",
-    "doctors": "Doctors",
-    "staff": "Staff",
+    "title": "सेटिंग",
+    "clinic-profile": "क्लिनिक प्रोफ़ाइल",
+    "working-hours": "काम के घंटे",
+    "doctors": "डॉक्टर",
+    "staff": "स्टाफ",
     "whatsapp": "WhatsApp",
-    "notifications": "Notifications",
-    "data-export": "Data Export",
-    "language": "Bhasha",
-    "save-success": "Clinic profile update ho gaya.",
-    "clinic-slug-locked": "Booking URL badlne ke liye support se contact karein."
+    "notifications": "सूचनाएं",
+    "data-export": "डेटा एक्सपोर्ट",
+    "language": "भाषा",
+    "save-success": "क्लिनिक प्रोफ़ाइल अपडेट हो गई।",
+    "clinic-slug-locked": "Booking URL बदलने के लिए सपोर्ट से संपर्क करें।"
   },
   "onboarding": {
-    "step1.title": "Apna clinic set up karein",
-    "step1.subtitle": "Apni practice ke baare mein batayein. 2 minute se kam lagenge.",
-    "step1.name-label": "Clinic ka Naam",
-    "step1.name-placeholder": "e.g. City Dental Clinic",
-    "step1.address-label": "Address",
-    "step1.address-placeholder": "e.g. 12, MG Road",
-    "step1.city-label": "Shehar",
-    "step1.city-placeholder": "e.g. Bengaluru",
-    "step1.speciality-label": "Speciality",
-    "step1.speciality-placeholder": "Speciality chunein",
-    "step1.phone-label": "Clinic Phone Number (optional)",
-    "step1.phone-placeholder": "10-digit number",
-    "step1.slug-label": "Booking URL Slug",
-    "step1.slug-locked": "Pehli save ke baad slug nahi badal sakte.",
-    "step1.slug-use-suggestion": "{suggestion} use karein",
-    "step1.legal-intro": "Shuru karne se pehle, please inhe padh kar accept karein. Yeh aapki aur aapke patients ki suraksha karte hain.",
-    "step1.legal-tos": "Maine padha aur accept karta hoon <a href='/legal/terms' target='_blank'>Terms of Service</a>",
-    "step1.legal-privacy": "Maine padha aur accept karta hoon <a href='/legal/privacy' target='_blank'>Privacy Policy</a>",
-    "step1.legal-dpa": "Main DPDP Act 2023 ke antargat Data Fiduciary ke roop mein <a href='/legal/dpa' target='_blank'>Data Processing Agreement</a> accept karta hoon",
-    "step1.save-later": "Baad mein poora karoonga",
-    "step1.submit": "Save karein & Aage badhein",
-    "step2.title": "Pehla doctor add karein",
-    "step2.subtitle": "Baad mein Settings se aur doctors add kar sakte hain.",
-    "step2.name-label": "Doctor ka Naam",
-    "step2.name-placeholder": "e.g. Dr. Priya Sharma",
-    "step2.speciality-label": "Speciality",
-    "step2.speciality-placeholder": "e.g. General Medicine",
-    "step2.fee-label": "Default Consultation Fee (₹)",
-    "step2.fee-placeholder": "e.g. 500",
-    "step2.submit": "Save karein & Aage badhein",
-    "step2.save-later": "Baad mein poora karoonga",
-    "step2.add-another": "Ek aur doctor add karein",
-    "step3.title": "Working hours set karein",
-    "step3.subtitle": "Batayein ki aapka clinic kab khula rehta hai.",
-    "step3.slot-duration-label": "Appointment Slot Duration",
-    "step3.submit": "Save karein & Aage badhein",
-    "step3.save-later": "Baad mein poora karoonga",
-    "step4.title": "WhatsApp Business connect karein",
-    "step4.subtitle": "WhatsApp se appointment reminders aur confirmations bhejein.",
-    "step4.connect-cta": "Meta se Connect karein",
-    "step4.skip": "Abhi skip karein",
-    "step4.connected": "WhatsApp Connected",
-    "complete.title": "Sab ready hai!",
-    "complete.subtitle": "Aapka clinic ready hai. Ek sample appointment dekhte hain.",
-    "complete.go-to-dashboard": "Dashboard pe jaayein",
-    "common.saving": "Save ho raha hai...",
-    "error.name-required": "Clinic ka naam zaroori hai",
-    "error.address-required": "Address zaroori hai",
-    "error.city-required": "Shehar zaroori hai",
-    "error.speciality-required": "Speciality chunein",
-    "error.phone-invalid": "Valid 10-digit phone number enter karein",
-    "error.slug-invalid": "Slug mein sirf lowercase letters, numbers aur hyphens ho sakte hain",
-    "error.legal-required": "Aage badhne ke liye teeno agreements accept karein",
-    "error.generic": "Kuch gadbad ho gayi. Dobara try karein.",
-    "error.doctor-name-required": "Doctor ka naam zaroori hai",
-    "error.fee-invalid": "Fee ek positive number hona chahiye"
+    "step1": {
+      "title": "Apna clinic set up karein",
+      "subtitle": "Apni practice ke baare mein batayein. 2 minute se kam lagenge.",
+      "name-label": "Clinic ka Naam",
+      "name-placeholder": "e.g. City Dental Clinic",
+      "address-label": "Address",
+      "address-placeholder": "e.g. 12, MG Road",
+      "city-label": "Shehar",
+      "city-placeholder": "e.g. Bengaluru",
+      "speciality-label": "Speciality",
+      "speciality-placeholder": "Speciality chunein",
+      "phone-label": "Clinic Phone Number (optional)",
+      "phone-placeholder": "10-digit number",
+      "slug-label": "Booking URL Slug",
+      "slug-locked": "Pehli save ke baad slug nahi badal sakte.",
+      "slug-use-suggestion": "{suggestion} use karein",
+      "legal-intro": "Shuru karne se pehle, please inhe padh kar accept karein. Yeh aapki aur aapke patients ki suraksha karte hain.",
+      "legal-tos": "Maine padha aur accept karta hoon <a href='/legal/terms' target='_blank'>Terms of Service</a>",
+      "legal-privacy": "Maine padha aur accept karta hoon <a href='/legal/privacy' target='_blank'>Privacy Policy</a>",
+      "legal-dpa": "Main DPDP Act 2023 ke antargat Data Fiduciary ke roop mein <a href='/legal/dpa' target='_blank'>Data Processing Agreement</a> accept karta hoon",
+      "save-later": "Baad mein poora karoonga",
+      "submit": "Save karein & Aage badhein"
+    },
+    "step2": {
+      "title": "Pehla doctor add karein",
+      "subtitle": "Baad mein Settings se aur doctors add kar sakte hain.",
+      "name-label": "Doctor ka Naam",
+      "name-placeholder": "e.g. Dr. Priya Sharma",
+      "speciality-label": "Speciality",
+      "speciality-placeholder": "e.g. General Medicine",
+      "fee-label": "Default Consultation Fee (₹)",
+      "fee-placeholder": "e.g. 500",
+      "submit": "Save karein & Aage badhein",
+      "save-later": "Baad mein poora karoonga",
+      "add-another": "Ek aur doctor add karein"
+    },
+    "step3": {
+      "title": "Working hours set karein",
+      "subtitle": "Batayein ki aapka clinic kab khula rehta hai.",
+      "slot-duration-label": "Appointment Slot Duration",
+      "submit": "Save karein & Aage badhein",
+      "save-later": "Baad mein poora karoonga"
+    },
+    "step4": {
+      "title": "WhatsApp Business connect karein",
+      "subtitle": "WhatsApp se appointment reminders aur confirmations bhejein.",
+      "connect-cta": "Meta se Connect karein",
+      "skip": "Abhi skip karein",
+      "connected": "WhatsApp Connected"
+    },
+    "complete": {
+      "title": "Sab ready hai!",
+      "subtitle": "Aapka clinic ready hai. Ek sample appointment dekhte hain.",
+      "go-to-dashboard": "Dashboard pe jaayein"
+    },
+    "common": {
+      "saving": "Save ho raha hai..."
+    },
+    "error": {
+      "name-required": "Clinic ka naam zaroori hai",
+      "address-required": "Address zaroori hai",
+      "city-required": "Shehar zaroori hai",
+      "speciality-required": "Speciality chunein",
+      "phone-invalid": "Valid 10-digit phone number enter karein",
+      "slug-invalid": "Slug mein sirf lowercase letters, numbers aur hyphens ho sakte hain",
+      "legal-required": "Aage badhne ke liye teeno agreements accept karein",
+      "generic": "Kuch gadbad ho gayi. Dobara try karein.",
+      "doctor-name-required": "Doctor ka naam zaroori hai",
+      "fee-invalid": "Fee ek positive number hona chahiye"
+    }
   }
 }

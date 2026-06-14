@@ -82,7 +82,7 @@ export async function GET(
        GROUP BY event_id
      ) inv ON inv.event_id = e.id
      LEFT JOIN "${schemaName}".event_series es ON es.id = e.series_id
-     WHERE e.id = $1 AND e.clinic_id = $2`,
+     WHERE e.id = $1::uuid AND e.clinic_id = $2`,
     eventId,
     clinicId
   )
@@ -133,7 +133,7 @@ export async function PATCH(
 
   // Fetch the existing event
   const existing = await db.$queryRawUnsafe<EventRow[]>(
-    `SELECT * FROM "${schemaName}".events WHERE id = $1 AND clinic_id = $2`,
+    `SELECT * FROM "${schemaName}".events WHERE id = $1::uuid AND clinic_id = $2 LIMIT 1`,
     eventId,
     clinicId
   )
@@ -163,7 +163,7 @@ export async function PATCH(
     if (action === 'publish') {
       const updated = await db.$queryRawUnsafe<EventRow[]>(
         `UPDATE "${schemaName}".events SET status = 'published', updated_at = NOW()
-         WHERE id = $1
+         WHERE id = $1::uuid
          RETURNING *`,
         eventId
       )
@@ -182,7 +182,7 @@ export async function PATCH(
     if (action === 'cancel') {
       const updated = await db.$queryRawUnsafe<EventRow[]>(
         `UPDATE "${schemaName}".events SET status = 'cancelled', updated_at = NOW()
-         WHERE id = $1
+         WHERE id = $1::uuid
          RETURNING *`,
         eventId
       )
@@ -283,7 +283,7 @@ export async function PATCH(
   if (scope === 'this-and-future' && event.series_id) {
     // Create new series, move events from this one forward
     const seriesRows = await db.$queryRawUnsafe<{ recurrence_type: string; recurrence_day_of_week: number | null; total_occurrences: number }[]>(
-      `SELECT recurrence_type, recurrence_day_of_week, total_occurrences FROM "${schemaName}".event_series WHERE id = $1`,
+      `SELECT recurrence_type, recurrence_day_of_week, total_occurrences FROM "${schemaName}".event_series WHERE id = $1::uuid`,
       event.series_id
     )
     const originalSeries = seriesRows[0]
@@ -291,7 +291,7 @@ export async function PATCH(
     // Events from this one onward (ordered by start_time)
     const futureEvents = await db.$queryRawUnsafe<{ id: string }[]>(
       `SELECT id FROM "${schemaName}".events
-       WHERE series_id = $1 AND start_time >= (SELECT start_time FROM "${schemaName}".events WHERE id = $2)
+       WHERE series_id = $1::uuid AND start_time >= (SELECT start_time FROM "${schemaName}".events WHERE id = $2::uuid)
        ORDER BY start_time ASC`,
       event.series_id,
       eventId
@@ -313,7 +313,7 @@ export async function PATCH(
     // Update original series occurrence count
     if (originalCount > 0) {
       await db.$executeRawUnsafe(
-        `UPDATE "${schemaName}".event_series SET total_occurrences = $1 WHERE id = $2`,
+        `UPDATE "${schemaName}".event_series SET total_occurrences = $1 WHERE id = $2::uuid`,
         originalCount,
         event.series_id
       )
@@ -332,7 +332,7 @@ export async function PATCH(
     eventIdsToUpdate = futureEvents.map(e => e.id)
   } else if (scope === 'all' && event.series_id) {
     const allEvents = await db.$queryRawUnsafe<{ id: string }[]>(
-      `SELECT id FROM "${schemaName}".events WHERE series_id = $1`,
+      `SELECT id FROM "${schemaName}".events WHERE series_id = $1::uuid`,
       event.series_id
     )
     eventIdsToUpdate = allEvents.map(e => e.id)
@@ -350,7 +350,7 @@ export async function PATCH(
 
   // Fetch updated event
   const updated = await db.$queryRawUnsafe<EventRow[]>(
-    `SELECT * FROM "${schemaName}".events WHERE id = $1`,
+    `SELECT * FROM "${schemaName}".events WHERE id = $1::uuid`,
     eventId
   )
 

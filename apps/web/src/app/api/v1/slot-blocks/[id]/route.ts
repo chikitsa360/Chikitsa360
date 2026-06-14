@@ -30,7 +30,7 @@ export async function DELETE(
     block_date: string
     doctor_id: string | null
   }[]>(
-    `SELECT id, recurrence, block_date::text, doctor_id FROM "${schemaName}".slot_blocks WHERE id = $1 LIMIT 1`,
+    `SELECT id, recurrence, block_date::text, doctor_id FROM "${schemaName}".slot_blocks WHERE id = $1::uuid LIMIT 1`,
     id
   )
   const block = rows[0]
@@ -44,7 +44,7 @@ export async function DELETE(
     // from block_date onwards with the same recurrence pattern
     await db.$executeRawUnsafe(
       `DELETE FROM "${schemaName}".slot_blocks
-       WHERE id = $1 OR (
+       WHERE id = $1::uuid OR (
          recurrence = $2
          AND block_date >= $3::date
          AND (doctor_id = $4::uuid OR (doctor_id IS NULL AND $4 IS NULL))
@@ -57,7 +57,7 @@ export async function DELETE(
   } else {
     // Delete only this occurrence
     await db.$executeRawUnsafe(
-      `DELETE FROM "${schemaName}".slot_blocks WHERE id = $1`,
+      `DELETE FROM "${schemaName}".slot_blocks WHERE id = $1::uuid`,
       id
     )
   }
@@ -124,7 +124,7 @@ export async function GET(
   }[]>(
     `SELECT id, doctor_id, block_date::text, start_time::text, end_time::text,
             reason, recurrence, created_by, created_at::text
-     FROM "${schemaName}".slot_blocks WHERE id = $1 LIMIT 1`,
+     FROM "${schemaName}".slot_blocks WHERE id = $1::uuid LIMIT 1`,
     id
   )
 
