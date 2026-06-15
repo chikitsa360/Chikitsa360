@@ -12,8 +12,11 @@ export default async function ReportsPage() {
     redirect('/login')
   }
 
-  // Non-owners see restricted page
-  if (session.user.role !== 'OWNER') {
+  const isOwner = session.user.role === 'OWNER'
+  const isDoctor = session.user.role === 'DOCTOR'
+
+  // Receptionists have no access
+  if (!isOwner && !isDoctor) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3">
         <div className="w-12 h-12 bg-[var(--color-bg)] rounded-xl flex items-center justify-center">
@@ -27,21 +30,40 @@ export default async function ReportsPage() {
     )
   }
 
-  // Load doctors list for filter dropdown
   const schema = `clinic_${session.user.clinicId}`
-  const doctors = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
-    `SELECT id, name FROM "${schema}".doctors ORDER BY name ASC`
-  )
+
+  // For doctors: look up their own doctor record to lock the revenue filter
+  let ownDoctorId: string | null = null
+  if (isDoctor) {
+    const rows = await db.$queryRawUnsafe<{ id: string }[]>(
+      `SELECT id FROM "${schema}".doctors WHERE user_id = $1::uuid LIMIT 1`,
+      session.user.id
+    )
+    ownDoctorId = rows[0]?.id ?? null
+  }
+
+  // Load doctors list for owner filter dropdown (not needed for doctor view)
+  const doctors = isOwner
+    ? await db.$queryRawUnsafe<{ id: string; name: string }[]>(
+        `SELECT id, name FROM "${schema}".doctors ORDER BY name ASC`
+      )
+    : []
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center mb-6">
         <div>
-          <h1 className="text-xl font-bold text-[var(--color-text)] font-display">Reports & Analytics</h1>
-          <p className="text-sm text-[var(--color-text-3)] mt-0.5">Track clinic performance across appointments, revenue, and patient growth.</p>
+          <h1 className="text-xl font-bold text-[var(--color-text)] font-display">
+            {isDoctor ? 'My Revenue' : 'Reports & Analytics'}
+          </h1>
+          <p className="text-sm text-[var(--color-text-3)] mt-0.5">
+            {isDoctor
+              ? 'Track your consultation fees and payment collection.'
+              : 'Track clinic performance across appointments, revenue, and patient growth.'}
+          </p>
         </div>
       </div>
-      <ReportsClient doctors={doctors} />
+      <ReportsClient doctors={doctors} ownDoctorId={ownDoctorId} />
     </div>
   )
 }

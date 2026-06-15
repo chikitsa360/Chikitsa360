@@ -1,6 +1,5 @@
 import { db } from './db'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import { TENANT_SCHEMA_SQL } from './tenant-schema-sql'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -26,6 +25,7 @@ export async function setTenantContext(clinicId: string): Promise<void> {
 /**
  * Provision a new clinic schema when a clinic signs up.
  * Creates clinic_{clinicId} schema and baseline tables.
+ * SQL is inlined from tenant-schema-sql.ts (not read from disk at runtime).
  */
 export async function provisionClinicSchema(clinicId: string): Promise<void> {
   assertUuid(clinicId)
@@ -35,15 +35,11 @@ export async function provisionClinicSchema(clinicId: string): Promise<void> {
   // Create schema
   await db.$executeRawUnsafe(`CREATE SCHEMA IF NOT EXISTS "${schemaName}"`)
 
-  // Set search_path to new schema
+  // Set search_path to new schema so all CREATE TABLE statements land there
   await db.$executeRawUnsafe(`SET LOCAL search_path TO "${schemaName}", public`)
 
-  // Read and execute baseline SQL
-  const baselinePath = join(process.cwd(), 'prisma', 'baseline', 'tenant-schema.sql')
-  const sql = readFileSync(baselinePath, 'utf-8')
-
-  // Execute each statement
-  const statements = sql
+  // Execute each statement from the inlined baseline SQL
+  const statements = TENANT_SCHEMA_SQL
     .split(';')
     .map((s) => s.trim())
     .filter((s) => s.length > 0 && !s.startsWith('--'))

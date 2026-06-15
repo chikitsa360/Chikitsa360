@@ -13,14 +13,31 @@ export async function GET(req: NextRequest) {
   if (!session?.user?.clinicId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  if (session.user.role !== 'OWNER') {
+  const isOwner = session.user.role === 'OWNER'
+  const isDoctor = session.user.role === 'DOCTOR'
+
+  if (!isOwner && !isDoctor) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
   const { searchParams } = req.nextUrl
   const from = searchParams.get('from')
   const to = searchParams.get('to')
-  const doctorId = searchParams.get('doctorId') ?? null
+  let doctorId = searchParams.get('doctorId') ?? null
+
+  // Doctors can only see their own revenue — look up their doctor record
+  if (isDoctor) {
+    const schema = `clinic_${session.user.clinicId}`
+    const doctorRows = await db.$queryRawUnsafe<{ id: string }[]>(
+      `SELECT id FROM "${schema}".doctors WHERE user_id = $1::uuid LIMIT 1`,
+      session.user.id
+    )
+    const ownDoctorId = doctorRows[0]?.id
+    if (!ownDoctorId) {
+      return NextResponse.json({ error: 'Doctor profile not found' }, { status: 404 })
+    }
+    doctorId = ownDoctorId // force filter — doctors cannot see other doctors' revenue
+  }
 
   if (!from || !to) {
     return NextResponse.json({ error: 'from and to date parameters are required' }, { status: 400 })

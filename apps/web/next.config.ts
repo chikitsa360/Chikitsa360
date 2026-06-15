@@ -24,7 +24,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob:",
-      "connect-src 'self' https://*.upstash.io wss://*.pusher.com https://api.inngest.com",
+      "connect-src 'self' https://*.upstash.io wss://*.pusher.com https://*.pusher.com https://sockjs-ap2.pusher.com https://api.inngest.com https://graph.facebook.com",
     ].join('; '),
   },
   {

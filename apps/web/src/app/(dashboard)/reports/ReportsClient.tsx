@@ -23,6 +23,8 @@ interface Doctor {
 
 interface ReportsClientProps {
   doctors: Doctor[]
+  /** Non-null when logged-in user is a DOCTOR — locks revenue to their own data */
+  ownDoctorId?: string | null
 }
 
 // ── API response types ──────────────────────────────────────────────────────
@@ -101,17 +103,25 @@ interface PatientGrowthData {
 
 // ── Component ──────────────────────────────────────────────────────────────
 
-const TABS: { key: Tab; label: string }[] = [
+const OWNER_TABS: { key: Tab; label: string }[] = [
   { key: 'appointments', label: 'Appointments' },
   { key: 'revenue', label: 'Revenue' },
   { key: 'doctors', label: 'Doctors' },
   { key: 'patients', label: 'Patients' },
 ]
 
-export default function ReportsClient({ doctors }: ReportsClientProps) {
-  const [activeTab, setActiveTab] = useState<Tab>('appointments')
+const DOCTOR_TABS: { key: Tab; label: string }[] = [
+  { key: 'revenue', label: 'Revenue' },
+]
+
+export default function ReportsClient({ doctors, ownDoctorId }: ReportsClientProps) {
+  const isDoctor = ownDoctorId != null
+  const TABS = isDoctor ? DOCTOR_TABS : OWNER_TABS
+
+  const [activeTab, setActiveTab] = useState<Tab>(isDoctor ? 'revenue' : 'appointments')
   const [dateRange, setDateRange] = useState<DateRange>(() => getPresetRange('this-month'))
-  const [doctorId, setDoctorId] = useState<string | null>(null)
+  // Doctors are locked to their own ID — owners can filter freely
+  const [doctorId, setDoctorId] = useState<string | null>(ownDoctorId ?? null)
   const [loading, setLoading] = useState(false)
   const [fetchError, setFetchError] = useState(false)
 
@@ -199,7 +209,8 @@ export default function ReportsClient({ doctors }: ReportsClientProps) {
       <div className="flex flex-wrap items-start gap-3 mb-5">
         <DateRangeFilter value={dateRange} onChange={handleRangeChange} />
         <div className="flex items-center gap-2 ml-auto">
-          {activeTab !== 'patients' && (
+          {/* Doctor filter — owners only; doctors are auto-locked to their own data */}
+          {!isDoctor && activeTab !== 'patients' && (
             <DoctorFilter doctors={doctors} value={doctorId} onChange={setDoctorId} />
           )}
           {(activeTab === 'appointments' || activeTab === 'revenue' || activeTab === 'patients') && (

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 
-export type DatePreset = 'today' | 'this-week' | 'this-month' | 'last-30' | 'custom'
+export type DatePreset = 'today' | 'this-week' | 'this-month' | 'last-30' | 'this-year' | 'custom'
 
 export interface DateRange {
   from: string // YYYY-MM-DD
@@ -45,6 +45,10 @@ function getPresetRange(preset: DatePreset): DateRange {
     from.setDate(now.getDate() - 29)
     return { from: from.toISOString().slice(0, 10), to: today }
   }
+  if (preset === 'this-year') {
+    const year = today.slice(0, 4)
+    return { from: `${year}-01-01`, to: today }
+  }
   return { from: today, to: today }
 }
 
@@ -53,6 +57,7 @@ const PRESETS: { key: DatePreset; label: string }[] = [
   { key: 'this-week', label: 'This Week' },
   { key: 'this-month', label: 'This Month' },
   { key: 'last-30', label: 'Last 30 Days' },
+  { key: 'this-year', label: 'This Year' },
   { key: 'custom', label: 'Custom' },
 ]
 
