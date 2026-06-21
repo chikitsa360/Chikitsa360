@@ -11,7 +11,7 @@ export const cliniqlyTheme: BrandTheme = {
   assets: {
     logoUrl: '/brand/cliniqly/logo.svg',
     logoAlt: 'Cliniqly',
-    faviconUrl: '/brand/cliniqly/favicon.ico',
+    faviconUrl: '/brand/cliniqly/favicon.svg',
     logoDarkUrl: '/brand/cliniqly/logo-dark.svg',
   },
   colors: {
