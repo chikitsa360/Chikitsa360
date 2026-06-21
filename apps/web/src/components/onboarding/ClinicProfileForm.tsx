@@ -2,7 +2,6 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { OnboardingShell } from './OnboardingShell'
 import { generateSlug } from '@/lib/slug'
@@ -46,8 +45,6 @@ interface FieldError {
 export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
   const t = useTranslations('onboarding')
   const router = useRouter()
-  const { update: updateSession } = useSession()
-
   const [name, setName] = React.useState(prefill.name ?? '')
   const [address, setAddress] = React.useState(prefill.address ?? '')
   const [city, setCity] = React.useState(prefill.city ?? '')
@@ -145,7 +142,8 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
         return
       }
 
-      await updateSession()
+      // Force NextAuth to re-issue the JWT so clinicId is available in step-2
+      await fetch('/api/auth/session', { method: 'POST' })
       router.push('/onboarding/step-2')
     } catch {
       setServerError(t('error.generic'))
