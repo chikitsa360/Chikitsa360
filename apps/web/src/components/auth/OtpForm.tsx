@@ -49,7 +49,9 @@ export function OtpForm({ phone, nonce: initialNonce, last4, onChangeNumber }: O
       })
 
       if (result?.error) {
-        setError(t('login.error.invalid-otp', { remaining: '2' }))
+        setError(result.error === 'CredentialsSignin'
+          ? t('login.error.invalid-otp', { remaining: '2' })
+          : t('login.error.generic'))
         setOtp('')
         return
       }
