@@ -13,10 +13,12 @@ const LOCKOUT_TTL_SECONDS = 900 // 15 minutes
 
 const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 
-/** Static OTP bypass — if DEV_OTP_BYPASS is set, it is accepted for any login regardless of environment.
- *  Set this in Vercel env vars for demo deployments where no SMS provider is configured. */
-const DEV_STATIC_OTP: string | null =
-  process.env.DEV_OTP_BYPASS ?? (!hasRedis ? '123456' : null)
+/** Read bypass code at call time so Vercel env var changes take effect after redeploy. */
+function getBypassOtp(): string | null {
+  if (process.env.DEV_OTP_BYPASS) return process.env.DEV_OTP_BYPASS
+  if (!hasRedis) return '123456'
+  return null
+}
 
 // ── Error types ───────────────────────────────────────────────────────────
 
@@ -95,8 +97,9 @@ async function sendViaMSG91(phone: string, otp: string): Promise<void> {
  * In dev mode without Redis, uses an in-memory store and logs the OTP.
  */
 export async function sendOtp(phone: string): Promise<{ nonce: string }> {
-  if (DEV_STATIC_OTP !== null) {
-    console.log(`[DEV] OTP for ${phone}: ${DEV_STATIC_OTP}`)
+  const bypassOtp = getBypassOtp()
+  if (bypassOtp !== null) {
+    console.log(`[BYPASS] OTP for ${phone}: ${bypassOtp}`)
     return { nonce: 'dev' }
   }
 
@@ -124,8 +127,9 @@ export async function verifyOtp(
   nonce: string,
   code: string
 ): Promise<true> {
-  if (DEV_STATIC_OTP !== null) {
-    if (code !== DEV_STATIC_OTP) throw new OtpInvalidError(2)
+  const bypassOtp = getBypassOtp()
+  if (bypassOtp !== null) {
+    if (code !== bypassOtp) throw new OtpInvalidError(2)
     return true
   }
 
@@ -139,14 +143,6 @@ export async function verifyOtp(
   const stored = await redis.get<string>(`otp:${phone}:${nonce}`)
   if (!stored) {
     throw new OtpExpiredError()
-  }
-
-  // Bypass: accept a fixed code if DEV_OTP_BYPASS is set (works in any environment)
-  const devBypass = process.env.DEV_OTP_BYPASS
-  if (devBypass && code === devBypass) {
-    await redis.del(`otp:${phone}:${nonce}`)
-    await redis.del(`otp:${phone}:attempts`)
-    return true
   }
 
   if (stored !== code) {
