@@ -36,9 +36,11 @@ Everything you need to go from code to a live demo URL. Every service is **free*
 
 **Pooled connection** (toggle "Pooled connection" ON) — used by the app at runtime:
 ```
-postgresql://user:password@ep-xxx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true
+postgresql://user:password@ep-xxx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 ```
 This is your `DATABASE_URL`.
+
+> **Note:** Neon updated their connection string format — use `channel_binding=require` not `pgbouncer=true`.
 
 **Direct connection** (toggle "Pooled connection" OFF) — used by Prisma migrations:
 ```
@@ -157,13 +159,18 @@ Set each one for **Production**, **Preview**, and **Development**.
 ```bash
 # ─── App ───────────────────────────────────────────────────────────────────
 NEXT_PUBLIC_APP_URL=https://your-project-name.vercel.app
-NEXT_PUBLIC_CLIENT_ID=chikitsa360
+NEXT_PUBLIC_CLIENT_ID=cliniqly
 
 # ─── Auth ──────────────────────────────────────────────────────────────────
 # Generate with: openssl rand -base64 32
 AUTH_SECRET=<random 32-char string>
 # Must match your Vercel URL exactly (no trailing slash)
 AUTH_URL=https://your-project-name.vercel.app
+
+# ─── Demo login (bypass OTP — required when no WhatsApp/SMS provider) ──────
+# Set to any 6-digit code. Use this code to log in on the login screen.
+# Remove this var when going live with a real OTP provider.
+DEV_OTP_BYPASS=123456
 
 # ─── Database ──────────────────────────────────────────────────────────────
 # Pooled — used by the app at runtime (PgBouncer URL from Neon)

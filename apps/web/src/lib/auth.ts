@@ -128,8 +128,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.systemRole = user.systemRole ?? null
         token.planExpiresAt = user.planExpiresAt ?? null
       }
-      // After clinic creation during onboarding, refresh clinicId from DB
-      if (trigger === 'update' && token.userId && !token.clinicId) {
+      // After clinic creation or onboarding completion, refresh clinic fields from DB
+      if (trigger === 'update' && token.userId && (!token.clinicId || !token.onboardingComplete)) {
         const dbUser = await db.user.findUnique({
           where: { id: token.userId as string },
           include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },

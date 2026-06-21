@@ -158,8 +158,10 @@ export async function DELETE(req: NextRequest) {
     return apiError('CANNOT_REMOVE_SELF', 'You cannot remove yourself', HTTP.BAD_REQUEST)
   }
 
-  // Revoke all sessions for the removed user
-  await revokeAllSessions(userId)
+  // Revoke all sessions for the removed user (non-fatal — Redis may not be configured)
+  await revokeAllSessions(userId).catch((err: unknown) => {
+    console.warn('[staff] revokeAllSessions failed:', err)
+  })
 
   // Soft-delete: disconnect from clinic (preserves audit/appointment history)
   await db.user.update({

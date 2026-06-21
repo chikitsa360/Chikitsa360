@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { OnboardingShell } from './OnboardingShell'
 import { BookingLinkShare } from './BookingLinkShare'
@@ -14,6 +15,7 @@ interface WizardCompleteProps {
 export function WizardComplete({ clinicName, slug: initialSlug }: WizardCompleteProps) {
   const t = useTranslations('onboarding')
   const router = useRouter()
+  const { update: updateSession } = useSession()
   const [slug, setSlug] = React.useState(initialSlug ?? '')
   const [loading, setLoading] = React.useState(!initialSlug)
   const [submitting, setSubmitting] = React.useState(false)
@@ -31,12 +33,12 @@ export function WizardComplete({ clinicName, slug: initialSlug }: WizardComplete
   }, [initialSlug])
 
   async function handleGoToDashboard() {
-    if (initialSlug) {
-      // Already completed, just navigate
-      router.push('/dashboard')
-      return
-    }
     setSubmitting(true)
+    if (initialSlug) {
+      // Slug was pre-loaded from RSC — still need to mark onboarding complete in DB
+      await fetch('/api/v1/clinics/complete-onboarding', { method: 'POST' }).catch(() => {})
+    }
+    await updateSession()
     router.push('/dashboard')
   }
 

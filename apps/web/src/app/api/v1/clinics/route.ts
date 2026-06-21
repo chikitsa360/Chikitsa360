@@ -127,6 +127,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(updated)
   } else {
     // Create new clinic — set trial defaults (Epic 11: MON-1, MON-4)
+    // In demo/bypass mode, no expiry so the demo stays usable indefinitely.
+    const trialExpiresAt = process.env.DEV_OTP_BYPASS
+      ? null
+      : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) // 14-day trial
+
     const generatedSlug = slugToUse || generateSlug(name)
     const clinic = await db.clinic.create({
       data: {
@@ -140,7 +145,7 @@ export async function POST(req: NextRequest) {
         tosAcceptedAt: now,
         privacyAcceptedAt: now,
         dpaAcceptedAt: now,
-        planExpiresAt: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // 14-day trial
+        planExpiresAt: trialExpiresAt,
         doctorLimit: 2,
         users: {
           connect: { id: session.user.id },
