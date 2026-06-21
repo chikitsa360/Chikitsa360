@@ -32,14 +32,21 @@ Everything you need to go from code to a live demo URL. Every service is **free*
 1. Go to [neon.tech](https://neon.tech) → **Sign up free**
 2. Create a new project → name it `cliniqly-demo`
 3. Choose region **Asia Pacific (Singapore)** for lowest latency from India
-4. Once created, click **Connection string** → copy the `DATABASE_URL`
+4. Once created, go to **Connection Details** — you need **two** connection strings:
 
-It looks like:
+**Pooled connection** (toggle "Pooled connection" ON) — used by the app at runtime:
+```
+postgresql://user:password@ep-xxx-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&pgbouncer=true
+```
+This is your `DATABASE_URL`.
+
+**Direct connection** (toggle "Pooled connection" OFF) — used by Prisma migrations:
 ```
 postgresql://user:password@ep-xxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
 ```
+This is your `DATABASE_URL_UNPOOLED`.
 
-Save this — you'll need it in Step 7.
+Save both — you'll need them in Step 7.
 
 ---
 
@@ -155,9 +162,14 @@ NEXT_PUBLIC_CLIENT_ID=chikitsa360
 # ─── Auth ──────────────────────────────────────────────────────────────────
 # Generate with: openssl rand -base64 32
 AUTH_SECRET=<random 32-char string>
+# Must match your Vercel URL exactly (no trailing slash)
+AUTH_URL=https://your-project-name.vercel.app
 
 # ─── Database ──────────────────────────────────────────────────────────────
-DATABASE_URL=<paste from Neon Step 1>
+# Pooled — used by the app at runtime (PgBouncer URL from Neon)
+DATABASE_URL=<pooled URL from Neon Step 1>
+# Direct — used by Prisma migrations (non-pooler URL from Neon)
+DATABASE_URL_UNPOOLED=<direct URL from Neon Step 1>
 
 # ─── Redis ─────────────────────────────────────────────────────────────────
 UPSTASH_REDIS_REST_URL=<paste from Upstash Step 2>
