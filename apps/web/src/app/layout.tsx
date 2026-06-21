@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages } from 'next-intl/server'
 import { brand, brandCssVars } from '@/lib/brand'
 import { AppShell } from '@/components/AppShell'
+import { Providers } from '@/components/Providers'
 import './globals.css'
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -49,7 +50,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="bg-background text-foreground antialiased">
         <NextIntlClientProvider messages={messages}>
-          <AppShell>{children}</AppShell>
+          <Providers>
+            <AppShell>{children}</AppShell>
+          </Providers>
         </NextIntlClientProvider>
       </body>
     </html>
