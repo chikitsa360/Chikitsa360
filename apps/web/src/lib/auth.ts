@@ -119,7 +119,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.userId = user.id
         token.role = user.role
@@ -127,6 +127,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.onboardingComplete = user.onboardingComplete
         token.systemRole = user.systemRole ?? null
         token.planExpiresAt = user.planExpiresAt ?? null
+      }
+      // After clinic creation during onboarding, refresh clinicId from DB
+      if (trigger === 'update' && token.userId && !token.clinicId) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.userId as string },
+          include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
+        })
+        if (dbUser?.clinicId) {
+          token.clinicId = dbUser.clinicId
+          token.onboardingComplete = dbUser.clinic?.onboardingComplete ?? false
+          token.planExpiresAt = dbUser.clinic?.planExpiresAt?.toISOString() ?? null
+        }
       }
       return token
     },
