@@ -11,12 +11,12 @@ const LOCKOUT_TTL_SECONDS = 900 // 15 minutes
 // because Next.js runs different API routes in separate module contexts and
 // a module-level Map cannot be shared between them reliably.
 
-const isDev = process.env.NODE_ENV !== 'production'
 const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
 
-/** Static OTP accepted in dev-without-Redis. Set DEV_OTP_BYPASS in .env.local to override. */
+/** Static OTP bypass — if DEV_OTP_BYPASS is set, it is accepted for any login regardless of environment.
+ *  Set this in Vercel env vars for demo deployments where no SMS provider is configured. */
 const DEV_STATIC_OTP: string | null =
-  isDev && !hasRedis ? (process.env.DEV_OTP_BYPASS ?? '123456') : null
+  process.env.DEV_OTP_BYPASS ?? (!hasRedis ? '123456' : null)
 
 // ── Error types ───────────────────────────────────────────────────────────
 
@@ -141,8 +141,8 @@ export async function verifyOtp(
     throw new OtpExpiredError()
   }
 
-  // Dev bypass: accept a fixed code (only active in non-production WITH Redis)
-  const devBypass = isDev ? process.env.DEV_OTP_BYPASS : undefined
+  // Bypass: accept a fixed code if DEV_OTP_BYPASS is set (works in any environment)
+  const devBypass = process.env.DEV_OTP_BYPASS
   if (devBypass && code === devBypass) {
     await redis.del(`otp:${phone}:${nonce}`)
     await redis.del(`otp:${phone}:attempts`)
