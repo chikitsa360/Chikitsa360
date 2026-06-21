@@ -150,7 +150,7 @@ export const clinicDataExport = inngest.createFunction(
       const zipBase64 = zipBuffer.toString('base64')
 
       // 4. Update export job with ZIP data
-      const downloadUrl = `/api/v1/clinics/${clinicId}/export/download?jobId=${jobId}`
+      const downloadUrl = `/api/v1/clinics/${clinicId}/export?jobId=${jobId}`
       const expiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000)
 
       await db.exportJob.update({
