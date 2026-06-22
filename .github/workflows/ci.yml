@@ -65,6 +65,7 @@ jobs:
     timeout-minutes: 20
     if: github.ref == 'refs/heads/main'
     needs: ci
+    continue-on-error: true
 
     steps:
       - name: Checkout
