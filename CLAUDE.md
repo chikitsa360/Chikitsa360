@@ -21,6 +21,9 @@ Auto-loaded by Claude Code on every session. Overrides any default behavior.
    - understand the current implementation
    - check related components/services/hooks/APIs
    - identify possible side effects
+   - Before using any React context hook (useSession, useToast, useRouter etc.),
+     grep for its Provider in the codebase first. If the Provider is missing, add
+     it before writing any hook usage — never assume it exists.
 
 5. When an approach is incorrect, explain:
    "I disagree because [reason]. Here's what I would do instead [alternative]. The risk in the current approach is [specific downside]."
