@@ -128,8 +128,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.systemRole = user.systemRole ?? null
         token.planExpiresAt = user.planExpiresAt ?? null
       }
-      // After clinic creation or onboarding completion, refresh clinic fields from DB
-      if (trigger === 'update' && token.userId && (!token.clinicId || !token.onboardingComplete)) {
+      // Refresh clinic fields from DB when:
+      // 1. clinicId is absent — JWT is stale after clinic creation (self-heals without needing updateSession())
+      // 2. Explicit session update is triggered and onboarding is not yet complete (step-4 completion)
+      const needsRefresh =
+        (token.userId && !token.clinicId) ||
+        (trigger === 'update' && token.userId && !token.onboardingComplete)
+      if (needsRefresh) {
         const dbUser = await db.user.findUnique({
           where: { id: token.userId as string },
           include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
