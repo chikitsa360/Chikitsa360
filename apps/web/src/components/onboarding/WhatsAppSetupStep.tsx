@@ -107,7 +107,13 @@ export function WhatsAppSetupStep({ facebookAppId }: WhatsAppSetupStepProps) {
   }
 
   async function handleSkip() {
-    router.push('/onboarding/complete')
+    // Mark onboarding complete and go directly to dashboard
+    try {
+      await fetch('/api/v1/clinics/complete-onboarding', { method: 'POST' })
+    } catch {
+      // non-fatal — still navigate to dashboard
+    }
+    router.push('/dashboard')
   }
 
   return (
@@ -138,7 +144,7 @@ export function WhatsAppSetupStep({ facebookAppId }: WhatsAppSetupStepProps) {
             Your clinic number is now ready for patient bookings.
           </p>
           <button
-            onClick={() => router.push('/onboarding/complete')}
+            onClick={handleSkip}
             className="mt-4 flex h-11 w-full items-center justify-center rounded-lg bg-primary text-[14px] font-semibold text-white transition-colors hover:bg-primary/90"
           >
             Continue
