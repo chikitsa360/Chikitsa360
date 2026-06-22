@@ -2,18 +2,7 @@
 
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
-
-const SPECIALITIES = [
-  'General Medicine',
-  'Dermatology',
-  'Dentistry',
-  'Orthopaedics',
-  'Gynaecology',
-  'Paediatrics',
-  'Ophthalmology',
-  'ENT',
-  'Other',
-]
+import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
 
 interface ClinicSettingsFormProps {
   clinicName: string
@@ -148,16 +137,11 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
             <label className="mb-1.5 block text-[13px] font-medium text-foreground">
               {t('onboarding.step1.speciality-label')} <span className="text-error">*</span>
             </label>
-            <select
+            <SpecialitySelector
               value={speciality}
-              onChange={(e) => setSpeciality(e.target.value)}
-              className={inputClass(!!errors.speciality)}
-            >
-              <option value="">{t('onboarding.step1.speciality-placeholder')}</option>
-              {SPECIALITIES.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
+              onChange={setSpeciality}
+              hasError={!!errors.speciality}
+            />
             {errors.speciality && <p className="mt-1 text-[12px] text-error">{errors.speciality}</p>}
           </div>
 

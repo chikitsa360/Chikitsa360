@@ -1,18 +1,7 @@
 'use client'
 
 import * as React from 'react'
-
-const SPECIALITIES = [
-  'General Medicine',
-  'Dermatology',
-  'Dentistry',
-  'Orthopaedics',
-  'Gynaecology',
-  'Paediatrics',
-  'Ophthalmology',
-  'ENT',
-  'Other',
-]
+import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
 
 export interface DoctorRowData {
   name: string
@@ -89,18 +78,12 @@ export function DoctorFormRow({ index, data, onChange, onRemove, errors }: Docto
         </div>
 
         {/* Speciality */}
-        <div>
+        <div className="sm:col-span-2">
           <label className="mb-1.5 block text-[13px] font-medium text-foreground">Speciality</label>
-          <select
+          <SpecialitySelector
             value={data.speciality}
-            onChange={(e) => update('speciality', e.target.value)}
-            className={inputClass(false)}
-          >
-            <option value="">Select speciality</option>
-            {SPECIALITIES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+            onChange={(v) => update('speciality', v)}
+          />
         </div>
 
         {/* Fee */}

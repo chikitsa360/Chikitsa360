@@ -86,7 +86,9 @@ export default async function BookingPage({ params }: PageProps) {
             {clinic.name}
           </h1>
           {clinic.speciality && (
-            <p className="mt-0.5 text-[13px] text-muted-foreground">{clinic.speciality}</p>
+            <p className="mt-0.5 text-[13px] text-muted-foreground">
+              {clinic.speciality.split(',').map((s) => s.trim()).filter(Boolean).join(' · ')}
+            </p>
           )}
           {(clinic.address || clinic.city) && (
             <p className="mt-1 text-[12px] text-muted-foreground">

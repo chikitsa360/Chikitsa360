@@ -5,19 +5,8 @@ import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { OnboardingShell } from './OnboardingShell'
+import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
 import { generateSlug } from '@/lib/slug'
-
-const SPECIALITIES = [
-  'General Medicine',
-  'Dermatology',
-  'Dentistry',
-  'Orthopaedics',
-  'Gynaecology',
-  'Paediatrics',
-  'Ophthalmology',
-  'ENT',
-  'Other',
-]
 
 interface Prefill {
   name?: string
@@ -217,16 +206,11 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
           <label className="mb-1.5 block text-[13px] font-medium text-foreground">
             {t('step1.speciality-label')} <span className="text-error">*</span>
           </label>
-          <select
+          <SpecialitySelector
             value={speciality}
-            onChange={(e) => setSpeciality(e.target.value)}
-            className={inputClass(!!errors.speciality)}
-          >
-            <option value="">{t('step1.speciality-placeholder')}</option>
-            {SPECIALITIES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
+            onChange={setSpeciality}
+            hasError={!!errors.speciality}
+          />
           {errors.speciality && <p className="mt-1 text-[12px] text-error">{errors.speciality}</p>}
         </div>
 

@@ -22,7 +22,9 @@ export async function GET(
 
   const clinicName = clinic?.name ?? 'Book an Appointment'
   const city = clinic?.city ?? ''
-  const speciality = clinic?.speciality ?? 'Healthcare'
+  const speciality = clinic?.speciality
+    ? clinic.speciality.split(',').map((s) => s.trim()).filter(Boolean).join(' · ')
+    : 'Healthcare'
 
   return new ImageResponse(
     (

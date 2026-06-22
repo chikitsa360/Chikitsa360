@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
 
 interface Doctor {
   id: string
@@ -112,6 +113,14 @@ export function DoctorsSettingsClient({ clinicId: _clinicId }: { clinicId: strin
                         className="h-10 w-full rounded-lg border border-border px-3 text-[13px] focus:border-primary focus:outline-none"
                       />
                     </div>
+                    {/* Speciality field */}
+                    <div>
+                      <label className="mb-1 block text-[12px] font-medium text-foreground/70">Speciality</label>
+                      <SpecialitySelector
+                        value={editData.speciality ?? doc.speciality ?? ''}
+                        onChange={(v) => setEditData((p) => ({ ...p, speciality: v }))}
+                      />
+                    </div>
                     {/* Default fee field */}
                     <div>
                       <div className="mb-1 flex items-center gap-1.5">
@@ -148,14 +157,15 @@ export function DoctorsSettingsClient({ clinicId: _clinicId }: { clinicId: strin
                   <>
                     <div className="text-[14px] font-semibold text-foreground">{doc.name}</div>
                     <div className="flex items-center gap-2 mt-0.5 text-[12px] text-muted-foreground">
-                      {doc.speciality && (
+                      {doc.speciality && doc.speciality.split(',').map((s) => s.trim()).filter(Boolean).map((s) => (
                         <span
+                          key={s}
                           className="rounded-full px-2 py-0.5 text-[11px] font-medium"
                           style={{ background: 'rgba(139,92,246,0.1)', color: '#7C3AED' }}
                         >
-                          {doc.speciality}
+                          {s}
                         </span>
-                      )}
+                      ))}
                       {doc.default_fee && <span>₹{doc.default_fee} / visit</span>}
                     </div>
                   </>

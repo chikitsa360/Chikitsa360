@@ -161,7 +161,9 @@ export function NewAppointmentPanel({
                   className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[14px] text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
                 >
                   {doctors.map((d) => (
-                    <option key={d.id} value={d.id}>{d.name}{d.speciality ? ` — ${d.speciality}` : ''}</option>
+                    <option key={d.id} value={d.id}>
+                      {d.name}{d.speciality ? ` — ${d.speciality.split(',').map((s) => s.trim()).filter(Boolean).join(', ')}` : ''}
+                    </option>
                   ))}
                 </select>
               </div>
