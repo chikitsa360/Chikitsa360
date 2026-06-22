@@ -6,6 +6,26 @@ Auto-loaded by Claude Code on every session. Overrides any default behavior.
 
 ## Development Guidelines
 
+### Zero-Assumption Rule (applies to the ENTIRE codebase, always)
+
+**Never assume anything exists, works, or is configured — verify it first.**
+
+This applies universally before every change:
+
+| Before doing this... | Verify this first |
+|---|---|
+| Using a React context hook (`useSession`, `useToast`, `useRouter`, etc.) | Grep for its Provider in the component tree |
+| Calling a utility/lib function | Read that file — don't assume its API or behavior |
+| Referencing an env var | Confirm it's set in `.env.local`, Vercel, and `DEMO_SETUP.md` |
+| Making an API call from client | Read the route handler — check auth, method, and response shape |
+| Adding a DB column or query | Check the tenant schema SQL and existing migrations |
+| Assuming a pattern from one file applies elsewhere | Grep the codebase — one instance doesn't mean universal |
+| Fixing a bug in one component | Search for the same bug in all similar components |
+
+**If any of the above cannot be verified by reading existing files, stop and state what needs to be confirmed before proceeding.**
+
+---
+
 1. Do not start by agreeing with assumptions. Before suggesting or implementing changes, verify the actual issue.
 
 2. Do not make fixes based on assumptions. Always identify the root cause by analyzing:
@@ -15,15 +35,12 @@ Auto-loaded by Claude Code on every session. Overrides any default behavior.
    - error logs
    - expected vs actual behavior
 
-3. Fix the root cause, not only the visible symptom. Avoid temporary workarounds unless explicitly discussed.
+3. Fix the root cause, not only the visible symptom. When fixing a bug, search for the same bug pattern across the entire codebase before closing the task.
 
 4. Before modifying code:
-   - understand the current implementation
-   - check related components/services/hooks/APIs
-   - identify possible side effects
-   - Before using any React context hook (useSession, useToast, useRouter etc.),
-     grep for its Provider in the codebase first. If the Provider is missing, add
-     it before writing any hook usage — never assume it exists.
+   - Read the file being changed
+   - Read every file it depends on that is relevant to the change
+   - Check all other components/routes that share the same pattern for the same issue
 
 5. When an approach is incorrect, explain:
    "I disagree because [reason]. Here's what I would do instead [alternative]. The risk in the current approach is [specific downside]."
@@ -34,7 +51,7 @@ Auto-loaded by Claude Code on every session. Overrides any default behavior.
    - linting
    - type safety
    - existing patterns/conventions
-   - impacted flows
+   - impacted flows — every component/route that touches the same code path
 
 8. Keep answers direct. Skip unnecessary introductions and focus on the most useful information first.
 
