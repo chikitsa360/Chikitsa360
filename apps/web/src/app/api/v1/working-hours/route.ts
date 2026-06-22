@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
       await db.$executeRawUnsafe(
         `INSERT INTO "${schemaName}".working_hours
            (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
-         VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
+         VALUES ($1::uuid, $2, $3::time, $4::time, $5, $6::time, $7::time, $8)`,
         wh.doctorId,
         wh.dayOfWeek,
         wh.startTime,
@@ -162,7 +162,7 @@ export async function PUT(req: NextRequest) {
       await db.$executeRawUnsafe(
         `INSERT INTO "${schemaName}".working_hours
            (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
-         VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
+         VALUES ($1::uuid, $2, $3::time, $4::time, $5, $6::time, $7::time, $8)`,
         wh.doctorId,
         wh.dayOfWeek,
         wh.startTime,
