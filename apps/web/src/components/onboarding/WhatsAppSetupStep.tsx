@@ -190,9 +190,9 @@ export function WhatsAppSetupStep({ facebookAppId }: WhatsAppSetupStepProps) {
           {/* Skip */}
           <button
             onClick={handleSkip}
-            className="flex h-11 w-full items-center justify-center text-[13px] font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="flex h-11 w-full items-center justify-center rounded-lg border border-border text-[13px] font-medium text-foreground transition-colors hover:bg-muted"
           >
-            {t('step4.skip')} — You can complete this in Settings → WhatsApp later.
+            {t('step4.skip')} — Set up WhatsApp later
           </button>
         </>
       )}
