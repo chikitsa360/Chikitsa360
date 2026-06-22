@@ -142,7 +142,7 @@ export async function POST(
 
     await db.$executeRawUnsafe(
       `INSERT INTO "${schemaName}".event_waiting_list (event_id, patient_id, position, status)
-       VALUES ($1, $2, $3, 'waiting')
+       VALUES ($1::uuid, $2::uuid, $3, 'waiting')
        ON CONFLICT DO NOTHING`,
       eventId,
       patientId,
@@ -188,7 +188,7 @@ export async function POST(
     const regRows = await db.$queryRawUnsafe<{ id: string }[]>(
       `INSERT INTO "${schemaName}".event_registrations
          (event_id, patient_id, reference_number, status, cancellation_token, token_expires_at)
-       VALUES ($1, $2, $3, 'registered', $4, $5)
+       VALUES ($1::uuid, $2::uuid, $3, 'registered', $4, $5)
        RETURNING id`,
       eventId,
       patientId,

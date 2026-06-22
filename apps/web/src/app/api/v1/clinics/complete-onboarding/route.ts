@@ -51,7 +51,7 @@ export async function POST() {
     await db.$executeRawUnsafe(
       `INSERT INTO "${schemaName}".appointments
          (patient_id, doctor_id, status, booking_source, appointment_date, is_sample)
-       VALUES ($1, $2, 'confirmed', 'sample', $3, true)`,
+       VALUES ($1::uuid, $2::uuid, 'confirmed', 'sample', $3, true)`,
       patientId,
       doctorId,
       tomorrowDate,

@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
     await db.$executeRawUnsafe(
       `INSERT INTO "${schemaName}".working_hours
          (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
       wh.doctorId,
       wh.dayOfWeek,
       wh.startTime,
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
   // Ensure notification_settings defaults exist for this clinic
   await db.$executeRawUnsafe(
     `INSERT INTO "${schemaName}".notification_settings (clinic_id, reminder_24h_enabled, reminder_2h_enabled)
-     VALUES ($1, true, true)
+     VALUES ($1::uuid, true, true)
      ON CONFLICT DO NOTHING`,
     clinicId,
   )
@@ -151,7 +151,7 @@ export async function PUT(req: NextRequest) {
     await db.$executeRawUnsafe(
       `INSERT INTO "${schemaName}".working_hours
          (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
       wh.doctorId,
       wh.dayOfWeek,
       wh.startTime,

@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
     const apptRows = await db.$queryRawUnsafe<{ id: string }[]>(
       `INSERT INTO "${schemaName}".appointments
          (patient_id, doctor_id, status, booking_source, appointment_date, appointment_time, token_number)
-       VALUES ($1, $2, 'confirmed', 'web', $3::date, $4::time, $5)
+       VALUES ($1::uuid, $2::uuid, 'confirmed', 'web', $3::date, $4::time, $5)
        RETURNING id`,
       patientId,
       doctorId,

@@ -140,7 +140,7 @@ export async function PATCH(
       const newRegRows = await db.$queryRawUnsafe<{ id: string }[]>(
         `INSERT INTO "${schemaName}".event_registrations
            (event_id, patient_id, reference_number, status, cancellation_token, token_expires_at)
-         VALUES ($1, $2, $3, 'registered', $4, $5)
+         VALUES ($1::uuid, $2::uuid, $3, 'registered', $4, $5)
          RETURNING id`,
         eventId,
         entry.patient_id,

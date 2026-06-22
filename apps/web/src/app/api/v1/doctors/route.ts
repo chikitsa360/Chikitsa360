@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
       // Create doctor record in tenant schema
       const result = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
         `INSERT INTO "${schemaName}".doctors (user_id, name, speciality, default_fee)
-         VALUES ($1, $2, $3, $4)
+         VALUES ($1::uuid, $2, $3, $4)
          RETURNING id, name`,
         user.id,
         doc.name,
