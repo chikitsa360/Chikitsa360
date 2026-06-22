@@ -71,47 +71,57 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Delete existing entries for these doctors (replace strategy)
-  const doctorIds = [...new Set(parsed.data.map((wh) => wh.doctorId))]
-  for (const doctorId of doctorIds) {
-    await db.$executeRawUnsafe(
-      `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid`,
-      doctorId
-    )
+  try {
+    // Delete existing entries for these doctors (replace strategy)
+    const doctorIds = [...new Set(parsed.data.map((wh) => wh.doctorId))]
+    for (const doctorId of doctorIds) {
+      await db.$executeRawUnsafe(
+        `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid`,
+        doctorId
+      )
+    }
+
+    // Insert new entries
+    for (const wh of parsed.data) {
+      await db.$executeRawUnsafe(
+        `INSERT INTO "${schemaName}".working_hours
+           (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
+         VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
+        wh.doctorId,
+        wh.dayOfWeek,
+        wh.startTime,
+        wh.endTime,
+        wh.slotDuration,
+        wh.lunchStartTime ?? null,
+        wh.lunchEndTime ?? null,
+        wh.isActive,
+      )
+    }
+
+    // Ensure notification_settings defaults exist — non-fatal (table may be absent on older schemas)
+    try {
+      await db.$executeRawUnsafe(
+        `INSERT INTO "${schemaName}".notification_settings (clinic_id, reminder_24h_enabled, reminder_2h_enabled)
+         VALUES ($1::uuid, true, true)
+         ON CONFLICT DO NOTHING`,
+        clinicId,
+      )
+    } catch (nsErr) {
+      console.error('[working-hours] notification_settings insert failed (non-fatal):', nsErr)
+    }
+
+    // Advance onboarding step
+    await db.clinic.update({
+      where: { id: clinicId },
+      data: { onboardingStep: 4 },
+    })
+
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[working-hours] POST failed:', message)
+    return NextResponse.json({ error: 'Failed to save working hours', detail: message }, { status: 500 })
   }
-
-  // Insert new entries
-  for (const wh of parsed.data) {
-    await db.$executeRawUnsafe(
-      `INSERT INTO "${schemaName}".working_hours
-         (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
-       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
-      wh.doctorId,
-      wh.dayOfWeek,
-      wh.startTime,
-      wh.endTime,
-      wh.slotDuration,
-      wh.lunchStartTime ?? null,
-      wh.lunchEndTime ?? null,
-      wh.isActive,
-    )
-  }
-
-  // Ensure notification_settings defaults exist for this clinic
-  await db.$executeRawUnsafe(
-    `INSERT INTO "${schemaName}".notification_settings (clinic_id, reminder_24h_enabled, reminder_2h_enabled)
-     VALUES ($1::uuid, true, true)
-     ON CONFLICT DO NOTHING`,
-    clinicId,
-  )
-
-  // Advance onboarding step
-  await db.clinic.update({
-    where: { id: clinicId },
-    data: { onboardingStep: 4 },
-  })
-
-  return NextResponse.json({ ok: true })
 }
 
 export async function PUT(req: NextRequest) {
@@ -139,29 +149,35 @@ export async function PUT(req: NextRequest) {
     }
   }
 
-  const doctorIds = [...new Set(parsed.data.map((wh) => wh.doctorId))]
-  for (const doctorId of doctorIds) {
-    await db.$executeRawUnsafe(
-      `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid`,
-      doctorId
-    )
-  }
+  try {
+    const doctorIds = [...new Set(parsed.data.map((wh) => wh.doctorId))]
+    for (const doctorId of doctorIds) {
+      await db.$executeRawUnsafe(
+        `DELETE FROM "${schemaName}".working_hours WHERE doctor_id = $1::uuid`,
+        doctorId
+      )
+    }
 
-  for (const wh of parsed.data) {
-    await db.$executeRawUnsafe(
-      `INSERT INTO "${schemaName}".working_hours
-         (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
-       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
-      wh.doctorId,
-      wh.dayOfWeek,
-      wh.startTime,
-      wh.endTime,
-      wh.slotDuration,
-      wh.lunchStartTime ?? null,
-      wh.lunchEndTime ?? null,
-      wh.isActive,
-    )
-  }
+    for (const wh of parsed.data) {
+      await db.$executeRawUnsafe(
+        `INSERT INTO "${schemaName}".working_hours
+           (doctor_id, day_of_week, start_time, end_time, slot_duration, lunch_start_time, lunch_end_time, is_active)
+         VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8)`,
+        wh.doctorId,
+        wh.dayOfWeek,
+        wh.startTime,
+        wh.endTime,
+        wh.slotDuration,
+        wh.lunchStartTime ?? null,
+        wh.lunchEndTime ?? null,
+        wh.isActive,
+      )
+    }
 
-  return NextResponse.json({ ok: true, message: 'Working hours updated. Changes take effect from tomorrow.' })
+    return NextResponse.json({ ok: true, message: 'Working hours updated. Changes take effect from tomorrow.' })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[working-hours] PUT failed:', message)
+    return NextResponse.json({ error: 'Failed to update working hours', detail: message }, { status: 500 })
+  }
 }

@@ -11,6 +11,7 @@ export async function POST() {
   const clinicId = session.user.clinicId
   const schemaName = `clinic_${clinicId}`
 
+  try {
   // Get the first doctor for the sample appointment
   const doctors = await db.$queryRawUnsafe<{ id: string }[]>(
     `SELECT id FROM "${schemaName}".doctors ORDER BY created_at ASC LIMIT 1`
@@ -66,4 +67,9 @@ export async function POST() {
   })
 
   return NextResponse.json({ ok: true, slug: clinic.slug, clinicName: clinic.name })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[complete-onboarding] POST failed:', message)
+    return NextResponse.json({ error: 'Failed to complete onboarding', detail: message }, { status: 500 })
+  }
 }
