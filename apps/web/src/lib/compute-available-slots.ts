@@ -117,6 +117,35 @@ function minutesToTime(minutes: number): string {
 }
 
 /**
+ * Returns true if the slot has already started (or passed) relative to the
+ * current IST time on today's date. Pure function — safe to unit-test.
+ *
+ * @param date         - YYYY-MM-DD date of the slot
+ * @param slotStart    - HH:mm start time of the slot
+ * @param todayIST     - YYYY-MM-DD representing today in IST
+ * @param nowTimeIST   - HH:mm representing the current IST time
+ */
+export function isPastSlot(
+  date: string,
+  slotStart: string,
+  todayIST: string,
+  nowTimeIST: string
+): boolean {
+  // Only filter on today; future dates are always valid
+  if (date !== todayIST) return false
+  // Hide slot if its start time is strictly before now (current-minute slot still shows)
+  return slotStart < nowTimeIST
+}
+
+/** IST offset from UTC in milliseconds (UTC+5:30). */
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000
+
+/** Returns the current date-time shifted to IST. */
+function getNowIST(): Date {
+  return new Date(Date.now() + IST_OFFSET_MS)
+}
+
+/**
  * Compute available slots for a clinic, optionally filtered by doctor,
  * over the next `days` days from `fromDate`.
  */
@@ -127,6 +156,13 @@ export async function computeAvailableSlots(
   doctorId?: string
 ): Promise<AvailableSlot[]> {
   const schemaName = `clinic_${clinicId}`
+
+  // Compute current IST time for past-slot filtering
+  const nowIST = getNowIST()
+  const todayIST = nowIST.toISOString().split('T')[0]!
+  const nowHour = nowIST.getUTCHours()
+  const nowMin = nowIST.getUTCMinutes()
+  const currentTimeIST = `${String(nowHour).padStart(2, '0')}:${String(nowMin).padStart(2, '0')}`
 
   // Build list of dates (YYYY-MM-DD)
   const dates: string[] = []
@@ -221,6 +257,9 @@ export async function computeAvailableSlots(
       )
 
       for (const slot of slotTimes) {
+        // Skip slots that have already passed (IST-aware)
+        if (isPastSlot(date, slot.startTime, todayIST, currentTimeIST)) continue
+
         const key = `${doctor.id}|${date}|${slot.startTime}`
         if (bookedSet.has(key)) continue
 

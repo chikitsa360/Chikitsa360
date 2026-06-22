@@ -17,10 +17,11 @@ export async function GET(req: NextRequest) {
   const doctorId = req.nextUrl.searchParams.get('doctorId') ?? undefined
   const fromTime = req.nextUrl.searchParams.get('fromTime') ?? undefined
 
-  // Compute today's available slots
-  const today = new Date()
+  // Compute today's available slots using IST date (UTC+5:30)
+  const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000
+  const nowIST = new Date(Date.now() + IST_OFFSET_MS)
   const fromDate = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+    Date.UTC(nowIST.getUTCFullYear(), nowIST.getUTCMonth(), nowIST.getUTCDate())
   )
 
   const slots = await computeAvailableSlots(clinicId, fromDate, 1, doctorId)

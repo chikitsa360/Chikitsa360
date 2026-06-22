@@ -45,10 +45,11 @@ export async function GET(req: NextRequest) {
     paywall = false
   }
 
-  // Compute slots starting from today (UTC date)
-  const today = new Date()
+  // Compute slots starting from today in IST (UTC+5:30)
+  const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000
+  const nowIST = new Date(Date.now() + IST_OFFSET_MS)
   const fromDate = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())
+    Date.UTC(nowIST.getUTCFullYear(), nowIST.getUTCMonth(), nowIST.getUTCDate())
   )
 
   const slots = await computeAvailableSlots(resolvedClinicId, fromDate, days, doctorId)

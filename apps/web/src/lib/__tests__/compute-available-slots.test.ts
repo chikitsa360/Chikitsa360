@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { generateSlotTimes, getDayOfWeek } from '../compute-available-slots'
+import { generateSlotTimes, getDayOfWeek, isPastSlot } from '../compute-available-slots'
 import { isPlanExpired } from '../plan/check-plan'
 
 describe('getDayOfWeek', () => {
@@ -143,6 +143,36 @@ describe('mobile number validation', () => {
 
   it('rejects empty string', () => {
     expect(validateIndianPhone('')).toBe(false)
+  })
+})
+
+describe('isPastSlot', () => {
+  const TODAY = '2026-06-22'
+  const TOMORROW = '2026-06-23'
+  const YESTERDAY = '2026-06-21'
+  const NOW = '14:30'
+
+  it('hides a slot that started before current time today', () => {
+    expect(isPastSlot(TODAY, '09:00', TODAY, NOW)).toBe(true)
+    expect(isPastSlot(TODAY, '14:29', TODAY, NOW)).toBe(true)
+  })
+
+  it('shows the slot starting at the current minute (boundary)', () => {
+    expect(isPastSlot(TODAY, '14:30', TODAY, NOW)).toBe(false)
+  })
+
+  it('shows slots starting after the current time today', () => {
+    expect(isPastSlot(TODAY, '14:31', TODAY, NOW)).toBe(false)
+    expect(isPastSlot(TODAY, '18:00', TODAY, NOW)).toBe(false)
+  })
+
+  it('never hides slots on future dates', () => {
+    expect(isPastSlot(TOMORROW, '00:00', TODAY, NOW)).toBe(false)
+    expect(isPastSlot(TOMORROW, '09:00', TODAY, NOW)).toBe(false)
+  })
+
+  it('never hides slots on past dates (date range excludes them anyway)', () => {
+    expect(isPastSlot(YESTERDAY, '23:59', TODAY, NOW)).toBe(false)
   })
 })
 
