@@ -11,6 +11,7 @@ const mockInngest = inngest as unknown as { send: ReturnType<typeof vi.fn> }
 
 beforeEach(() => {
   vi.resetAllMocks()
+  mockInngest.send.mockResolvedValue(undefined)
 })
 
 describe('scheduleReminders', () => {

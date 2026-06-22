@@ -11,11 +11,10 @@ const LOCKOUT_TTL_SECONDS = 900 // 15 minutes
 // because Next.js runs different API routes in separate module contexts and
 // a module-level Map cannot be shared between them reliably.
 
-const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
-
 /** Read bypass code at call time so Vercel env var changes take effect after redeploy. */
 function getBypassOtp(): string | null {
   if (process.env.DEV_OTP_BYPASS) return process.env.DEV_OTP_BYPASS
+  const hasRedis = !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
   if (!hasRedis) return '123456'
   return null
 }

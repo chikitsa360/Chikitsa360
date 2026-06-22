@@ -1,5 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
+// Stub Redis env vars so otp.ts uses real Redis path (not dev bypass)
+vi.stubEnv('UPSTASH_REDIS_REST_URL', 'https://fake-redis.upstash.io')
+vi.stubEnv('UPSTASH_REDIS_REST_TOKEN', 'fake-token')
+
 // Mock the redis module
 vi.mock('../redis', () => ({
   redis: {
@@ -34,13 +38,14 @@ const mockRedis = redis as unknown as {
 }
 
 beforeEach(() => {
-  vi.clearAllMocks()
+  vi.resetAllMocks()
   // Default: no lockout
   mockRedis.ttl.mockResolvedValue(-1)
   mockRedis.set.mockResolvedValue('OK')
   mockRedis.del.mockResolvedValue(1)
   mockRedis.incr.mockResolvedValue(1)
   mockRedis.expire.mockResolvedValue(1)
+  ;(global.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({ ok: true } as Response)
 })
 
 describe('sendOtp', () => {

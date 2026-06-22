@@ -6,7 +6,6 @@ import {
   createClinicSchema,
   inviteStaffSchema,
   createPatientSchema,
-  createAppointmentSchema,
   appointmentStatusSchema,
 } from '../schemas'
 
