@@ -114,6 +114,9 @@ export async function POST(req: NextRequest) {
         dpaAcceptedAt: now,
       },
     })
+    // Re-provision tenant schema (idempotent) in case it was never created
+    // e.g. if the original clinic creation failed after the DB record was written
+    await provisionClinicSchema(session.user.clinicId)
     return NextResponse.json(updated)
   } else {
     // Create new clinic — set trial defaults (Epic 11: MON-1, MON-4)

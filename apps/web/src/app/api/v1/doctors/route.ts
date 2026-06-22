@@ -70,54 +70,64 @@ export async function POST(req: NextRequest) {
   const schemaName = `clinic_${clinicId}`
   const createdDoctors: { id: string; name: string }[] = []
 
-  for (const doc of parsed.data) {
-    // Ensure user exists or create placeholder
-    let user = await db.user.findUnique({ where: { phone: doc.phone } })
-    if (!user) {
-      user = await db.user.create({
-        data: {
-          phone: doc.phone,
-          name: doc.name,
-          role: 'DOCTOR',
-          clinicId,
-        },
-      })
+  try {
+    for (const doc of parsed.data) {
+      // Ensure user exists or create placeholder
+      let user = await db.user.findUnique({ where: { phone: doc.phone } })
+      if (!user) {
+        user = await db.user.create({
+          data: {
+            phone: doc.phone,
+            name: doc.name,
+            role: 'DOCTOR',
+            clinicId,
+          },
+        })
+      }
+
+      // Create doctor record in tenant schema
+      const result = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
+        `INSERT INTO "${schemaName}".doctors (user_id, name, speciality, default_fee)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, name`,
+        user.id,
+        doc.name,
+        doc.speciality ?? null,
+        doc.defaultFee ?? null,
+      )
+      const created = result[0]
+      if (created) createdDoctors.push(created)
+
+      // Create StaffInvite — non-fatal, table may not exist on all deployments
+      try {
+        const inviteToken = crypto.randomUUID()
+        const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        await db.staffInvite.create({
+          data: {
+            clinicId,
+            phone: doc.phone,
+            role: 'DOCTOR',
+            token: inviteToken,
+            expiresAt,
+          },
+        })
+      } catch (inviteErr) {
+        console.error('[doctors] StaffInvite creation failed (non-fatal):', inviteErr)
+      }
     }
 
-    // Create doctor record in tenant schema
-    const result = await db.$queryRawUnsafe<{ id: string; name: string }[]>(
-      `INSERT INTO "${schemaName}".doctors (user_id, name, speciality, default_fee)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, name`,
-      user.id,
-      doc.name,
-      doc.speciality ?? null,
-      doc.defaultFee ?? null,
-    )
-    const created = result[0]
-    if (created) createdDoctors.push(created)
-
-    // Create StaffInvite for the doctor
-    const inviteToken = crypto.randomUUID()
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
-    await db.staffInvite.create({
-      data: {
-        clinicId,
-        phone: doc.phone,
-        role: 'DOCTOR',
-        token: inviteToken,
-        expiresAt,
-      },
+    // Advance onboarding step
+    await db.clinic.update({
+      where: { id: clinicId },
+      data: { onboardingStep: 3 },
     })
+
+    return NextResponse.json(createdDoctors, { status: 201 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('[doctors] POST failed:', message)
+    return NextResponse.json({ error: 'Failed to create doctors', detail: message }, { status: 500 })
   }
-
-  // Advance onboarding step
-  await db.clinic.update({
-    where: { id: clinicId },
-    data: { onboardingStep: 3 },
-  })
-
-  return NextResponse.json(createdDoctors, { status: 201 })
 }
 
 export async function PUT(req: NextRequest) {
