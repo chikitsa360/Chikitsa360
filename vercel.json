@@ -1,6 +1,6 @@
 {
   "framework": "nextjs",
-  "buildCommand": "cd ../.. && pnpm --filter @chikitsa360/web exec prisma generate && turbo build --filter=@chikitsa360/web",
+  "buildCommand": "cd ../.. && pnpm --filter @chikitsa360/web exec prisma migrate deploy && pnpm --filter @chikitsa360/web exec prisma generate && turbo build --filter=@chikitsa360/web",
   "outputDirectory": ".next",
   "installCommand": "cd ../.. && pnpm install",
   "regions": ["sin1"],
