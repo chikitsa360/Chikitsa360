@@ -18,11 +18,23 @@ export default async function ClinicSettingsPage() {
       city: true,
       speciality: true,
       clinicPhone: true,
-      logoUrl: true,
     },
   })
 
   if (!clinic) redirect('/onboarding')
+
+  // logoUrl is fetched separately so a missing DB column (pending migration)
+  // doesn't crash the whole settings page
+  let logoUrl: string | null = null
+  try {
+    const logoRow = await db.clinic.findUnique({
+      where: { id: session.user.clinicId },
+      select: { logoUrl: true },
+    })
+    logoUrl = logoRow?.logoUrl ?? null
+  } catch {
+    // Migration not yet applied — logo feature silently disabled
+  }
 
   return (
     <div className="mx-auto max-w-[640px] space-y-5">
@@ -34,7 +46,7 @@ export default async function ClinicSettingsPage() {
         city={clinic.city ?? ''}
         speciality={clinic.speciality ?? ''}
         clinicPhone={clinic.clinicPhone ?? ''}
-        logoUrl={clinic.logoUrl}
+        logoUrl={logoUrl}
       />
     </div>
   )

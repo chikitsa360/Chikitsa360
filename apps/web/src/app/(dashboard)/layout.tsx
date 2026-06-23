@@ -26,13 +26,23 @@ export default async function DashboardLayout({
   if (session.user.clinicId) {
     const clinic = await db.clinic.findUnique({
       where: { id: session.user.clinicId },
-      select: { name: true, logoUrl: true, whatsappConnected: true, onboardingComplete: true, planExpiresAt: true },
+      select: { name: true, whatsappConnected: true, onboardingComplete: true, planExpiresAt: true },
     })
     clinicName = clinic?.name
-    clinicLogoUrl = clinic?.logoUrl ?? null
     // Show banner only if onboarding is complete but WhatsApp is not connected
     whatsappConnected = clinic?.whatsappConnected ?? false
     planExpiresAt = clinic?.planExpiresAt ?? null
+
+    // Fetch logoUrl separately — pending migration on older deployments won't crash the shell
+    try {
+      const logoRow = await db.clinic.findUnique({
+        where: { id: session.user.clinicId },
+        select: { logoUrl: true },
+      })
+      clinicLogoUrl = logoRow?.logoUrl ?? null
+    } catch {
+      // Migration not yet applied — sidebar falls back to initials
+    }
   }
 
   const showWhatsAppBanner = !!session.user.clinicId && !whatsappConnected
