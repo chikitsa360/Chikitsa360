@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { put, del } from '@vercel/blob'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 
-const MAX_SIZE_BYTES = 2 * 1024 * 1024 // 2 MB
+// 512 KB — enough for any logo at display sizes (28–48 px)
+const MAX_SIZE_BYTES = 512 * 1024
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml']
-
-function blobTokenConfigured(): boolean {
-  return !!process.env.BLOB_READ_WRITE_TOKEN
-}
 
 /**
  * POST /api/v1/clinics/logo
- * Uploads a clinic logo to Vercel Blob and saves the URL. OWNER only.
- * Body: multipart/form-data with field "logo" (File).
+ * Converts uploaded image to a base64 data URL and saves it in the DB.
+ * No external storage required. OWNER only.
+ * Body: multipart/form-data with field "logo" (File, max 512 KB).
  */
 export async function POST(req: NextRequest) {
   try {
@@ -23,14 +20,6 @@ export async function POST(req: NextRequest) {
     }
     if (session.user.role !== 'OWNER') {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
-
-    if (!blobTokenConfigured()) {
-      console.error('[logo] BLOB_READ_WRITE_TOKEN is not set')
-      return NextResponse.json(
-        { error: 'File storage is not configured. Please add BLOB_READ_WRITE_TOKEN to your Vercel environment variables.' },
-        { status: 503 }
-      )
     }
 
     const clinicId = session.user.clinicId
@@ -55,34 +44,23 @@ export async function POST(req: NextRequest) {
     }
 
     if (file.size > MAX_SIZE_BYTES) {
-      return NextResponse.json({ error: 'File too large. Maximum size is 2 MB' }, { status: 422 })
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 512 KB. Tip: compress your logo before uploading.' },
+        { status: 422 }
+      )
     }
 
-    // Delete previous logo if one exists (non-fatal if column not yet migrated)
-    try {
-      const existing = await db.clinic.findUnique({
-        where: { id: clinicId },
-        select: { logoUrl: true },
-      })
-      if (existing?.logoUrl) {
-        await del(existing.logoUrl).catch(() => { /* non-fatal */ })
-      }
-    } catch {
-      // Column may not exist yet on older deployments — skip
-    }
-
-    const ext = file.name.split('.').pop() ?? 'png'
-    const blob = await put(`clinic-logos/${clinicId}.${ext}`, file, {
-      access: 'public',
-      allowOverwrite: true,
-    })
+    // Convert to base64 data URL — no external storage needed
+    const buffer = await file.arrayBuffer()
+    const base64 = Buffer.from(buffer).toString('base64')
+    const dataUrl = `data:${file.type};base64,${base64}`
 
     await db.clinic.update({
       where: { id: clinicId },
-      data: { logoUrl: blob.url },
+      data: { logoUrl: dataUrl },
     })
 
-    return NextResponse.json({ url: blob.url })
+    return NextResponse.json({ url: dataUrl })
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('[logo] POST failed:', message)
@@ -92,7 +70,7 @@ export async function POST(req: NextRequest) {
 
 /**
  * DELETE /api/v1/clinics/logo
- * Removes the clinic logo from Blob storage and clears the URL. OWNER only.
+ * Clears the logo URL from the database. OWNER only.
  */
 export async function DELETE(_req: NextRequest) {
   try {
@@ -104,22 +82,8 @@ export async function DELETE(_req: NextRequest) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const clinicId = session.user.clinicId
-
-    try {
-      const clinic = await db.clinic.findUnique({
-        where: { id: clinicId },
-        select: { logoUrl: true },
-      })
-      if (clinic?.logoUrl && blobTokenConfigured()) {
-        await del(clinic.logoUrl).catch(() => { /* non-fatal */ })
-      }
-    } catch {
-      // Column may not exist yet — skip
-    }
-
     await db.clinic.update({
-      where: { id: clinicId },
+      where: { id: session.user.clinicId },
       data: { logoUrl: null },
     })
 

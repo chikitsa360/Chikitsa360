@@ -4,6 +4,7 @@ import { DashboardShell } from '@/components/layout/DashboardShell'
 import { ToastProvider } from '@/components/ui/ToastProvider'
 import { WhatsAppPendingBanner } from '@/components/layout/WhatsAppPendingBanner'
 import { PlanBanner } from '@/components/layout/PlanBanner'
+import { PushNotificationsClient } from '@/components/layout/PushNotificationsClient'
 import { db } from '@/lib/db'
 import { getPlanStatus } from '@/lib/plan/check-plan'
 
@@ -50,6 +51,7 @@ export default async function DashboardLayout({
 
   return (
     <ToastProvider>
+      <PushNotificationsClient />
       <DashboardShell
         clinicName={clinicName}
         clinicLogoUrl={clinicLogoUrl}

@@ -5,6 +5,7 @@ import { isPlanExpired } from '@/lib/plan/check-plan'
 import { scheduleConfirmation } from '@/lib/notifications/send-confirmation'
 import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
+import { sendPushToClinicStaff } from '@/lib/push'
 
 const bookingSchema = z.object({
   clinicSlug: z.string().min(1).regex(/^[a-z0-9-]+$/),
@@ -127,6 +128,14 @@ export async function POST(req: NextRequest) {
     await scheduleConfirmation(appt.id, clinicId)
     const slotDatetime = new Date(`${date}T${startTime}:00+05:30`)
     await scheduleReminders(appt.id, clinicId, slotDatetime)
+
+    // Web push notification to all staff of this clinic
+    await sendPushToClinicStaff(clinicId, {
+      title: 'New appointment booked',
+      body: `${patientName} — ${date} at ${startTime}`,
+      url: '/dashboard/appointments',
+      tag: `new-booking-${appt.id}`,
+    })
 
     // Publish real-time event to portal subscribers (Story 4.2)
     try {

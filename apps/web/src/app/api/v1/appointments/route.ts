@@ -5,6 +5,7 @@ import { z } from 'zod'
 import { scheduleConfirmation } from '@/lib/notifications/send-confirmation'
 import { scheduleReminders } from '@/lib/notifications/schedule-reminders'
 import { pusherServer, clinicChannel } from '@/lib/pusher'
+import { sendPushToClinicStaff } from '@/lib/push'
 import { writeAuditLog } from '@/lib/audit'
 import { UserRole } from '@prisma/client'
 import { isPlanExpired } from '@/lib/plan/check-plan'
@@ -250,6 +251,14 @@ export async function POST(req: NextRequest) {
         bookingSource,
       })
     } catch { /* non-fatal */ }
+
+    // Web push to clinic staff
+    void sendPushToClinicStaff(clinicId, {
+      title: 'New appointment',
+      body: `Dr. ${doctor.name} — ${date} at ${startTime}`,
+      url: '/appointments',
+      tag: 'new-appointment',
+    })
 
     // Audit log
     try {

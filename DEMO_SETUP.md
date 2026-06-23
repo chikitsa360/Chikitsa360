@@ -24,6 +24,7 @@ Everything you need to go from code to a live demo URL. Every service is **free*
 | [Inngest](https://inngest.com) | Background jobs (reminders, notifications) | 50,000 runs/month |
 | [Pusher](https://pusher.com) | Real-time calendar updates | 200K messages/day |
 | [Meta for Developers](https://developers.facebook.com) | WhatsApp Cloud API | 1,000 conversations/month free |
+| VAPID keys (self-generated) | Web push notifications for staff | Free — no external service |
 
 ---
 
@@ -199,6 +200,15 @@ META_SYSTEM_ACCESS_TOKEN=<paste from Meta Step 5>
 META_APP_SECRET=<paste from Meta Step 5>
 NEXT_PUBLIC_FACEBOOK_APP_ID=<paste from Meta Step 5>
 WHATSAPP_VERIFY_TOKEN=<the string you chose in Step 5d>
+
+# ─── Web Push Notifications (staff alerts for new bookings) ────────────────
+# Generate once: npx web-push generate-vapid-keys
+# VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are server-only (never exposed to browser)
+# NEXT_PUBLIC_VAPID_PUBLIC_KEY must equal VAPID_PUBLIC_KEY (it's safe to expose)
+VAPID_PUBLIC_KEY=<output of generate-vapid-keys — "Public Key" line>
+VAPID_PRIVATE_KEY=<output of generate-vapid-keys — "Private Key" line>
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=<same as VAPID_PUBLIC_KEY>
+VAPID_EMAIL=mailto:support@cliniqly.com
 
 # ─── SMS Fallback (optional — skip for demo) ───────────────────────────────
 # MSG91_AUTH_KEY=
