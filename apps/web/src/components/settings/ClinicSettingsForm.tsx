@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
+import { LogoUpload } from '@/components/ui/LogoUpload'
 
 interface ClinicSettingsFormProps {
   clinicName: string
@@ -11,6 +12,7 @@ interface ClinicSettingsFormProps {
   city: string
   speciality: string
   clinicPhone: string
+  logoUrl?: string | null
 }
 
 interface FieldError {
@@ -32,6 +34,44 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
   const [submitting, setSubmitting] = React.useState(false)
   const [success, setSuccess] = React.useState(false)
   const [serverError, setServerError] = React.useState('')
+
+  // Logo state
+  const [logoUrl, setLogoUrl] = React.useState<string | null>(props.logoUrl ?? null)
+  const [logoUploading, setLogoUploading] = React.useState(false)
+  const [logoError, setLogoError] = React.useState('')
+
+  async function handleLogoSelect(file: File) {
+    setLogoUploading(true)
+    setLogoError('')
+    const form = new FormData()
+    form.append('logo', file)
+    try {
+      const res = await fetch('/api/v1/clinics/logo', { method: 'POST', body: form })
+      const data = await res.json()
+      if (!res.ok) {
+        setLogoError(data.error ?? 'Upload failed')
+        return
+      }
+      setLogoUrl(data.url)
+    } catch {
+      setLogoError('Upload failed. Please try again.')
+    } finally {
+      setLogoUploading(false)
+    }
+  }
+
+  async function handleLogoRemove() {
+    setLogoUploading(true)
+    setLogoError('')
+    try {
+      await fetch('/api/v1/clinics/logo', { method: 'DELETE' })
+      setLogoUrl(null)
+    } catch {
+      setLogoError('Failed to remove logo.')
+    } finally {
+      setLogoUploading(false)
+    }
+  }
 
   function validate(): FieldError {
     const e: FieldError = {}
@@ -87,6 +127,20 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
 
       <div className="overflow-hidden rounded-xl border border-border bg-card">
         <form onSubmit={handleSubmit} noValidate className="px-6 py-6">
+          {/* Clinic Logo */}
+          <div className="mb-6">
+            <label className="mb-2 block text-[13px] font-medium text-foreground">
+              Clinic Logo <span className="ml-1 text-[11px] font-normal text-muted-foreground">Optional</span>
+            </label>
+            <LogoUpload
+              currentLogoUrl={logoUrl}
+              onFileSelect={handleLogoSelect}
+              onRemove={handleLogoRemove}
+              uploading={logoUploading}
+              error={logoError}
+            />
+          </div>
+
           {/* Clinic Name */}
           <div className="mb-4">
             <label className="mb-1.5 block text-[13px] font-medium text-foreground">

@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { OnboardingShell } from './OnboardingShell'
 import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
+import { LogoUpload } from '@/components/ui/LogoUpload'
 import { generateSlug } from '@/lib/slug'
 
 interface Prefill {
@@ -55,6 +56,10 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
   const [errors, setErrors] = React.useState<FieldError>({})
   const [submitting, setSubmitting] = React.useState(false)
   const [serverError, setServerError] = React.useState('')
+
+  // Logo: held in state, uploaded after clinic creation
+  const [logoFile, setLogoFile] = React.useState<File | null>(null)
+  const [logoError, setLogoError] = React.useState('')
 
   // Auto-generate slug from name if not manually edited
   React.useEffect(() => {
@@ -135,6 +140,18 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
       }
 
       await updateSession()
+
+      // Upload logo if one was selected (non-fatal)
+      if (logoFile) {
+        const form = new FormData()
+        form.append('logo', logoFile)
+        try {
+          await fetch('/api/v1/clinics/logo', { method: 'POST', body: form })
+        } catch {
+          // Non-fatal — logo can be set later in settings
+        }
+      }
+
       router.push('/onboarding/step-2')
     } catch {
       setServerError(t('error.generic'))
@@ -153,6 +170,18 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
       onContinueLoading={submitting}
     >
       <form id="clinic-profile-form" onSubmit={handleSubmit} noValidate>
+        {/* Clinic Logo (optional) */}
+        <div className="mb-5">
+          <label className="mb-2 block text-[13px] font-medium text-foreground">
+            Clinic Logo <span className="ml-1 text-[11px] font-normal text-muted-foreground">Optional</span>
+          </label>
+          <LogoUpload
+            onFileSelect={(file) => { setLogoFile(file); setLogoError('') }}
+            onRemove={() => setLogoFile(null)}
+            error={logoError}
+          />
+        </div>
+
         {/* Clinic Name */}
         <div className="mb-4">
           <label className="mb-1.5 block text-[13px] font-medium text-foreground">

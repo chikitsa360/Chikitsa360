@@ -10,6 +10,7 @@ import { GlobalSearch } from '@/components/search/GlobalSearch'
 interface DashboardShellProps {
   children: React.ReactNode
   clinicName?: string
+  clinicLogoUrl?: string | null
   userName?: string
   userRole?: string
   whatsAppBanner?: React.ReactNode
@@ -19,6 +20,7 @@ interface DashboardShellProps {
 export function DashboardShell({
   children,
   clinicName,
+  clinicLogoUrl,
   userName,
   userRole,
   whatsAppBanner,
@@ -48,6 +50,7 @@ export function DashboardShell({
         userRole={userRole}
         userName={userName}
         clinicName={clinicName}
+        clinicLogoUrl={clinicLogoUrl}
         onSearchClick={() => setSearchOpen(true)}
       />
 

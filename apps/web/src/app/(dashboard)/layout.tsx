@@ -20,14 +20,16 @@ export default async function DashboardLayout({
 
   // Fetch clinic info for the shell and banners
   let clinicName: string | undefined
+  let clinicLogoUrl: string | null = null
   let whatsappConnected = true // default to true so banner doesn't show unless we confirm it's false
   let planExpiresAt: Date | null = null
   if (session.user.clinicId) {
     const clinic = await db.clinic.findUnique({
       where: { id: session.user.clinicId },
-      select: { name: true, whatsappConnected: true, onboardingComplete: true, planExpiresAt: true },
+      select: { name: true, logoUrl: true, whatsappConnected: true, onboardingComplete: true, planExpiresAt: true },
     })
     clinicName = clinic?.name
+    clinicLogoUrl = clinic?.logoUrl ?? null
     // Show banner only if onboarding is complete but WhatsApp is not connected
     whatsappConnected = clinic?.whatsappConnected ?? false
     planExpiresAt = clinic?.planExpiresAt ?? null
@@ -40,6 +42,7 @@ export default async function DashboardLayout({
     <ToastProvider>
       <DashboardShell
         clinicName={clinicName}
+        clinicLogoUrl={clinicLogoUrl}
         userName={session.user.name ?? undefined}
         userRole={session.user.role ?? undefined}
         planBanner={<PlanBanner status={planStatus} expiresAt={planExpiresAt?.toISOString() ?? null} />}

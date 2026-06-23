@@ -48,6 +48,7 @@ model Clinic {
   city            String?
   speciality      String?
   clinicPhone     String?   @map("clinic_phone")
+  logoUrl         String?   @map("logo_url")
 
   // Legal acceptance timestamps (UTC)
   tosAcceptedAt     DateTime? @map("tos_accepted_at")

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { db } from '@/lib/db'
 import { BookingClient } from './BookingClient'
 import { isPlanExpired } from '@/lib/plan/check-plan'
@@ -20,6 +21,7 @@ async function getClinicData(slug: string) {
       address: true,
       city: true,
       clinicPhone: true,
+      logoUrl: true,
       plan: true,
       planExpiresAt: true,
       whatsappConnected: true,
@@ -82,19 +84,35 @@ export default async function BookingPage({ params }: PageProps) {
       {/* Clinic header card */}
       <div className="bg-card shadow-sm">
         <div className="mx-auto max-w-[640px] px-4 py-5">
-          <h1 className="text-[20px] font-semibold text-primary" style={{ fontFamily: 'var(--font-plus-jakarta-sans, system-ui)' }}>
-            {clinic.name}
-          </h1>
-          {clinic.speciality && (
-            <p className="mt-0.5 text-[13px] text-muted-foreground">
-              {clinic.speciality.split(',').map((s) => s.trim()).filter(Boolean).join(' · ')}
-            </p>
-          )}
-          {(clinic.address || clinic.city) && (
-            <p className="mt-1 text-[12px] text-muted-foreground">
-              {[clinic.address, clinic.city].filter(Boolean).join(', ')}
-            </p>
-          )}
+          <div className="flex items-center gap-3">
+            {clinic.logoUrl ? (
+              <div className="h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-border bg-muted">
+                <Image
+                  src={clinic.logoUrl}
+                  alt={`${clinic.name} logo`}
+                  width={48}
+                  height={48}
+                  className="h-full w-full object-contain p-1"
+                  unoptimized
+                />
+              </div>
+            ) : null}
+            <div>
+              <h1 className="text-[20px] font-semibold text-primary" style={{ fontFamily: 'var(--font-plus-jakarta-sans, system-ui)' }}>
+                {clinic.name}
+              </h1>
+              {clinic.speciality && (
+                <p className="mt-0.5 text-[13px] text-muted-foreground">
+                  {clinic.speciality.split(',').map((s) => s.trim()).filter(Boolean).join(' · ')}
+                </p>
+              )}
+              {(clinic.address || clinic.city) && (
+                <p className="mt-1 text-[12px] text-muted-foreground">
+                  {[clinic.address, clinic.city].filter(Boolean).join(', ')}
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@chikitsa360/core'
 import { useTranslations } from 'next-intl'
@@ -72,10 +73,11 @@ interface SidebarProps {
   userRole?: string
   userName?: string
   clinicName?: string
+  clinicLogoUrl?: string | null
   onSearchClick?: () => void
 }
 
-export function Sidebar({ userRole, userName, clinicName, onSearchClick }: SidebarProps) {
+export function Sidebar({ userRole, userName, clinicName, clinicLogoUrl, onSearchClick }: SidebarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
 
@@ -93,13 +95,26 @@ export function Sidebar({ userRole, userName, clinicName, onSearchClick }: Sideb
     >
       {/* ── Clinic header ─────────────────────────────────────────────── */}
       <div className="flex h-14 shrink-0 items-center gap-2.5 border-b border-border px-4">
-        {/* Brand icon */}
-        <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded font-bold text-white"
-          style={{ background: '#0A6EFF', fontSize: 11, letterSpacing: '-0.5px' }}
-        >
-          C3
-        </div>
+        {/* Clinic logo or fallback mark */}
+        {clinicLogoUrl ? (
+          <div className="h-7 w-7 shrink-0 overflow-hidden rounded">
+            <Image
+              src={clinicLogoUrl}
+              alt={clinicName ?? 'Clinic logo'}
+              width={28}
+              height={28}
+              className="h-full w-full object-contain"
+              unoptimized
+            />
+          </div>
+        ) : (
+          <div
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded font-bold text-white"
+            style={{ background: '#0A6EFF', fontSize: 11, letterSpacing: '-0.5px' }}
+          >
+            {clinicName ? clinicName.slice(0, 2).toUpperCase() : 'CL'}
+          </div>
+        )}
         {/* Clinic info */}
         <div className="flex-1 min-w-0">
           <div className="truncate text-[13px] font-semibold text-foreground leading-tight">

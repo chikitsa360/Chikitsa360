@@ -18,6 +18,7 @@ export default async function ClinicSettingsPage() {
       city: true,
       speciality: true,
       clinicPhone: true,
+      logoUrl: true,
     },
   })
 
@@ -33,6 +34,7 @@ export default async function ClinicSettingsPage() {
         city={clinic.city ?? ''}
         speciality={clinic.speciality ?? ''}
         clinicPhone={clinic.clinicPhone ?? ''}
+        logoUrl={clinic.logoUrl}
       />
     </div>
   )
