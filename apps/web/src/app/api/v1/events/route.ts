@@ -57,88 +57,89 @@ async function generateUniqueEventSlug(title: string, clinicId: string): Promise
 // ─── POST /api/v1/events ──────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.clinicId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
-  }
-
-  const { clinicId, id: userId } = session.user
-  const schemaName = `clinic_${clinicId}`
-
-  let body: unknown
   try {
-    body = await req.json()
-  } catch {
-    return NextResponse.json({ error: { code: 'INVALID_JSON' } }, { status: 400 })
-  }
-
-  const parsed = createEventSchema.safeParse(body)
-  if (!parsed.success) {
-    const details: Record<string, string> = {}
-    for (const issue of parsed.error.issues) {
-      const field = issue.path.join('.')
-      details[field] = issue.message
+    const session = await auth()
+    if (!session?.user?.clinicId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
-    return NextResponse.json({ error: { code: 'VALIDATION_ERROR', details } }, { status: 400 })
-  }
 
-  const data = parsed.data
-  const startTime = new Date(data.startTime)
-  const endTime = new Date(data.endTime)
+    const { clinicId, id: userId } = session.user
+    const schemaName = `clinic_${clinicId}`
 
-  if (endTime <= startTime) {
-    return NextResponse.json(
-      { error: { code: 'VALIDATION_ERROR', details: { endTime: 'End time must be after start time' } } },
-      { status: 400 }
-    )
-  }
+    let body: unknown
+    try {
+      body = await req.json()
+    } catch {
+      return NextResponse.json({ error: { code: 'INVALID_JSON' } }, { status: 400 })
+    }
 
-  // ── Single event ──────────────────────────────────────────────────────────
-  if (!data.recurrence) {
-    const slug = await generateUniqueEventSlug(data.title, clinicId)
+    const parsed = createEventSchema.safeParse(body)
+    if (!parsed.success) {
+      const details: Record<string, string> = {}
+      for (const issue of parsed.error.issues) {
+        const field = issue.path.join('.')
+        details[field] = issue.message
+      }
+      return NextResponse.json({ error: { code: 'VALIDATION_ERROR', details } }, { status: 400 })
+    }
 
-    const rows = await db.$queryRawUnsafe<{ id: string; title: string; slug: string; status: string; start_time: string; end_time: string; max_seats: number; seats_registered: number }[]>(
-      `INSERT INTO "${schemaName}".events
-         (clinic_id, title, description, start_time, end_time, venue, meeting_link,
-          max_seats, registration_deadline, fee_paise, slug, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-       RETURNING id, title, slug, status, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, max_seats, seats_registered`,
-      clinicId,
-      data.title,
-      data.description ?? null,
-      startTime.toISOString(),
-      endTime.toISOString(),
-      data.venue ?? null,
-      data.meetingLink ?? null,
-      data.maxSeats,
-      data.registrationDeadline ? new Date(data.registrationDeadline).toISOString() : null,
-      data.feePaise ?? null,
-      slug,
-      userId
-    )
+    const data = parsed.data
+    const startTime = new Date(data.startTime)
+    const endTime = new Date(data.endTime)
 
-    const event = rows[0]
-
-    // Register slug in global lookup table for public /events/[slug] pages
-    if (event?.id) {
-      await db.$executeRawUnsafe(
-        `INSERT INTO event_slugs (slug, clinic_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
-        slug,
-        clinicId
+    if (endTime <= startTime) {
+      return NextResponse.json(
+        { error: { code: 'VALIDATION_ERROR', details: { endTime: 'End time must be after start time' } } },
+        { status: 400 }
       )
     }
 
-    await writeAuditLog({
-      clinicId,
-      userId,
-      action: 'EVENT_CREATED',
-      resourceType: 'event',
-      resourceId: event?.id,
-      metadata: { title: data.title, recurrence: false },
-    })
+    // ── Single event ──────────────────────────────────────────────────────────
+    if (!data.recurrence) {
+      const slug = await generateUniqueEventSlug(data.title, clinicId)
 
-    return NextResponse.json({ data: { event } }, { status: 201 })
-  }
+      const rows = await db.$queryRawUnsafe<{ id: string; title: string; slug: string; status: string; start_time: string; end_time: string; max_seats: number; seats_registered: number }[]>(
+        `INSERT INTO "${schemaName}".events
+           (clinic_id, title, description, start_time, end_time, venue, meeting_link,
+            max_seats, registration_deadline, fee_paise, slug, created_by)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         RETURNING id, title, slug, status, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, max_seats, seats_registered`,
+        clinicId,
+        data.title,
+        data.description ?? null,
+        startTime.toISOString(),
+        endTime.toISOString(),
+        data.venue ?? null,
+        data.meetingLink ?? null,
+        data.maxSeats,
+        data.registrationDeadline ? new Date(data.registrationDeadline).toISOString() : null,
+        data.feePaise ?? null,
+        slug,
+        userId
+      )
+
+      const event = rows[0]
+
+      // Register slug in global lookup table for public /events/[slug] pages
+      if (event?.id) {
+        await db.$executeRawUnsafe(
+          `INSERT INTO event_slugs (slug, clinic_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          slug,
+          clinicId
+        )
+      }
+
+      await writeAuditLog({
+        clinicId,
+        userId,
+        action: 'EVENT_CREATED',
+        resourceType: 'event',
+        resourceId: event?.id,
+        metadata: { title: data.title, recurrence: false },
+      })
+
+      return NextResponse.json({ data: { event } }, { status: 201 })
+    }
 
   // ── Recurring event series ────────────────────────────────────────────────
   const { type, dayOfWeek, occurrences } = data.recurrence
@@ -230,80 +231,97 @@ export async function POST(req: NextRequest) {
     metadata: { title: data.title, recurrence: true, type, occurrences },
   })
 
-  return NextResponse.json({
-    data: {
-      series: { id: seriesId, recurrence_type: type, recurrence_day_of_week: dayOfWeek, total_occurrences: occurrences },
-      events,
-    },
-  }, { status: 201 })
+    return NextResponse.json({
+      data: {
+        series: { id: seriesId, recurrence_type: type, recurrence_day_of_week: dayOfWeek, total_occurrences: occurrences },
+        events,
+      },
+    }, { status: 201 })
+  } catch (err) {
+    console.error('[POST /api/v1/events] Unhandled error:', err)
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json(
+      { error: { code: 'INTERNAL_ERROR', message } },
+      { status: 500 }
+    )
+  }
 }
 
 // ─── GET /api/v1/events ───────────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
-  const session = await auth()
-  if (!session?.user?.clinicId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  try {
+    const session = await auth()
+    if (!session?.user?.clinicId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
+
+    const { clinicId } = session.user
+    const schemaName = `clinic_${clinicId}`
+
+    const url = req.nextUrl
+    const statusFilter = url.searchParams.get('status')
+    const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10))
+    const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') ?? '50', 10)))
+    const offset = (page - 1) * limit
+
+    const validStatuses = ['draft', 'published', 'cancelled', 'completed']
+    if (statusFilter && !validStatuses.includes(statusFilter)) {
+      return NextResponse.json({ error: { code: 'INVALID_STATUS' } }, { status: 400 })
+    }
+
+    const whereStatus = statusFilter ? `AND e.status = $2` : ''
+
+    const queryArgs: unknown[] = [clinicId]
+    if (statusFilter) queryArgs.push(statusFilter)
+
+    // Count query
+    const countRows = await db.$queryRawUnsafe<{ total: string }[]>(
+      `SELECT COUNT(*)::text AS total
+       FROM "${schemaName}".events e
+       WHERE e.clinic_id = $1 ${whereStatus}`,
+      ...queryArgs
+    )
+    const total = parseInt(countRows[0]?.total ?? '0', 10)
+
+    // Data query with waiting_count and series_position
+    const limitParam = queryArgs.length + 1
+    const offsetParam = queryArgs.length + 2
+
+    const events = await db.$queryRawUnsafe(
+      `SELECT
+         e.id, e.title, e.slug, e.start_time AT TIME ZONE 'UTC' AS start_time, e.end_time AT TIME ZONE 'UTC' AS end_time,
+         e.status, e.max_seats, e.seats_registered,
+         e.venue, e.meeting_link, e.fee_paise, e.series_id,
+         COALESCE(wl.waiting_count, 0)::int AS waiting_count,
+         CASE WHEN e.series_id IS NOT NULL
+           THEN RANK() OVER (PARTITION BY e.series_id ORDER BY e.start_time ASC)
+           ELSE NULL
+         END AS series_position
+       FROM "${schemaName}".events e
+       LEFT JOIN (
+         SELECT event_id, COUNT(*)::int AS waiting_count
+         FROM "${schemaName}".event_waiting_list
+         WHERE status = 'waiting'
+         GROUP BY event_id
+       ) wl ON wl.event_id = e.id
+       WHERE e.clinic_id = $1 ${whereStatus}
+       ORDER BY e.start_time ASC
+       LIMIT $${limitParam} OFFSET $${offsetParam}`,
+      ...queryArgs,
+      limit,
+      offset
+    )
+
+    return NextResponse.json({
+      data: { events, total, page, limit },
+    })
+  } catch (err) {
+    console.error('[GET /api/v1/events] Unhandled error:', err)
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.json(
+      { error: { code: 'INTERNAL_ERROR', message } },
+      { status: 500 }
+    )
   }
-
-  const { clinicId } = session.user
-  const schemaName = `clinic_${clinicId}`
-
-  const url = req.nextUrl
-  const statusFilter = url.searchParams.get('status')
-  const page = Math.max(1, parseInt(url.searchParams.get('page') ?? '1', 10))
-  const limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') ?? '50', 10)))
-  const offset = (page - 1) * limit
-
-  const validStatuses = ['draft', 'published', 'cancelled', 'completed']
-  if (statusFilter && !validStatuses.includes(statusFilter)) {
-    return NextResponse.json({ error: { code: 'INVALID_STATUS' } }, { status: 400 })
-  }
-
-  const whereStatus = statusFilter ? `AND e.status = $2` : ''
-
-  const queryArgs: unknown[] = [clinicId]
-  if (statusFilter) queryArgs.push(statusFilter)
-
-  // Count query
-  const countRows = await db.$queryRawUnsafe<{ total: string }[]>(
-    `SELECT COUNT(*)::text AS total
-     FROM "${schemaName}".events e
-     WHERE e.clinic_id = $1 ${whereStatus}`,
-    ...queryArgs
-  )
-  const total = parseInt(countRows[0]?.total ?? '0', 10)
-
-  // Data query with waiting_count and series_position
-  const limitParam = queryArgs.length + 1
-  const offsetParam = queryArgs.length + 2
-
-  const events = await db.$queryRawUnsafe(
-    `SELECT
-       e.id, e.title, e.slug, e.start_time AT TIME ZONE 'UTC' AS start_time, e.end_time AT TIME ZONE 'UTC' AS end_time,
-       e.status, e.max_seats, e.seats_registered,
-       e.venue, e.meeting_link, e.fee_paise, e.series_id,
-       COALESCE(wl.waiting_count, 0)::int AS waiting_count,
-       CASE WHEN e.series_id IS NOT NULL
-         THEN RANK() OVER (PARTITION BY e.series_id ORDER BY e.start_time ASC)
-         ELSE NULL
-       END AS series_position
-     FROM "${schemaName}".events e
-     LEFT JOIN (
-       SELECT event_id, COUNT(*)::int AS waiting_count
-       FROM "${schemaName}".event_waiting_list
-       WHERE status = 'waiting'
-       GROUP BY event_id
-     ) wl ON wl.event_id = e.id
-     WHERE e.clinic_id = $1 ${whereStatus}
-     ORDER BY e.start_time ASC
-     LIMIT $${limitParam} OFFSET $${offsetParam}`,
-    ...queryArgs,
-    limit,
-    offset
-  )
-
-  return NextResponse.json({
-    data: { events, total, page, limit },
-  })
 }
