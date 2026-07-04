@@ -79,13 +79,13 @@ export default async function EventDetailPage({
          GROUP BY event_id
        ) inv ON inv.event_id = e.id
        LEFT JOIN "${schemaName}".event_series es ON es.id = e.series_id
-       WHERE e.id = $1 AND e.clinic_id = $2`,
+       WHERE e.id = $1::uuid AND e.clinic_id = $2`,
       eventId,
       clinicId
     )
     event = rows[0] ?? null
-  } catch {
-    // Tenant schema not provisioned or event tables don't exist yet
+  } catch (err) {
+    console.error('[EventDetailPage] Query failed:', err)
   }
 
   if (!event) notFound()
