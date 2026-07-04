@@ -188,7 +188,7 @@ export async function POST(
     const regRows = await db.$queryRawUnsafe<{ id: string }[]>(
       `INSERT INTO "${schemaName}".event_registrations
          (event_id, patient_id, reference_number, status, cancellation_token, token_expires_at)
-       VALUES ($1::uuid, $2::uuid, $3, 'registered', $4, $5)
+       VALUES ($1::uuid, $2::uuid, $3, 'registered', $4, $5::timestamptz)
        RETURNING id`,
       eventId,
       patientId,

@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
         `INSERT INTO "${schemaName}".events
            (clinic_id, title, description, start_time, end_time, venue, meeting_link,
             max_seats, registration_deadline, fee_paise, slug, created_by)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         VALUES ($1,$2,$3,$4::timestamptz,$5::timestamptz,$6,$7,$8,$9::timestamptz,$10,$11,$12)
          RETURNING id, title, slug, status, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time, max_seats, seats_registered`,
         clinicId,
         data.title,
@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
       `INSERT INTO "${schemaName}".events
          (clinic_id, series_id, title, description, start_time, end_time, venue, meeting_link,
           max_seats, registration_deadline, fee_paise, slug, created_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+       VALUES ($1,$2,$3,$4,$5::timestamptz,$6::timestamptz,$7,$8,$9,$10::timestamptz,$11,$12,$13)
        RETURNING id, title, slug, status, start_time AT TIME ZONE 'UTC' AS start_time, end_time AT TIME ZONE 'UTC' AS end_time`,
       clinicId,
       seriesId,
