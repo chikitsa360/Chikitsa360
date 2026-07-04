@@ -51,12 +51,18 @@ export default async function ReportsPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+          <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path d="M3 3v18h18" />
+            <path d="M18 9l-5 5-3-3-4 4" />
+          </svg>
+        </div>
         <div>
-          <h1 className="text-xl font-bold text-[var(--color-text)] font-display">
+          <h1 className="text-xl font-bold text-foreground font-display">
             {isDoctor ? 'My Revenue' : 'Reports & Analytics'}
           </h1>
-          <p className="text-sm text-[var(--color-text-3)] mt-0.5">
+          <p className="text-[13px] text-muted-foreground mt-0.5">
             {isDoctor
               ? 'Track your consultation fees and payment collection.'
               : 'Track clinic performance across appointments, revenue, and patient growth.'}

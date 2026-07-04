@@ -2,12 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { cn } from '@chikitsa360/core'
 
 const NAV_ITEMS = [
   {
     href: '/settings/clinic',
     label: 'Clinic Profile',
+    ownerOnly: false,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
@@ -18,6 +20,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/doctors',
     label: 'Doctors',
+    ownerOnly: false,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
@@ -28,6 +31,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/working-hours',
     label: 'Working Hours',
+    ownerOnly: false,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <circle cx="12" cy="12" r="10" />
@@ -38,6 +42,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/staff',
     label: 'Staff & Invites',
+    ownerOnly: true,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -50,6 +55,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/notifications',
     label: 'Notifications',
+    ownerOnly: false,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -60,6 +66,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/whatsapp',
     label: 'WhatsApp',
+    ownerOnly: false,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" />
@@ -69,6 +76,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/billing',
     label: 'Billing Plan',
+    ownerOnly: true,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
@@ -78,6 +86,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/activity-log',
     label: 'Activity Log',
+    ownerOnly: true,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
@@ -88,6 +97,7 @@ const NAV_ITEMS = [
   {
     href: '/settings/data-rights',
     label: 'Data & Privacy',
+    ownerOnly: true,
     icon: (
       <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -98,12 +108,16 @@ const NAV_ITEMS = [
 
 export default function SettingsLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const { data: session } = useSession()
+  const isOwner = session?.user?.role === 'OWNER'
+
+  const visibleItems = NAV_ITEMS.filter((item) => !item.ownerOnly || isOwner)
 
   return (
     <div className="flex -mx-4 -mt-6 -mb-20 lg:-mx-8 lg:-mb-6 min-h-[calc(100vh-56px)]">
       {/* Settings sidebar nav — sticky */}
       <nav className="hidden md:flex w-[220px] shrink-0 flex-col border-r border-border bg-card px-3 py-4 sticky top-0 h-[calc(100vh-56px)] overflow-y-auto">
-        {NAV_ITEMS.map((item) => {
+        {visibleItems.map((item) => {
           const isActive = pathname === item.href
           return (
             <Link
@@ -126,7 +140,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
       {/* Mobile: horizontal scroll tabs */}
       <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 border-t border-border bg-card overflow-x-auto">
         <div className="flex px-2 py-1.5 gap-1">
-          {NAV_ITEMS.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = pathname === item.href
             return (
               <Link
