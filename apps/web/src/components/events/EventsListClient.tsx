@@ -25,6 +25,8 @@ export interface EventItem {
   series_id: string | null
   series_position: number | null
   waiting_count: number
+  description: string | null
+  registration_deadline: string | null
 }
 
 type FilterTab = 'all' | 'published' | 'draft' | 'completed' | 'cancelled'

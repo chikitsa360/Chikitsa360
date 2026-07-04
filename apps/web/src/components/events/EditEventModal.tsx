@@ -33,13 +33,21 @@ function eventToFormData(event: EventItem): EventFormData {
   const startTime = `${pad2(startIST.getHours())}:${pad2(startIST.getMinutes())}`
   const endTime = `${pad2(endIST.getHours())}:${pad2(endIST.getMinutes())}`
 
+  // Format registration deadline as local datetime-local string if present
+  let registrationDeadline = ''
+  if (event.registration_deadline) {
+    const dl = new Date(event.registration_deadline)
+    const dlIST = toIST(dl)
+    registrationDeadline = `${dlIST.getFullYear()}-${pad2(dlIST.getMonth() + 1)}-${pad2(dlIST.getDate())}T${pad2(dlIST.getHours())}:${pad2(dlIST.getMinutes())}`
+  }
+
   return {
     title: event.title,
-    description: '',
+    description: event.description ?? '',
     date,
     startTime,
     endTime,
-    registrationDeadline: '',
+    registrationDeadline,
     venue: event.venue ?? '',
     meetingLink: event.meeting_link ?? '',
     maxSeats: String(event.max_seats),

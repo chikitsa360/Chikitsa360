@@ -290,9 +290,10 @@ export async function GET(req: NextRequest) {
 
     const events = await db.$queryRawUnsafe(
       `SELECT
-         e.id, e.title, e.slug, e.start_time AT TIME ZONE 'UTC' AS start_time, e.end_time AT TIME ZONE 'UTC' AS end_time,
+         e.id, e.title, e.slug, e.description, e.start_time AT TIME ZONE 'UTC' AS start_time, e.end_time AT TIME ZONE 'UTC' AS end_time,
          e.status, e.max_seats, e.seats_registered,
          e.venue, e.meeting_link, e.fee_paise, e.series_id,
+         e.registration_deadline::text AS registration_deadline,
          COALESCE(wl.waiting_count, 0)::int AS waiting_count,
          CASE WHEN e.series_id IS NOT NULL
            THEN RANK() OVER (PARTITION BY e.series_id ORDER BY e.start_time ASC)

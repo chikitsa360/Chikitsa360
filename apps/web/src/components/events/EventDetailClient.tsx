@@ -206,6 +206,8 @@ export function EventDetailClient({ event: initialEvent }: Props) {
     series_id: event.series_id,
     series_position: null,
     waiting_count: event.waiting_count,
+    description: event.description,
+    registration_deadline: event.registration_deadline,
   }
 
   const TABS: { key: Tab; label: string }[] = [

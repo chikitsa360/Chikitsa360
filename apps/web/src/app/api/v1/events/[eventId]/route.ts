@@ -261,10 +261,13 @@ export async function PATCH(
     feePaise: 'fee_paise',
   }
 
+  const timestampCols = new Set(['start_time', 'end_time', 'registration_deadline'])
+
   for (const [jsKey, dbCol] of Object.entries(fieldMap)) {
     if (jsKey in fields && fields[jsKey as keyof typeof fields] !== undefined) {
       const val = fields[jsKey as keyof typeof fields]
-      setClauses.push(`${dbCol} = $${paramIdx}`)
+      const cast = timestampCols.has(dbCol) ? '::timestamptz' : ''
+      setClauses.push(`${dbCol} = $${paramIdx}${cast}`)
       updateArgs.push(val ?? null)
       paramIdx++
     }
