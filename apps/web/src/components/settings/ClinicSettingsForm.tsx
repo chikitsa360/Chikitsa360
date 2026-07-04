@@ -156,13 +156,16 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
             <label className="mb-1.5 block text-[13px] font-medium text-foreground">
               {t('onboarding.step1.name-label')} <span className="text-error">*</span>
             </label>
-            <input
-              type="text"
-              maxLength={100}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={inputClass(!!errors.name)}
-            />
+            <div className="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+              <input
+                type="text"
+                maxLength={100}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={`${inputClass(!!errors.name)} pl-9`}
+              />
+            </div>
             {errors.name && <p className="mt-1 text-[12px] text-error">{errors.name}</p>}
           </div>
 
@@ -171,13 +174,16 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
             <label className="mb-1.5 block text-[13px] font-medium text-foreground">
               {t('onboarding.step1.address-label')} <span className="text-error">*</span>
             </label>
-            <input
-              type="text"
-              maxLength={200}
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className={inputClass(!!errors.address)}
-            />
+            <div className="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              <input
+                type="text"
+                maxLength={200}
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className={`${inputClass(!!errors.address)} pl-9`}
+              />
+            </div>
             {errors.address && <p className="mt-1 text-[12px] text-error">{errors.address}</p>}
           </div>
 
@@ -186,13 +192,16 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
             <label className="mb-1.5 block text-[13px] font-medium text-foreground">
               {t('onboarding.step1.city-label')} <span className="text-error">*</span>
             </label>
-            <input
-              type="text"
-              maxLength={50}
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className={inputClass(!!errors.city)}
-            />
+            <div className="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22V10h6v12"/><path d="M8 6h.01M16 6h.01M12 6h.01M8 10h.01M16 10h.01"/></svg>
+              <input
+                type="text"
+                maxLength={50}
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className={`${inputClass(!!errors.city)} pl-9`}
+              />
+            </div>
             {errors.city && <p className="mt-1 text-[12px] text-error">{errors.city}</p>}
           </div>
 
@@ -214,14 +223,17 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
             <label className="mb-1.5 block text-[13px] font-medium text-foreground">
               {t('onboarding.step1.phone-label')}
             </label>
-            <input
-              type="tel"
-              inputMode="numeric"
-              maxLength={10}
-              value={clinicPhone}
-              onChange={(e) => setClinicPhone(e.target.value.replace(/\D/g, ''))}
-              className={inputClass(!!errors.clinicPhone)}
-            />
+            <div className="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+              <input
+                type="tel"
+                inputMode="numeric"
+                maxLength={10}
+                value={clinicPhone}
+                onChange={(e) => setClinicPhone(e.target.value.replace(/\D/g, ''))}
+                className={`${inputClass(!!errors.clinicPhone)} pl-9`}
+              />
+            </div>
             {errors.clinicPhone && <p className="mt-1 text-[12px] text-error">{errors.clinicPhone}</p>}
           </div>
 

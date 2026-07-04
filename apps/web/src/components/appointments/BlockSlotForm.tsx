@@ -98,53 +98,73 @@ export function BlockSlotForm({
           {/* Doctor selector */}
           <div>
             <label className="block text-[13px] font-medium text-muted-foreground mb-1">Doctor</label>
-            <select
-              value={doctorId}
-              onChange={(e) => setDoctorId(e.target.value)}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-            >
+            <div className="relative">
+              <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              <select
+                value={doctorId}
+                onChange={(e) => setDoctorId(e.target.value)}
+                className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+              >
               <option value="all">All Doctors</option>
               {doctors.map((d) => (
                 <option key={d.id} value={d.id}>{d.name}</option>
               ))}
             </select>
+            </div>
           </div>
 
           {/* Date */}
           <div>
             <label className="block text-[13px] font-medium text-muted-foreground mb-1">Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
+            <div className="relative">
+              <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+              </svg>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                required
+                className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
           </div>
 
           {/* Time range */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-[13px] font-medium text-muted-foreground mb-1">Start Time</label>
-              <input
-                type="time"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
-                step="900"
-                required
-                className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+              <div className="relative">
+                <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  step="900"
+                  required
+                  className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
             </div>
             <div>
               <label className="block text-[13px] font-medium text-muted-foreground mb-1">End Time</label>
-              <input
-                type="time"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
-                step="900"
-                required
-                className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+              <div className="relative">
+                <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                </svg>
+                <input
+                  type="time"
+                  value={endTime}
+                  onChange={(e) => setEndTime(e.target.value)}
+                  step="900"
+                  required
+                  className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
             </div>
           </div>
 
@@ -153,14 +173,19 @@ export function BlockSlotForm({
             <label className="block text-[13px] font-medium text-muted-foreground mb-1">
               Reason <span className="text-muted-foreground/60 font-normal">(optional)</span>
             </label>
-            <input
-              type="text"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g. Lunch, CME, Emergency"
-              maxLength={200}
-              className="h-10 w-full rounded-lg border border-border bg-card px-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
+            <div className="relative">
+              <svg className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+              </svg>
+              <input
+                type="text"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="e.g. Lunch, CME, Emergency"
+                maxLength={200}
+                className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-[14px] focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
           </div>
 
           {/* Recurrence */}
