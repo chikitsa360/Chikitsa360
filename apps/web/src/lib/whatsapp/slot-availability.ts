@@ -1,4 +1,4 @@
-import { db } from '@/lib/db'
+import { computeAvailableSlots } from '@/lib/compute-available-slots'
 
 export interface AvailableSlot {
   id: string
@@ -11,60 +11,64 @@ export interface AvailableSlot {
   timeLabel: string // "3:30 PM"
 }
 
+/** IST offset from UTC in milliseconds (UTC+5:30). */
+const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000
+
 /**
  * Returns up to maxSlots available slots from today onward (next 7 days),
- * sorted chronologically. Uses existing slot rows in the tenant DB.
+ * sorted chronologically. Uses live working_hours + appointments data
+ * so changes to doctor schedules are reflected immediately.
  */
 export async function getAvailableSlots(
   clinicId: string,
   maxSlots = 5
 ): Promise<AvailableSlot[]> {
-  const schemaName = `clinic_${clinicId}`
+  const nowIST = new Date(Date.now() + IST_OFFSET_MS)
+  const todayStr = nowIST.toISOString().slice(0, 10)
 
-  // IST offset: UTC+5:30
-  const nowUtc = Date.now()
-  const istOffsetMs = 5.5 * 60 * 60 * 1000
-  const istNow = new Date(nowUtc + istOffsetMs)
-  const todayStr = istNow.toISOString().slice(0, 10)
-  const nowTimeStr = istNow.toISOString().slice(11, 16) // HH:MM in IST
-
-  const rows = await db.$queryRawUnsafe<
-    {
-      id: string
-      doctor_id: string
-      doctor_name: string
-      date: string
-      start_time: string
-      end_time: string
-    }[]
-  >(
-    `SELECT s.id, s.doctor_id, d.name AS doctor_name,
-            s.date::text AS date, s.start_time::text AS start_time, s.end_time::text AS end_time
-     FROM "${schemaName}".slots s
-     JOIN "${schemaName}".doctors d ON d.id = s.doctor_id
-     WHERE s.status = 'available'
-       AND (
-         s.date > $1::date
-         OR (s.date = $1::date AND s.start_time > $2::time)
-       )
-       AND s.date <= ($1::date + interval '7 days')
-     ORDER BY s.date ASC, s.start_time ASC
-     LIMIT $3`,
-    todayStr,
-    nowTimeStr,
-    maxSlots
+  const allSlots = await computeAvailableSlots(
+    clinicId,
+    new Date(todayStr + 'T00:00:00Z'),
+    7
   )
 
-  return rows.map((r) => ({
-    id: r.id,
-    doctorId: r.doctor_id,
-    doctorName: r.doctor_name,
-    date: r.date,
-    startTime: r.start_time,
-    endTime: r.end_time,
-    dayLabel: formatDayLabel(r.date, todayStr),
-    timeLabel: formatTimeLabel(r.start_time),
+  return allSlots.slice(0, maxSlots).map((s) => ({
+    // Encode doctor+date+time as a virtual ID (no physical slots table row)
+    id: encodeSlotId(s.doctorId, s.date, s.startTime),
+    doctorId: s.doctorId,
+    doctorName: s.doctorName,
+    date: s.date,
+    startTime: s.startTime,
+    endTime: s.endTime,
+    dayLabel: formatDayLabel(s.date, todayStr),
+    timeLabel: formatTimeLabel(s.startTime),
   }))
+}
+
+/**
+ * Encode a virtual slot ID from doctor, date, and time.
+ * Format: "doctorId::date::startTime" (compact, parseable).
+ */
+export function encodeSlotId(doctorId: string, date: string, startTime: string): string {
+  return `${doctorId}::${date}::${startTime}`
+}
+
+/**
+ * Decode a virtual slot ID back to its components.
+ * Returns null if the format is invalid.
+ */
+export function decodeSlotId(slotId: string): {
+  doctorId: string
+  date: string
+  startTime: string
+} | null {
+  const parts = slotId.split('::')
+  if (parts.length !== 3) return null
+  const doctorId = parts[0]
+  const date = parts[1]
+  const startTime = parts[2]
+  if (!doctorId || !date || !startTime) return null
+  return { doctorId, date, startTime }
 }
 
 export function formatDayLabel(dateStr: string, todayStr: string): string {

@@ -24,20 +24,34 @@ export function WhatsAppSettings() {
   const [saveSuccess, setSaveSuccess] = React.useState(false)
 
   React.useEffect(() => {
-    fetch('/api/v1/clinics/whatsapp/status')
-      .then((r) => r.json())
-      .then((data) => setStatus(data))
+    Promise.all([
+      fetch('/api/v1/clinics/whatsapp/status').then((r) => r.json()),
+      fetch('/api/v1/clinics/settings').then((r) => r.json()),
+    ])
+      .then(([statusData, settingsData]) => {
+        setStatus(statusData)
+        if (settingsData?.language) setCommLanguage(settingsData.language)
+      })
       .catch(() => setStatus({ connected: false }))
       .finally(() => setLoading(false))
   }, [])
 
   async function handleSaveLanguage() {
     setSaving(true)
-    // Persist to clinic settings — stubbed for this story
-    await new Promise((r) => setTimeout(r, 500))
-    setSaving(false)
-    setSaveSuccess(true)
-    setTimeout(() => setSaveSuccess(false), 3000)
+    try {
+      const res = await fetch('/api/v1/clinics/settings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ language: commLanguage }),
+      })
+      if (!res.ok) throw new Error()
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
+    } catch {
+      // silently fail — toast could be added later
+    } finally {
+      setSaving(false)
+    }
   }
 
   if (loading) {

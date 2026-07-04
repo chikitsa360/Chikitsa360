@@ -88,19 +88,14 @@ export function AppointmentDetailPanel({
   const canModify = appointment.status === 'confirmed'
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/30"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Panel — right side on desktop, bottom sheet feel on mobile */}
+    <div className="fixed inset-0 z-49 bg-black/40 transition-opacity duration-300 flex items-center justify-center p-4">
       <div
         role="dialog"
         aria-label="Appointment Details"
-        className="fixed right-0 top-0 bottom-0 z-50 w-full max-w-[400px] bg-card shadow-xl flex flex-col border-l border-border animate-in slide-in-from-right duration-200"
+        className="bg-card shadow-xl rounded-xl flex flex-col border border-border animate-in duration-200 w-full max-w-[600px] max-h-[80vh] focus:outline-none"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose()
+        }}
       >
         {/* Header */}
         <div className="flex items-center gap-3 border-b border-border px-4 py-3">
@@ -225,9 +220,9 @@ export function AppointmentDetailPanel({
           onDismiss={() => setShowCancelDialog(false)}
         />
       )}
-    </>
-  )
-}
+    </div>
+  )}
+
 
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (

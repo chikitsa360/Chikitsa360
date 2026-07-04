@@ -563,6 +563,7 @@ export function EventsListClient({ initialAggregates }: Props) {
           onSuccess={() => {
             setEditingEvent(null)
             void fetchEvents(activeTab, page)
+            void refreshAggregates()
           }}
         />
       )}

@@ -8,6 +8,7 @@ const settingsSchema = z.object({
   reminder_24h_enabled: z.boolean().optional(),
   reminder_2h_enabled: z.boolean().optional(),
   event_reminder_24h_enabled: z.boolean().optional(),
+  language: z.enum(['en', 'hi']).optional(),
 })
 
 /**
@@ -26,6 +27,7 @@ export async function GET() {
       reminder24hEnabled: true,
       reminder2hEnabled: true,
       eventReminder24hEnabled: true,
+      language: true,
     },
   })
 
@@ -45,6 +47,7 @@ export async function GET() {
     reminder_24h_enabled: clinic.reminder24hEnabled,
     reminder_2h_enabled: clinic.reminder2hEnabled,
     event_reminder_24h_enabled: clinic.eventReminder24hEnabled,
+    language: clinic.language,
     opt_out_count: optOutCount,
   })
 }
@@ -73,12 +76,12 @@ export async function PATCH(req: NextRequest) {
   const clinicId = session.user.clinicId
   const current = await db.clinic.findUnique({
     where: { id: clinicId },
-    select: { reminder24hEnabled: true, reminder2hEnabled: true, eventReminder24hEnabled: true },
+    select: { reminder24hEnabled: true, reminder2hEnabled: true, eventReminder24hEnabled: true, language: true },
   })
 
   if (!current) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
-  const data: { reminder24hEnabled?: boolean; reminder2hEnabled?: boolean; eventReminder24hEnabled?: boolean } = {}
+  const data: { reminder24hEnabled?: boolean; reminder2hEnabled?: boolean; eventReminder24hEnabled?: boolean; language?: 'en' | 'hi' } = {}
   if (parsed.data.reminder_24h_enabled !== undefined) {
     data.reminder24hEnabled = parsed.data.reminder_24h_enabled
   }
@@ -88,21 +91,27 @@ export async function PATCH(req: NextRequest) {
   if (parsed.data.event_reminder_24h_enabled !== undefined) {
     data.eventReminder24hEnabled = parsed.data.event_reminder_24h_enabled
   }
+  if (parsed.data.language !== undefined) {
+    data.language = parsed.data.language
+  }
 
   const updated = await db.clinic.update({
     where: { id: clinicId },
     data,
-    select: { reminder24hEnabled: true, reminder2hEnabled: true, eventReminder24hEnabled: true },
+    select: { reminder24hEnabled: true, reminder2hEnabled: true, eventReminder24hEnabled: true, language: true },
   })
 
   // Audit log
   try {
-    const changes: Record<string, { old: boolean; new: boolean }> = {}
+    const changes: Record<string, { old: boolean | string; new: boolean | string }> = {}
     if (parsed.data.reminder_24h_enabled !== undefined && parsed.data.reminder_24h_enabled !== current.reminder24hEnabled) {
       changes['reminder_24h_enabled'] = { old: current.reminder24hEnabled, new: parsed.data.reminder_24h_enabled }
     }
     if (parsed.data.reminder_2h_enabled !== undefined && parsed.data.reminder_2h_enabled !== current.reminder2hEnabled) {
       changes['reminder_2h_enabled'] = { old: current.reminder2hEnabled, new: parsed.data.reminder_2h_enabled }
+    }
+    if (parsed.data.language !== undefined && parsed.data.language !== current.language) {
+      changes['language'] = { old: current.language, new: parsed.data.language }
     }
     for (const [field, { old: oldValue, new: newValue }] of Object.entries(changes)) {
       await writeAuditLog({
@@ -120,5 +129,6 @@ export async function PATCH(req: NextRequest) {
     reminder_24h_enabled: updated.reminder24hEnabled,
     reminder_2h_enabled: updated.reminder2hEnabled,
     event_reminder_24h_enabled: updated.eventReminder24hEnabled,
+    language: updated.language,
   })
 }

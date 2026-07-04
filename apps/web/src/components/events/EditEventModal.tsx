@@ -71,6 +71,11 @@ export function EditEventModal({ event, onClose, onSuccess }: Props) {
   const { addToast } = useToast()
   const [formData, setFormData] = React.useState<EventFormData>(() => eventToFormData(event))
   const [errors, setErrors] = React.useState<EventFormErrors>({})
+
+  // Sync formData when event prop changes (handles reopening modal with updated data)
+  React.useEffect(() => {
+    setFormData(eventToFormData(event))
+  }, [event])
   const [scope, setScope] = React.useState<EditScope>('single')
   const [submitting, setSubmitting] = React.useState(false)
   const [apiError, setApiError] = React.useState<string | null>(null)

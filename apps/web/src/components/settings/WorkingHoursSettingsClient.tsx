@@ -9,6 +9,17 @@ interface Doctor {
   name: string
 }
 
+interface WorkingHoursRow {
+  doctor_id: string
+  day_of_week: number
+  start_time: string
+  end_time: string
+  slot_duration: number
+  lunch_start_time: string | null
+  lunch_end_time: string | null
+  is_active: boolean
+}
+
 export function WorkingHoursSettingsClient() {
   const { addToast } = useToast()
   const [doctors, setDoctors] = React.useState<Doctor[]>([])
@@ -20,10 +31,41 @@ export function WorkingHoursSettingsClient() {
   const [serverError, setServerError] = React.useState('')
   const [loading, setLoading] = React.useState(true)
 
+  const [savedHours, setSavedHours] = React.useState<Record<string, Partial<WorkingHoursData>>>({})
+
   React.useEffect(() => {
-    fetch('/api/v1/doctors')
-      .then((r) => r.json())
-      .then((data: Doctor[]) => { if (Array.isArray(data)) setDoctors(data) })
+    Promise.all([
+      fetch('/api/v1/doctors').then((r) => r.json()),
+      fetch('/api/v1/working-hours').then((r) => r.json()),
+    ])
+      .then(([doctorsData, hoursData]: [Doctor[], WorkingHoursRow[]]) => {
+        if (Array.isArray(doctorsData)) setDoctors(doctorsData)
+        if (Array.isArray(hoursData) && hoursData.length > 0) {
+          const grouped: Record<string, WorkingHoursRow[]> = {}
+          for (const row of hoursData) {
+            const key = row.doctor_id
+            if (!grouped[key]) grouped[key] = []
+            grouped[key].push(row)
+          }
+          const map: Record<string, Partial<WorkingHoursData>> = {}
+          for (const [doctorId, rows] of Object.entries(grouped)) {
+            const activeDays = rows.filter((r) => r.is_active).map((r) => r.day_of_week)
+            const first = rows[0]
+            const hasLunch = !!(first?.lunch_start_time && first?.lunch_end_time)
+            map[doctorId] = {
+              doctorId,
+              activeDays,
+              startTime: first?.start_time ?? '10:00',
+              endTime: first?.end_time ?? '19:00',
+              slotDuration: first?.slot_duration ?? 20,
+              lunchEnabled: hasLunch,
+              lunchStartTime: first?.lunch_start_time ?? '13:00',
+              lunchEndTime: first?.lunch_end_time ?? '14:00',
+            }
+          }
+          setSavedHours(map)
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false))
   }, [])
@@ -142,6 +184,7 @@ export function WorkingHoursSettingsClient() {
             <WorkingHoursForm
               key={currentDoctor.id}
               doctorId={currentDoctor.id}
+              initialData={savedHours[currentDoctor.id]}
               onChange={handleWorkingHoursChange}
               error={timeErrors[currentDoctor.id]}
             />
