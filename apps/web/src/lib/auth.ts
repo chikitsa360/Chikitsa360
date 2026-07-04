@@ -135,14 +135,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         (token.userId && !token.clinicId) ||
         (trigger === 'update' && token.userId && !token.onboardingComplete)
       if (needsRefresh) {
-        const dbUser = await db.user.findUnique({
-          where: { id: token.userId as string },
-          include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
-        })
-        if (dbUser?.clinicId) {
-          token.clinicId = dbUser.clinicId
-          token.onboardingComplete = dbUser.clinic?.onboardingComplete ?? false
-          token.planExpiresAt = dbUser.clinic?.planExpiresAt?.toISOString() ?? null
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.userId as string },
+            include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
+          })
+          if (dbUser?.clinicId) {
+            token.clinicId = dbUser.clinicId
+            token.onboardingComplete = dbUser.clinic?.onboardingComplete ?? false
+            token.planExpiresAt = dbUser.clinic?.planExpiresAt?.toISOString() ?? null
+          }
+        } catch {
+          // Prisma cannot run in Edge Runtime (middleware). The refresh will
+          // succeed on the next server-side request instead.
         }
       }
       return token

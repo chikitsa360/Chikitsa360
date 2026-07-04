@@ -146,6 +146,13 @@ model PushSubscription {
   @@map("push_subscriptions")
 }
 
+model EventSlug {
+  slug     String @id
+  clinicId String @map("clinic_id")
+
+  @@map("event_slugs")
+}
+
 model ExportJob {
   id           String    @id @default(uuid())
   clinicId     String    @map("clinic_id")
