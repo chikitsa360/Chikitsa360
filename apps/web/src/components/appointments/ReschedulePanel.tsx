@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { SlotGrid, type Slot } from '@/components/booking/SlotGrid'
 import type { Appointment } from '@/app/(dashboard)/appointments/CalendarClient'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface ReschedulePanelProps {
   appointment: Appointment
@@ -16,6 +17,7 @@ interface ReschedulePanelProps {
  * Shows slot grid for the same doctor, defaults to current appointment date.
  */
 export function ReschedulePanel({ appointment, clinicId, onClose, onConfirm }: ReschedulePanelProps) {
+  const { addToast } = useToast()
   const [slots, setSlots] = React.useState<Slot[]>([])
   const [selectedSlot, setSelectedSlot] = React.useState<Slot | null>(null)
   const [loadingSlots, setLoadingSlots] = React.useState(false)
@@ -52,6 +54,7 @@ export function ReschedulePanel({ appointment, clinicId, onClose, onConfirm }: R
     const result = await onConfirm(selectedSlot.date, selectedSlot.startTime)
     if (result.error) {
       setError(result.error)
+      addToast({ variant: 'error', message: 'Failed to reschedule appointment' })
       // Refresh slots on slot-taken error
       if (result.error.includes('taken')) {
         const normalizedTime = appointment.appointment_time?.slice(0, 5) ?? ''
@@ -67,6 +70,8 @@ export function ReschedulePanel({ appointment, clinicId, onClose, onConfirm }: R
           .catch(() => { /* ignore */ })
         setSelectedSlot(null)
       }
+    } else {
+      addToast({ variant: 'success', message: 'Appointment rescheduled successfully' })
     }
     setSubmitting(false)
     setShowDialog(false)

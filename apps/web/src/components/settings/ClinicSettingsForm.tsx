@@ -4,6 +4,7 @@ import * as React from 'react'
 import { useTranslations } from 'next-intl'
 import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
 import { LogoUpload } from '@/components/ui/LogoUpload'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface ClinicSettingsFormProps {
   clinicName: string
@@ -25,6 +26,7 @@ interface FieldError {
 
 export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
   const t = useTranslations()
+  const { addToast } = useToast()
   const [name, setName] = React.useState(props.clinicName)
   const [address, setAddress] = React.useState(props.address)
   const [city, setCity] = React.useState(props.city)
@@ -50,11 +52,14 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
       const data = await res.json()
       if (!res.ok) {
         setLogoError(data.error ?? 'Upload failed')
+        addToast({ variant: 'error', message: 'Failed to upload logo' })
         return
       }
       setLogoUrl(data.url)
+      addToast({ variant: 'success', message: 'Logo uploaded' })
     } catch {
       setLogoError('Upload failed. Please try again.')
+      addToast({ variant: 'error', message: 'Failed to upload logo' })
     } finally {
       setLogoUploading(false)
     }
@@ -66,8 +71,10 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
     try {
       await fetch('/api/v1/clinics/logo', { method: 'DELETE' })
       setLogoUrl(null)
+      addToast({ variant: 'success', message: 'Logo removed' })
     } catch {
       setLogoError('Failed to remove logo.')
+      addToast({ variant: 'error', message: 'Failed to remove logo' })
     } finally {
       setLogoUploading(false)
     }
@@ -105,13 +112,16 @@ export function ClinicSettingsForm(props: ClinicSettingsFormProps) {
       if (!res.ok) {
         const data = await res.json()
         setServerError(data.error ?? t('common.error.generic'))
+        addToast({ variant: 'error', message: 'Failed to save settings' })
         return
       }
 
       setSuccess(true)
+      addToast({ variant: 'success', message: 'Clinic settings saved' })
       setTimeout(() => setSuccess(false), 3000)
     } catch {
       setServerError(t('common.error.generic'))
+      addToast({ variant: 'error', message: 'Failed to save settings' })
     } finally {
       setSubmitting(false)
     }

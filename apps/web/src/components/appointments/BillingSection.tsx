@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { useUpdateBilling } from '@/hooks/useUpdateBilling'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface BillingSectionProps {
   appointmentId: string
@@ -21,6 +22,7 @@ export function BillingSection({
   doctorDefaultFee,
   onSaved,
 }: BillingSectionProps) {
+  const { addToast } = useToast()
   const isCancelled = status === 'cancelled'
 
   // Pre-fill: if no fee saved yet, show doctor's default (but treat as "dirty")
@@ -58,7 +60,10 @@ export function BillingSection({
       if (effectiveStatus !== paymentStatus) setPaymentStatus(effectiveStatus)
       setSuccessFlash(true)
       setTimeout(() => setSuccessFlash(false), 1000)
+      addToast({ variant: 'success', message: 'Billing updated' })
       onSaved?.(result.consultation_fee, result.payment_status)
+    } else {
+      addToast({ variant: 'error', message: 'Failed to update billing' })
     }
   }
 

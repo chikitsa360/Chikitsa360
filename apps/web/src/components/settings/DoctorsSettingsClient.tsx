@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { SpecialitySelector } from '@/components/ui/SpecialitySelector'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface Doctor {
   id: string
@@ -11,6 +12,7 @@ interface Doctor {
 }
 
 export function DoctorsSettingsClient({ clinicId: _clinicId }: { clinicId: string }) {
+  const { addToast } = useToast()
   const [doctors, setDoctors] = React.useState<Doctor[]>([])
   const [loading, setLoading] = React.useState(true)
   const [editingId, setEditingId] = React.useState<string | null>(null)
@@ -51,6 +53,9 @@ export function DoctorsSettingsClient({ clinicId: _clinicId }: { clinicId: strin
         const updated = await res.json() as Doctor
         setDoctors((prev) => prev.map((d) => (d.id === id ? { ...d, ...updated } : d)))
         setEditingId(null)
+        addToast({ variant: 'success', message: 'Doctor profile updated' })
+      } else {
+        addToast({ variant: 'error', message: 'Failed to update doctor profile' })
       }
     } finally {
       setSaving(false)

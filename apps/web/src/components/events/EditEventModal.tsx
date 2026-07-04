@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { cn } from '@chikitsa360/core'
+import { useToast } from '@/components/ui/ToastProvider'
 import { EventDetailsForm, validateEventForm, buildEventPayload } from './EventDetailsForm'
 import type { EventFormData, EventFormErrors } from './EventDetailsForm'
 import type { EventItem } from './EventsListClient'
@@ -59,6 +60,7 @@ interface Props {
 }
 
 export function EditEventModal({ event, onClose, onSuccess }: Props) {
+  const { addToast } = useToast()
   const [formData, setFormData] = React.useState<EventFormData>(() => eventToFormData(event))
   const [errors, setErrors] = React.useState<EventFormErrors>({})
   const [scope, setScope] = React.useState<EditScope>('single')
@@ -105,12 +107,15 @@ export function EditEventModal({ event, onClose, onSuccess }: Props) {
         } else {
           setApiError(json.error?.message ?? 'Failed to update event')
         }
+        addToast({ variant: 'error', message: json.error?.message ?? 'Failed to update event' })
         return
       }
 
+      addToast({ variant: 'success', message: 'Event updated successfully' })
       onSuccess()
     } catch {
       setApiError('Something went wrong. Please try again.')
+      addToast({ variant: 'error', message: 'Failed to update event' })
     } finally {
       setSubmitting(false)
     }

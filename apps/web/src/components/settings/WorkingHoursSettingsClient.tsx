@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { WorkingHoursForm, type WorkingHoursData } from '@/components/onboarding/WorkingHoursForm'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface Doctor {
   id: string
@@ -9,6 +10,7 @@ interface Doctor {
 }
 
 export function WorkingHoursSettingsClient() {
+  const { addToast } = useToast()
   const [doctors, setDoctors] = React.useState<Doctor[]>([])
   const [activeTab, setActiveTab] = React.useState(0)
   const [workingHoursMap, setWorkingHoursMap] = React.useState<Record<string, WorkingHoursData>>({})
@@ -81,13 +83,16 @@ export function WorkingHoursSettingsClient() {
       if (!res.ok) {
         const data = await res.json()
         setServerError(data.error ?? 'Something went wrong.')
+        addToast({ variant: 'error', message: 'Failed to save working hours' })
         return
       }
 
       setSuccess(true)
+      addToast({ variant: 'success', message: 'Working hours saved' })
       setTimeout(() => setSuccess(false), 4000)
     } catch {
       setServerError('Something went wrong.')
+      addToast({ variant: 'error', message: 'Failed to save working hours' })
     } finally {
       setSubmitting(false)
     }

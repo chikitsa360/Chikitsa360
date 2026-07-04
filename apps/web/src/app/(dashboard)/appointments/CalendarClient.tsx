@@ -10,6 +10,7 @@ import { NewAppointmentPanel } from '@/components/appointments/NewAppointmentPan
 import { WalkInPanel } from '@/components/appointments/WalkInPanel'
 import { useAppointmentUpdates } from '@/lib/pusher/useAppointmentUpdates'
 import { getPlanStatus } from '@/lib/plan/check-plan'
+import { useToast } from '@/components/ui/ToastProvider'
 
 export interface Appointment {
   id: string
@@ -55,6 +56,7 @@ export function CalendarClient({
   planExpiresAt,
 }: CalendarClientProps) {
   const router = useRouter()
+  const { addToast } = useToast()
 
   // Real-time plan expiry tracking — re-checks every minute (AC7, AC18)
   const [planExpired, setPlanExpired] = React.useState(() =>
@@ -162,6 +164,9 @@ export function CalendarClient({
     if (res.ok) {
       setSelectedAppointment(null)
       void fetchAppointments(currentDate)
+      addToast({ variant: 'success', message: 'Appointment rescheduled' })
+    } else {
+      addToast({ variant: 'error', message: 'Failed to reschedule appointment' })
     }
     return res
   }
@@ -175,6 +180,9 @@ export function CalendarClient({
     if (res.ok) {
       setSelectedAppointment(null)
       void fetchAppointments(currentDate)
+      addToast({ variant: 'success', message: 'Appointment cancelled' })
+    } else {
+      addToast({ variant: 'error', message: 'Failed to cancel appointment' })
     }
     return res
   }
@@ -188,6 +196,9 @@ export function CalendarClient({
     if (res.ok) {
       setSelectedAppointment(null)
       void fetchAppointments(currentDate)
+      addToast({ variant: 'success', message: 'Appointment marked as completed' })
+    } else {
+      addToast({ variant: 'error', message: 'Failed to update appointment' })
     }
     return res
   }
@@ -201,6 +212,9 @@ export function CalendarClient({
     if (res.ok) {
       setSelectedAppointment(null)
       void fetchAppointments(currentDate)
+      addToast({ variant: 'success', message: 'Appointment marked as no-show' })
+    } else {
+      addToast({ variant: 'error', message: 'Failed to update appointment' })
     }
     return res
   }

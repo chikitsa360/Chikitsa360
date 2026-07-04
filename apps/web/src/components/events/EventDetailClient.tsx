@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { cn } from '@chikitsa360/core'
+import { useToast } from '@/components/ui/ToastProvider'
 import { EditEventModal } from './EditEventModal'
 import { EventRegistrantsTab } from './EventRegistrantsTab'
 import { EventWaitingListTab } from './EventWaitingListTab'
@@ -105,6 +106,7 @@ interface TabData {
 }
 
 export function EventDetailClient({ event: initialEvent }: Props) {
+  const { addToast } = useToast()
   const [event, setEvent] = React.useState(initialEvent)
   const [activeTab, setActiveTab] = React.useState<Tab>('overview')
   const [showEditModal, setShowEditModal] = React.useState(false)
@@ -152,9 +154,12 @@ export function EventDetailClient({ event: initialEvent }: Props) {
       if (res.ok) {
         const json = await res.json() as { data: { event: EventDetail } }
         setEvent(json.data.event)
+        addToast({ variant: 'success', message: 'Event updated' })
       } else {
         const json = await res.json() as { error?: { message?: string } }
-        setActionError(json.error?.message ?? 'Failed to publish event')
+        const msg = json.error?.message ?? 'Failed to publish event'
+        setActionError(msg)
+        addToast({ variant: 'error', message: msg })
       }
     } finally {
       setActionLoading(false)
@@ -174,9 +179,12 @@ export function EventDetailClient({ event: initialEvent }: Props) {
         const json = await res.json() as { data: { event: EventDetail } }
         setEvent(json.data.event)
         setShowCancelConfirm(false)
+        addToast({ variant: 'success', message: 'Event cancelled' })
       } else {
         const json = await res.json() as { error?: { message?: string } }
-        setActionError(json.error?.message ?? 'Failed to cancel event')
+        const msg = json.error?.message ?? 'Failed to cancel event'
+        setActionError(msg)
+        addToast({ variant: 'error', message: msg })
       }
     } finally {
       setActionLoading(false)

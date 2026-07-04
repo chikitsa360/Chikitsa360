@@ -3,6 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { cn } from '@chikitsa360/core'
+import { useToast } from '@/components/ui/ToastProvider'
 import type { EventAggregates } from '@/lib/events/aggregates'
 import { NewEventModal } from './NewEventModal'
 import { EditEventModal } from './EditEventModal'
@@ -155,6 +156,7 @@ interface Props {
 }
 
 export function EventsListClient({ initialAggregates }: Props) {
+  const { addToast } = useToast()
   const [aggregates, setAggregates] = React.useState(initialAggregates)
   const [activeTab, setActiveTab] = React.useState<FilterTab>('all')
   const [events, setEvents] = React.useState<EventItem[]>([])
@@ -228,9 +230,14 @@ export function EventsListClient({ initialAggregates }: Props) {
         body: JSON.stringify({ action: 'publish' }),
       })
       if (res.ok) {
+        addToast({ variant: 'success', message: 'Event published' })
         await fetchEvents(activeTab, page)
         await refreshAggregates()
+      } else {
+        addToast({ variant: 'error', message: 'Failed to update event' })
       }
+    } catch {
+      addToast({ variant: 'error', message: 'Failed to update event' })
     } finally {
       setActionLoading(false)
     }
@@ -245,10 +252,15 @@ export function EventsListClient({ initialAggregates }: Props) {
         body: JSON.stringify({ action: 'cancel' }),
       })
       if (res.ok) {
+        addToast({ variant: 'success', message: 'Event cancelled' })
         setCancelConfirmId(null)
         await fetchEvents(activeTab, page)
         await refreshAggregates()
+      } else {
+        addToast({ variant: 'error', message: 'Failed to update event' })
       }
+    } catch {
+      addToast({ variant: 'error', message: 'Failed to update event' })
     } finally {
       setActionLoading(false)
     }

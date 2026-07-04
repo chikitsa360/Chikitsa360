@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import type { Doctor } from '@/app/(dashboard)/appointments/CalendarClient'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface BlockSlotFormProps {
   clinicId: string
@@ -26,6 +27,7 @@ export function BlockSlotForm({
   onClose,
   onBlocked,
 }: BlockSlotFormProps) {
+  const { addToast } = useToast()
   const [doctorId, setDoctorId] = React.useState<string>('all')
   const [date, setDate] = React.useState(defaultDate)
   const [startTime, setStartTime] = React.useState(defaultStartTime ?? '09:00')
@@ -63,11 +65,14 @@ export function BlockSlotForm({
 
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { error?: string }
-      setError(data.error ?? 'Failed to block slot.')
+      const msg = data.error ?? 'Failed to block slot.'
+      setError(msg)
+      addToast({ variant: 'error', message: msg })
       setSubmitting(false)
       return
     }
 
+    addToast({ variant: 'success', message: 'Slot blocked successfully' })
     onBlocked()
   }
 

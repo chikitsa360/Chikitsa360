@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface BookingLinkCardProps {
   slug: string
@@ -11,6 +12,7 @@ interface BookingLinkCardProps {
  * Shown in Settings → Clinic Profile.
  */
 export function BookingLinkCard({ slug }: BookingLinkCardProps) {
+  const { addToast } = useToast()
   const bookingUrl = `https://cliniqly.com/book/${slug}`
   const [copied, setCopied] = React.useState(false)
   const [downloadingQr, setDownloadingQr] = React.useState(false)
@@ -19,6 +21,7 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
     try {
       await navigator.clipboard.writeText(bookingUrl)
       setCopied(true)
+      addToast({ variant: 'success', message: 'Booking link copied' })
       setTimeout(() => setCopied(false), 2000)
     } catch {
       // Fallback: select the text
@@ -45,7 +48,7 @@ export function BookingLinkCard({ slug }: BookingLinkCardProps) {
       a.remove()
       URL.revokeObjectURL(url)
     } catch {
-      // Silent fail — user can retry
+      addToast({ variant: 'error', message: 'Failed to download QR code' })
     } finally {
       setDownloadingQr(false)
     }

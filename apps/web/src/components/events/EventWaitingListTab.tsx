@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { cn } from '@chikitsa360/core'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface WaitingEntry {
   id: string
@@ -44,6 +45,7 @@ function formatDate(isoString: string): string {
 }
 
 export function EventWaitingListTab({ waitingList: initialList, loading, event, onRefreshEvent }: Props) {
+  const { addToast } = useToast()
   const [waitingList, setWaitingList] = React.useState<WaitingEntry[]>(initialList)
   const [actionLoading, setActionLoading] = React.useState<string | null>(null)
   const [confirmRemove, setConfirmRemove] = React.useState<WaitingEntry | null>(null)
@@ -61,15 +63,23 @@ export function EventWaitingListTab({ waitingList: initialList, loading, event, 
 
   const handlePromote = async (entry: WaitingEntry) => {
     setActionLoading(entry.id)
-    const res = await fetch(`/api/v1/events/${event.id}/waiting-list/${entry.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'promote' }),
-    })
-    if (res.ok) {
-      setWaitingList(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'promoted' } : e))
-      setSeatsRemaining(prev => Math.max(0, prev - 1))
-      onRefreshEvent?.()
+    try {
+      const res = await fetch(`/api/v1/events/${event.id}/waiting-list/${entry.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'promote' }),
+      })
+      if (res.ok) {
+        setWaitingList(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'promoted' } : e))
+        setSeatsRemaining(prev => Math.max(0, prev - 1))
+        onRefreshEvent?.()
+        addToast({ variant: 'success', message: 'Attendee promoted from waiting list' })
+      } else {
+        const json = await res.json() as { error?: { message?: string } }
+        addToast({ variant: 'error', message: json.error?.message ?? 'Failed to promote attendee' })
+      }
+    } catch {
+      addToast({ variant: 'error', message: 'Failed to promote attendee' })
     }
     setActionLoading(null)
   }
@@ -77,13 +87,21 @@ export function EventWaitingListTab({ waitingList: initialList, loading, event, 
   const handleRemove = async (entry: WaitingEntry) => {
     setConfirmRemove(null)
     setActionLoading(entry.id)
-    const res = await fetch(`/api/v1/events/${event.id}/waiting-list/${entry.id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'remove' }),
-    })
-    if (res.ok) {
-      setWaitingList(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'removed' } : e))
+    try {
+      const res = await fetch(`/api/v1/events/${event.id}/waiting-list/${entry.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'remove' }),
+      })
+      if (res.ok) {
+        setWaitingList(prev => prev.map(e => e.id === entry.id ? { ...e, status: 'removed' } : e))
+        addToast({ variant: 'success', message: 'Attendee removed from waiting list' })
+      } else {
+        const json = await res.json() as { error?: { message?: string } }
+        addToast({ variant: 'error', message: json.error?.message ?? 'Failed to remove attendee' })
+      }
+    } catch {
+      addToast({ variant: 'error', message: 'Failed to remove attendee' })
     }
     setActionLoading(null)
   }

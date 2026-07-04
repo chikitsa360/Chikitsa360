@@ -7,6 +7,7 @@ import { PatientSearchBar } from '@/components/patients/PatientSearchBar'
 import { PatientDirectoryTable } from '@/components/patients/PatientDirectoryTable'
 import { DuplicatePatientPrompt } from '@/components/patients/DuplicatePatientPrompt'
 import { usePatientSearch } from '@/hooks/usePatientSearch'
+import { useToast } from '@/components/ui/ToastProvider'
 import type { PatientRow } from '@/components/patients/PatientDirectoryTable'
 
 interface Pagination {
@@ -23,6 +24,7 @@ interface PatientDirectoryClientProps {
 }
 
 export function PatientDirectoryClient({ initialPatients, pagination, filterOptOut = false }: PatientDirectoryClientProps) {
+  const { addToast } = useToast()
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialQuery = searchParams.get('q') ?? ''
@@ -53,11 +55,17 @@ export function PatientDirectoryClient({ initialPatients, pagination, filterOptO
         duplicate_found?: boolean
         patient?: { id: string; name: string; created_at: string }
       }
+      if (!res.ok) {
+        addToast({ variant: 'error', message: 'Failed to add patient' })
+        return
+      }
       if (data.duplicate_found && data.patient) {
         setDuplicatePatient(data.patient)
+        addToast({ variant: 'info', message: 'Patient with this phone already exists' })
         return
       }
       if (data.patient) {
+        addToast({ variant: 'success', message: 'Patient added successfully' })
         router.push(`/patients/${data.patient.id}`)
       }
     } finally {

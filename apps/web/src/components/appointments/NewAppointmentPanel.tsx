@@ -4,6 +4,7 @@ import * as React from 'react'
 import { PatientLookup, type PatientRecord } from './PatientLookup'
 import { SlotGrid, type Slot } from '@/components/booking/SlotGrid'
 import type { Doctor } from '@/app/(dashboard)/appointments/CalendarClient'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface NewAppointmentPanelProps {
   clinicId: string
@@ -24,6 +25,7 @@ export function NewAppointmentPanel({
   onClose,
   onCreated,
 }: NewAppointmentPanelProps) {
+  const { addToast } = useToast()
   const [phone, setPhone] = React.useState('')
   const [patientName, setPatientName] = React.useState('')
   const [nameError, setNameError] = React.useState('')
@@ -98,6 +100,7 @@ export function NewAppointmentPanel({
 
       if (res.status === 409) {
         setSlotError('That slot was just taken. Please choose another time.')
+        addToast({ variant: 'error', message: 'That slot was just taken. Please choose another time.' })
         setSelectedSlot(null)
         // Refresh slots
         fetch(`/api/v1/slots/available?clinicId=${clinicId}&doctorId=${selectedDoctorId}&days=7`)
@@ -109,14 +112,18 @@ export function NewAppointmentPanel({
 
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string }
-        setSlotError(data.error ?? 'Something went wrong. Please try again.')
+        const msg = data.error ?? 'Something went wrong. Please try again.'
+        setSlotError(msg)
+        addToast({ variant: 'error', message: msg })
         return
       }
 
       const result = (await res.json()) as { tokenNumber: number }
+      addToast({ variant: 'success', message: 'Appointment created successfully' })
       onCreated(result.tokenNumber)
     } catch {
       setSlotError('Something went wrong. Please try again.')
+      addToast({ variant: 'error', message: 'Something went wrong. Please try again.' })
     } finally {
       setSubmitting(false)
     }

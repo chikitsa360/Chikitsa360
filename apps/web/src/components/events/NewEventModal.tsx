@@ -1,6 +1,7 @@
 'use client'
 
 import * as React from 'react'
+import { useToast } from '@/components/ui/ToastProvider'
 import { useDebounce } from '@/lib/hooks/useDebounce'
 import { EventDetailsForm, defaultEventFormData, validateEventForm, buildEventPayload } from './EventDetailsForm'
 import type { EventFormData, EventFormErrors } from './EventDetailsForm'
@@ -186,6 +187,7 @@ function Step2InvitePatients({ eventId, onSkip, onSendAndPublish, submitting, ap
 // ─── Main modal ───────────────────────────────────────────────────────────────
 
 export function NewEventModal({ onClose, onSuccess }: Props) {
+  const { addToast } = useToast()
   const [step, setStep] = React.useState<1 | 2>(1)
   const [createdEventId, setCreatedEventId] = React.useState<string | null>(null)
   const [formData, setFormData] = React.useState<EventFormData>(defaultEventFormData())
@@ -229,13 +231,17 @@ export function NewEventModal({ onClose, onSuccess }: Props) {
 
       if (!res.ok) {
         const json = await res.json() as { error?: { code?: string; message?: string } }
-        setApiError(json.error?.message ?? 'Failed to create event')
+        const msg = json.error?.message ?? 'Failed to create event'
+        setApiError(msg)
+        addToast({ variant: 'error', message: msg })
         return
       }
 
+      addToast({ variant: 'success', message: 'Event saved as draft' })
       onSuccess()
     } catch {
       setApiError('Something went wrong. Please try again.')
+      addToast({ variant: 'error', message: 'Something went wrong. Please try again.' })
     } finally {
       setSubmitting(false)
     }
@@ -261,7 +267,9 @@ export function NewEventModal({ onClose, onSuccess }: Props) {
 
       if (!res.ok) {
         const json = await res.json() as { error?: { code?: string; message?: string } }
-        setApiError(json.error?.message ?? 'Failed to create event')
+        const msg = json.error?.message ?? 'Failed to create event'
+        setApiError(msg)
+        addToast({ variant: 'error', message: msg })
         return
       }
 
@@ -275,6 +283,7 @@ export function NewEventModal({ onClose, onSuccess }: Props) {
       }
     } catch {
       setApiError('Something went wrong. Please try again.')
+      addToast({ variant: 'error', message: 'Something went wrong. Please try again.' })
     } finally {
       setSubmitting(false)
     }
@@ -294,7 +303,9 @@ export function NewEventModal({ onClose, onSuccess }: Props) {
       })
       if (!invRes.ok) {
         const json = await invRes.json() as { error?: { message?: string } }
-        setApiError(json.error?.message ?? 'Failed to send invitations')
+        const msg = json.error?.message ?? 'Failed to send invitations'
+        setApiError(msg)
+        addToast({ variant: 'error', message: msg })
         return
       }
 
@@ -305,13 +316,17 @@ export function NewEventModal({ onClose, onSuccess }: Props) {
         body: JSON.stringify({ action: 'publish' }),
       })
       if (!pubRes.ok) {
-        setApiError('Event created but could not be published. Please publish from the event page.')
+        const msg = 'Event created but could not be published. Please publish from the event page.'
+        setApiError(msg)
+        addToast({ variant: 'error', message: msg })
         return
       }
 
+      addToast({ variant: 'success', message: 'Event published successfully' })
       onSuccess()
     } catch {
       setApiError('Something went wrong. Please try again.')
+      addToast({ variant: 'error', message: 'Something went wrong. Please try again.' })
     } finally {
       setSubmitting(false)
     }

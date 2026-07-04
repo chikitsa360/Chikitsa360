@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { cn } from '@chikitsa360/core'
 import { useVisitNote } from '@/hooks/useVisitNote'
+import { useToast } from '@/components/ui/ToastProvider'
 
 const MAX_CHARS = 500
 const AMBER_THRESHOLD = 450
@@ -16,6 +17,7 @@ interface VisitNoteEditorProps {
 }
 
 export function VisitNoteEditor({ appointmentId, initialNote, onSaved, onCancel }: VisitNoteEditorProps) {
+  const { addToast } = useToast()
   const [text, setText] = React.useState(initialNote ?? '')
   const { saveNote, saving } = useVisitNote(appointmentId)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
@@ -36,7 +38,10 @@ export function VisitNoteEditor({ appointmentId, initialNote, onSaved, onCancel 
     if (!text.trim()) return
     const saved = await saveNote(text)
     if (saved !== null) {
+      addToast({ variant: 'success', message: 'Visit note saved' })
       onSaved(saved)
+    } else {
+      addToast({ variant: 'error', message: 'Failed to save visit note' })
     }
   }
 

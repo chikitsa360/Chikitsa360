@@ -7,6 +7,7 @@ import { WalkInSuccessScreen } from './WalkInSuccessScreen'
 import type { PatientRecord } from './PatientLookup'
 import type { Slot } from '@/components/booking/SlotGrid'
 import type { Doctor } from '@/app/(dashboard)/appointments/CalendarClient'
+import { useToast } from '@/components/ui/ToastProvider'
 
 interface WalkInPanelProps {
   clinicId: string
@@ -28,6 +29,7 @@ interface WalkInResult {
  * 2-step flow: Step 1 (Patient) → Step 2 (Slot) → Success Screen.
  */
 export function WalkInPanel({ clinicId, doctors, onClose, onCreated }: WalkInPanelProps) {
+  const { addToast } = useToast()
   const [step, setStep] = React.useState<1 | 2 | 'success'>(1)
   const [phone, setPhone] = React.useState('')
   const [patientName, setPatientName] = React.useState('')
@@ -60,7 +62,9 @@ export function WalkInPanel({ clinicId, doctors, onClose, onCreated }: WalkInPan
 
     if (!res.ok) {
       const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string }
-      return { error: data.message ?? data.error ?? 'Booking failed.' }
+      const msg = data.message ?? data.error ?? 'Booking failed.'
+      addToast({ variant: 'error', message: msg })
+      return { error: msg }
     }
 
     const data = (await res.json()) as { tokenNumber: number }
@@ -77,6 +81,7 @@ export function WalkInPanel({ clinicId, doctors, onClose, onCreated }: WalkInPan
       isOverflow,
     })
     setStep('success')
+    addToast({ variant: 'success', message: 'Walk-in appointment created' })
     onCreated()
     return {}
   }
