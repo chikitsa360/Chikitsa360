@@ -100,9 +100,9 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
   const pathname = usePathname()
 
   return (
-    <div className="flex gap-0 -mx-6 -mt-4">
-      {/* Settings sidebar nav */}
-      <nav className="w-[220px] shrink-0 border-r border-border bg-card px-3 py-4 min-h-[calc(100vh-120px)]">
+    <div className="flex -mx-4 -mt-6 -mb-20 lg:-mx-8 lg:-mb-6 min-h-[calc(100vh-56px)]">
+      {/* Settings sidebar nav — sticky */}
+      <nav className="hidden md:flex w-[220px] shrink-0 flex-col border-r border-border bg-card px-3 py-4 sticky top-0 h-[calc(100vh-56px)] overflow-y-auto">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href
           return (
@@ -123,8 +123,32 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         })}
       </nav>
 
+      {/* Mobile: horizontal scroll tabs */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 z-40 border-t border-border bg-card overflow-x-auto">
+        <div className="flex px-2 py-1.5 gap-1">
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  'flex items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12px] font-medium shrink-0',
+                  isActive
+                    ? 'bg-primary/[0.08] text-primary font-semibold'
+                    : 'text-muted-foreground'
+                )}
+              >
+                {item.icon}
+                {item.label}
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+
       {/* Settings content */}
-      <div className="flex-1 overflow-y-auto px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
         {children}
       </div>
     </div>
