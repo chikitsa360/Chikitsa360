@@ -16,17 +16,32 @@ const _otpRateLimit = hasRedis
   ? new Ratelimit({ redis, limiter: Ratelimit.slidingWindow(3, '10 m'), prefix: 'ratelimit:otp', analytics: true })
   : null
 
+// Fail open: a Redis outage (quota exhausted, deleted DB, rotated token) must
+// degrade to "no rate limiting", never take down login or the API.
 export const otpRateLimit = {
-  limit: _otpRateLimit ? _otpRateLimit.limit.bind(_otpRateLimit) : noopLimit,
+  limit: async (phone: string) => {
+    if (!_otpRateLimit) return noopLimit()
+    try {
+      return await _otpRateLimit.limit(phone)
+    } catch (err) {
+      console.error('[rate-limit] OTP limiter failed, allowing request:', err)
+      return noopLimit()
+    }
+  },
 }
 
 export async function checkApiRateLimit(
   clinicId: string
 ): Promise<{ success: boolean; retryAfter?: number }> {
   if (!_apiRateLimit) return { success: true }
-  const { success, reset } = await _apiRateLimit.limit(clinicId)
-  if (!success) {
-    return { success: false, retryAfter: Math.ceil((reset - Date.now()) / 1000) }
+  try {
+    const { success, reset } = await _apiRateLimit.limit(clinicId)
+    if (!success) {
+      return { success: false, retryAfter: Math.ceil((reset - Date.now()) / 1000) }
+    }
+    return { success: true }
+  } catch (err) {
+    console.error('[rate-limit] API limiter failed, allowing request:', err)
+    return { success: true }
   }
-  return { success: true }
 }
