@@ -27,6 +27,11 @@ enum ClinicLanguage {
   hi
 }
 
+enum WhatsAppTransport {
+  direct
+  notify
+}
+
 enum InviteStatus {
   PENDING
   ACCEPTED
@@ -62,6 +67,13 @@ model Clinic {
   whatsappWabaId          String?  @map("whatsapp_waba_id")
   whatsappPhoneNumberId   String?  @map("whatsapp_phone_number_id")
   whatsappConnected       Boolean  @default(false) @map("whatsapp_connected")
+
+  // WhatsApp transport — 'direct' = Meta Cloud API with META_SYSTEM_ACCESS_TOKEN (legacy),
+  // 'notify' = via the Notify platform (per-clinic tenant + nsk_ API key)
+  whatsappTransport            WhatsAppTransport @default(direct) @map("whatsapp_transport")
+  notifyTenantId               String?           @map("notify_tenant_id")
+  notifyApiKeyEncrypted        String?           @map("notify_api_key_encrypted")
+  notifyWebhookSecretEncrypted String?           @map("notify_webhook_secret_encrypted")
 
   // Reminder toggles (FR-25)
   reminder24hEnabled      Boolean  @default(true) @map("reminder_24h_enabled")

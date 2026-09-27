@@ -1,9 +1,25 @@
 /**
- * Meta Cloud API message sender — session messages (text + interactive).
+ * WhatsApp session-message sender (text + interactive).
  * Template messages are handled by sendTemplateMessage() in meta-whatsapp.ts.
+ *
+ * Dual transport: each sender resolves the clinic's transport by
+ * phoneNumberId. 'direct' (default, all existing clinics) posts to the Meta
+ * Cloud API exactly as before; 'notify' posts to the Notify platform's
+ * /v1/send with the clinic's own nsk_ API key.
  */
 
+import { notifySend } from '@/lib/notify/client'
+import { resolveTransport, type ResolvedTransport } from '@/lib/notify/transport'
+
 const GRAPH_URL = 'https://graph.facebook.com/v19.0'
+
+function transportError(t: Extract<ResolvedTransport, { mode: 'error' }>): {
+  success: false
+  error: string
+} {
+  console.error('[whatsapp-send] notify transport misconfigured:', t.error)
+  return { success: false, error: t.error }
+}
 
 function accessToken(): string {
   return process.env.META_SYSTEM_ACCESS_TOKEN ?? ''
@@ -44,6 +60,11 @@ export async function sendText(
   to: string,
   text: string
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const transport = await resolveTransport(phoneNumberId)
+  if (transport.mode === 'error') return transportError(transport)
+  if (transport.mode === 'notify') {
+    return notifySend(transport.apiKey, { to, template: 'text', text })
+  }
   return postMessage(phoneNumberId, {
     recipient_type: 'individual',
     to,
@@ -66,6 +87,18 @@ export async function sendQuickReply(
   bodyText: string,
   buttons: QuickReplyButton[]
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const transport = await resolveTransport(phoneNumberId)
+  if (transport.mode === 'error') return transportError(transport)
+  if (transport.mode === 'notify') {
+    return notifySend(transport.apiKey, {
+      to,
+      template: 'interactive_buttons',
+      text: bodyText,
+      // Object form {id, title} — the state machine routes on these exact ids
+      // (e.g. CANCEL_APPOINTMENT:{id}), so Notify must echo them back verbatim
+      buttons: buttons.map((b) => ({ id: b.id, title: b.title.slice(0, 20) })),
+    })
+  }
   return postMessage(phoneNumberId, {
     recipient_type: 'individual',
     to,
@@ -100,6 +133,20 @@ export async function sendListMessage(
   buttonLabel: string,
   rows: ListRow[]
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const transport = await resolveTransport(phoneNumberId)
+  if (transport.mode === 'error') return transportError(transport)
+  if (transport.mode === 'notify') {
+    return notifySend(transport.apiKey, {
+      to,
+      template: 'interactive_list',
+      list: {
+        header: headerText,
+        body: bodyText,
+        buttonLabel: buttonLabel.slice(0, 20),
+        sections: [{ rows }],
+      },
+    })
+  }
   return postMessage(phoneNumberId, {
     recipient_type: 'individual',
     to,

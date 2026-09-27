@@ -1,5 +1,8 @@
 import { createHmac, timingSafeEqual } from 'crypto'
 
+import { notifySend } from '@/lib/notify/client'
+import { resolveTransport } from '@/lib/notify/transport'
+
 /**
  * Validates the HMAC-SHA256 signature on an inbound Meta webhook request.
  *
@@ -77,7 +80,11 @@ export async function registerWebhook(
 }
 
 /**
- * Sends a WhatsApp template message via Meta Cloud API.
+ * Sends a WhatsApp template (HSM) message.
+ *
+ * Dual transport: clinics on 'notify' send via the Notify platform's
+ * /v1/send hsmTemplate path with their own API key (accessToken unused);
+ * everyone else posts directly to the Meta Cloud API exactly as before.
  */
 export async function sendTemplateMessage(
   phoneNumberId: string,
@@ -87,6 +94,25 @@ export async function sendTemplateMessage(
   components: object[],
   accessToken: string,
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  const transport = await resolveTransport(phoneNumberId)
+  if (transport.mode === 'error') {
+    console.error('[whatsapp-template] notify transport misconfigured:', transport.error)
+    return { success: false, error: transport.error }
+  }
+  if (transport.mode === 'notify') {
+    return notifySend(transport.apiKey, {
+      to,
+      // hsmTemplate takes priority in Notify's engine; template is just the
+      // required label for its event log
+      template: templateName,
+      hsmTemplate: {
+        name: templateName,
+        language: languageCode,
+        ...(components.length ? { components } : {}),
+      },
+    })
+  }
+
   const url = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`
   try {
     const res = await fetch(url, {
