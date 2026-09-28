@@ -98,8 +98,16 @@ migrations 026–028 applied, partner key issued.
 
 1. Cliniqly migration: `pnpm exec prisma migrate deploy` (additive).
 2. Set the three `NOTIFY_*` vars (`.env.local` + Vercel).
-3. **E2E needs a publicly reachable Cliniqly** — Notify's SSRF guard rejects
-   `localhost`/private webhook URLs. Use the deployed URL or a public tunnel.
+3. **E2E needs a publicly reachable Cliniqly BEFORE connecting the clinic** —
+   Notify's SSRF guard rejects `localhost`/private webhook URLs, and it runs
+   at **delivery time, not registration time**: registering a localhost URL
+   appears to succeed (connect-notify returns 201 and stores a secret), but
+   every delivery afterward silently fails and Notify auto-disables the
+   endpoint after 10 consecutive failures. If inbound replies or delivery
+   statuses "just don't arrive", check this first. Use the deployed URL or a
+   public tunnel (e.g. ngrok), and make sure `NEXTAUTH_URL`/`APP_URL` points
+   at it when calling connect-notify (that's what the webhook URL is built
+   from).
 4. Connect a throwaway clinic (BYO method first — no OAuth timing pressure).
 5. Walk the journey from a spare phone (not on personal WhatsApp): "Hi" →
    consent buttons → name → age → gender → slot list → booked + confirmation.
