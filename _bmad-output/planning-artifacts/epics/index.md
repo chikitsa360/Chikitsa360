@@ -27,6 +27,7 @@ Master status tracker for all epics and user stories. Update `status` as work pr
 | [Epic 9](epic-09-billing/epic.md) | Basic Billing | 2 | Not Started |
 | [Epic 10](epic-10-reports/epic.md) | Reports & Analytics | 3 | Not Started |
 | [Epic 11](epic-11-subscription/epic.md) | Subscription Enforcement & Data Rights | 3 | Not Started |
+| [Epic 16](epic-16-notify-transport/epic.md) | WhatsApp Dual Transport via Notify Platform | 3 | Done |
 
 ---
 
@@ -139,3 +140,18 @@ Master status tracker for all epics and user stories. Update `status` as work pr
 | [11.1](epic-11-subscription/story-11-01-subscription-enforcement-and-soft-paywall.md) | Subscription Plan Enforcement & Soft Paywall | MON-1, MON-2, MON-3, MON-4 | Not Started |
 | [11.2](epic-11-subscription/story-11-02-patient-data-erasure.md) | Patient Data Erasure (DPDP Act) | CR-3 | Not Started |
 | [11.3](epic-11-subscription/story-11-03-data-export-and-super-admin.md) | Data Export & Super Admin Plan Management | CR-13, MON-1 | Not Started |
+
+---
+
+## Epic 16: WhatsApp Dual Transport via Notify Platform
+
+| Story | Title | Requirements | Status |
+|---|---|---|---|
+| [16.1](epic-16-notify-transport/story-16-01-dual-transport-send-layer.md) | Dual-Transport Send Layer | Transport-agnostic sends, per-clinic nsk_ key, no silent fallback | Done |
+| [16.2](epic-16-notify-transport/story-16-02-notify-webhook-bridge.md) | Notify Webhook Bridge | Signature verification, identical Inngest events/dedup ids | Done |
+| [16.3](epic-16-notify-transport/story-16-03-notify-connect-and-provisioning.md) | Notify Connect & Tenant Provisioning | Embedded Signup + BYO, resumable provisioning, encrypted secrets | Done |
+
+Cross-repo counterpart: `notify-sdk` work items 1–5 (partner API, list messages,
+payload completeness, auto-reply kill switch, caller-supplied button ids) —
+contract + runbook in `docs/whatsapp-notify-transport.md` (this repo) and
+`notify-sdk/docs/cliniqly-integration-brief.md`.

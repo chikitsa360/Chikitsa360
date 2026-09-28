@@ -201,6 +201,12 @@ META_APP_SECRET=<paste from Meta Step 5>
 NEXT_PUBLIC_FACEBOOK_APP_ID=<paste from Meta Step 5>
 WHATSAPP_VERIFY_TOKEN=<the string you chose in Step 5d>
 
+# ─── WhatsApp via Notify platform (dual transport — see docs/whatsapp-notify-transport.md)
+# Only needed once clinics use whatsapp_transport='notify'; 'direct' clinics ignore these.
+NOTIFY_API_URL=https://api.azentis.in
+NOTIFY_PARTNER_KEY=<issued per notify-sdk/docs/partner-api-reference.md>
+NOTIFY_CREDS_KEY=<node -e "console.log(require('crypto').randomBytes(32).toString('hex'))" — generate ONCE, never rotate casually>
+
 # ─── Web Push Notifications (staff alerts for new bookings) ────────────────
 # Generate once: npx web-push generate-vapid-keys
 # VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY are server-only (never exposed to browser)
