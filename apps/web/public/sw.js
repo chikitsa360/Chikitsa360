@@ -1,7 +1,8 @@
 // Cliniqly Service Worker — handles background push notifications with sound
+/* global self, clients */
 
 self.addEventListener('push', (event) => {
-  let data = {}
+  let data
   try {
     data = event.data ? event.data.json() : {}
   } catch {
