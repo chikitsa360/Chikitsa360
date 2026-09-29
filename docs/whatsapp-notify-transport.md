@@ -1,6 +1,35 @@
 # WhatsApp Dual Transport — Direct Meta API + Notify Platform
 
-**Status: implemented (Epic 16, commit `80d032d`). Last updated: 2026-09-28.**
+**Status: implemented (Epic 16, commit `80d032d`). Last updated: 2026-09-29.**
+
+## ⚠️ Production rollout status (read this first)
+
+As of 2026-09-29 the rollout is **mid-flight**. Done vs pending:
+
+| Step | State |
+|---|---|
+| notify-sdk production (api.azentis.in): deployed, migrations 026–028, partner key issued | ✅ done (2026-09-28) |
+| Cliniqly code in production (Vercel auto-deploy from `main`, commit `c6fc258`) | ✅ done (2026-09-28) |
+| **Cliniqly production DB migration** (`20260927000000_notify_transport` on prod Neon) | ❌ **PENDING — prod clinic pages & WhatsApp webhook ERROR until this runs** (live code selects the new `clinics` columns) |
+| `NOTIFY_*` env vars in the Cliniqly Vercel project (+ redeploy to pick them up) | ❌ pending (values: this doc §Environment variables; partner key is in local `apps/web/.env.local`) |
+| Production E2E (throwaway clinic, runbook below) | ❌ pending (blocked on the two above) |
+
+To finish: run
+`DATABASE_URL='<prod pooled>' DATABASE_URL_UNPOOLED='<prod direct>' pnpm exec prisma migrate deploy`
+from `apps/web`. The two URLs live ONLY in the Cliniqly Vercel project
+(Settings → Environment Variables) or the Neon console (Connect → pooling
+ON = pooled / OFF = direct) — **no local machine has them**.
+
+Access note: the Cliniqly Vercel project belongs to the `chikitsa360`
+Vercel account (`chikitsa360s-projects`), NOT the `arthadrishtiinfo-7245`
+account that hosts notify-api/broadcast — `vercel login` as chikitsa360 to
+manage it from the CLI. Deploys auto-trigger from pushes to `main` on
+`github.com/chikitsa360/Chikitsa360`, gated by GitHub Actions
+("Type-check, Lint, Test" — lint failures block the deploy; the sw.js
+service-worker globals issue that broke the first Epic 16 deploy was fixed
+in `c6fc258`).
+
+Delete this section once all rows are ✅.
 
 Cliniqly supports two WhatsApp transports per clinic, selected by
 `clinics.whatsapp_transport`:
