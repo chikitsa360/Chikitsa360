@@ -11,6 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "e2e": "playwright test",
+    "e2e:ui": "playwright test --ui",
     "check-translations": "tsx ../../scripts/check-translations.ts",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",

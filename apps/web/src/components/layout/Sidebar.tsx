@@ -44,17 +44,41 @@ interface NavItemDef {
   badge?: number
   badgeVariant?: 'primary' | 'warning'
   section: 'main' | 'insights'
+  /** Extra path prefixes this item owns beyond its href (e.g. redirect targets). */
+  activePaths?: string[]
 }
 
 const NAV_ITEMS: NavItemDef[] = [
   { key: 'dashboard',     href: '/dashboard',     icon: <DashboardIcon />,     section: 'main' },
   { key: 'appointments',  href: '/appointments',  icon: <AppointmentsIcon />,  section: 'main' },
   { key: 'patients',      href: '/patients',      icon: <PatientsIcon />,      section: 'main' },
-  { key: 'doctors',       href: '/doctors',       icon: <DoctorsIcon />,       section: 'main', roles: ['OWNER'] },
+  // /doctors redirects owners to /settings/doctors — claim that path so the
+  // Doctors item (not Settings) stays highlighted after the redirect.
+  { key: 'doctors',       href: '/doctors',       icon: <DoctorsIcon />,       section: 'main', roles: ['OWNER'], activePaths: ['/settings/doctors'] },
   { key: 'events',        href: '/events',        icon: <EventsIcon />,        section: 'main' },
   { key: 'reports',       href: '/reports',       icon: <ReportsIcon />,       section: 'insights' },
   { key: 'settings',      href: '/settings',      icon: <SettingsIcon />,      section: 'insights' },
 ]
+
+/**
+ * Resolves which single nav item is active for a pathname. The longest
+ * matching prefix wins, so an item claiming a deep path (e.g. Doctors →
+ * /settings/doctors) beats an item owning its parent (Settings → /settings).
+ */
+function activeNavKey(pathname: string): string | null {
+  let bestKey: string | null = null
+  let bestLen = -1
+  for (const item of NAV_ITEMS) {
+    for (const prefix of [item.href, ...(item.activePaths ?? [])]) {
+      const matches = pathname === prefix || pathname.startsWith(`${prefix}/`)
+      if (matches && prefix.length > bestLen) {
+        bestKey = item.key
+        bestLen = prefix.length
+      }
+    }
+  }
+  return bestKey
+}
 
 // ── User avatar initials helper ────────────────────────────────────────────
 
@@ -80,6 +104,7 @@ interface SidebarProps {
 export function Sidebar({ userRole, userName, clinicName, clinicLogoUrl, onSearchClick }: SidebarProps) {
   const t = useTranslations('nav')
   const pathname = usePathname()
+  const activeKey = activeNavKey(pathname)
 
   const mainItems = NAV_ITEMS.filter(
     (item) => item.section === 'main' && (!item.roles || !userRole || item.roles.includes(userRole))
@@ -159,7 +184,7 @@ export function Sidebar({ userRole, userName, clinicName, clinicLogoUrl, onSearc
         </div>
         <ul>
           {mainItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+            const isActive = item.key === activeKey
             return (
               <li key={item.key}>
                 <Link
@@ -198,7 +223,7 @@ export function Sidebar({ userRole, userName, clinicName, clinicLogoUrl, onSearc
         </div>
         <ul>
           {insightItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+            const isActive = item.key === activeKey
             return (
               <li key={item.key}>
                 <Link

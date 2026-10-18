@@ -60,12 +60,37 @@ jobs:
           files: apps/web/coverage/coverage-final.json
 
   e2e:
-    name: E2E Tests (on main)
+    name: E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 25
     needs: ci
-    continue-on-error: true
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: cliniqly_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      # Throwaway service-container DB — never a shared/production database.
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/cliniqly_e2e
+      DATABASE_URL_UNPOOLED: postgresql://postgres:postgres@localhost:5432/cliniqly_e2e
+      NEXTAUTH_SECRET: e2e-only-secret-not-used-anywhere-real
+      NEXTAUTH_URL: http://localhost:3000
+      AUTH_TRUST_HOST: 'true'
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      BASE_URL: http://localhost:3000
+      # No UPSTASH_* vars on purpose: their absence activates the fixed
+      # dev OTP (123456) that the e2e login flow depends on (lib/otp.ts).
 
     steps:
       - name: Checkout
@@ -85,21 +110,23 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Generate Prisma client
+        run: pnpm --filter @chikitsa360/web db:generate
+
+      - name: Apply database migrations
+        run: pnpm --filter @chikitsa360/web exec prisma migrate deploy
+
+      - name: Seed e2e data
+        run: pnpm --filter @chikitsa360/web db:seed
+
       - name: Install Playwright browsers
         run: pnpm --filter @chikitsa360/web exec playwright install --with-deps chromium
 
       - name: Build app
         run: pnpm build
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
-          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
 
       - name: Run E2E tests
         run: pnpm --filter @chikitsa360/web exec playwright test
-        env:
-          BASE_URL: http://localhost:3000
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

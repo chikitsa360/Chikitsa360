@@ -30,3 +30,6 @@ pnpm-debug.log*
 
 # testing
 coverage
+playwright-report
+test-results
+apps/web/e2e/.auth
