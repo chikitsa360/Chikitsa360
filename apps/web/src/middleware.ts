@@ -27,6 +27,18 @@ const PUBLIC_API_PATHS = [
   '/api/v1/events/',           // covers /events/[slug]/register (public registration)
 ]
 
+/**
+ * Public origin of the request. On Vercel, `req.url` inside middleware carries
+ * the deployment's canonical host (chikitsa360-web.vercel.app) — the domain the
+ * visitor actually used only arrives via x-forwarded-host. Absolute redirects
+ * built from `req.url` would bounce users off custom domains.
+ */
+function publicOrigin(req: NextRequest): string {
+  const host = req.headers.get('x-forwarded-host') ?? req.nextUrl.host
+  const proto = req.headers.get('x-forwarded-proto') ?? req.nextUrl.protocol.replace(':', '')
+  return `${proto}://${host}`
+}
+
 export default auth(async function middleware(req: NextRequest & { auth: unknown }) {
   const { pathname } = req.nextUrl
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,21 +53,21 @@ export default auth(async function middleware(req: NextRequest & { auth: unknown
   // Admin routes: require system_role = 'super_admin'; silently redirect others to /dashboard
   if (isAdminPath) {
     if (!session?.user || session.user.systemRole !== 'super_admin') {
-      return NextResponse.redirect(new URL('/dashboard', req.url))
+      return NextResponse.redirect(new URL('/dashboard', publicOrigin(req)))
     }
     return NextResponse.next()
   }
 
   // Redirect unauthenticated users away from protected pages
   if (isProtected && !session?.user) {
-    const loginUrl = new URL('/login', req.url)
+    const loginUrl = new URL('/login', publicOrigin(req))
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
   // Redirect authenticated users away from auth pages
   if (isAuthPath && session?.user) {
-    return NextResponse.redirect(new URL('/dashboard', req.url))
+    return NextResponse.redirect(new URL('/dashboard', publicOrigin(req)))
   }
 
   // Skip auth checks for public API routes, booking pages, and public event pages
