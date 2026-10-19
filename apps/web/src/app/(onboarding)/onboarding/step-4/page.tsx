@@ -7,8 +7,6 @@ export default async function Step4Page() {
   const session = await auth()
   if (!session?.user) redirect('/login')
 
-  const facebookAppId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID
-
   return (
     <OnboardingShell
       currentStep={4}
@@ -17,7 +15,10 @@ export default async function Step4Page() {
       onBackHref="/onboarding/step-3"
       hideContinue
     >
-      <WhatsAppSetupStep facebookAppId={facebookAppId} />
+      <WhatsAppSetupStep
+        notifyMetaAppId={process.env.NEXT_PUBLIC_NOTIFY_META_APP_ID}
+        notifyEsConfigId={process.env.NEXT_PUBLIC_NOTIFY_ES_CONFIG_ID}
+      />
     </OnboardingShell>
   )
 }

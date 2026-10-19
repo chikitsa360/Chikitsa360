@@ -2,6 +2,7 @@
 
 import * as React from 'react'
 import { WhatsAppStatusIndicator } from '@/components/onboarding/WhatsAppStatusIndicator'
+import { NotifyConnectPanel } from '@/components/whatsapp/NotifyConnectPanel'
 
 const TEMPLATES = [
   { key: 'apt_confirmation', label: 'Appointment Confirmation' },
@@ -16,12 +17,30 @@ interface WhatsAppStatus {
   phoneNumberId?: string | null
 }
 
-export function WhatsAppSettings() {
+interface WhatsAppSettingsProps {
+  /** Notify platform's Meta App ID (NEXT_PUBLIC_NOTIFY_META_APP_ID) */
+  notifyMetaAppId?: string
+  /** Notify's Embedded Signup configuration id (NEXT_PUBLIC_NOTIFY_ES_CONFIG_ID) */
+  notifyEsConfigId?: string
+}
+
+export function WhatsAppSettings({ notifyMetaAppId, notifyEsConfigId }: WhatsAppSettingsProps) {
   const [status, setStatus] = React.useState<WhatsAppStatus | null>(null)
   const [loading, setLoading] = React.useState(true)
+  const [showConnect, setShowConnect] = React.useState(false)
   const [commLanguage, setCommLanguage] = React.useState('en')
   const [saving, setSaving] = React.useState(false)
   const [saveSuccess, setSaveSuccess] = React.useState(false)
+
+  const refreshStatus = React.useCallback(() => {
+    fetch('/api/v1/clinics/whatsapp/status')
+      .then((r) => r.json())
+      .then((data) => {
+        setStatus(data)
+        setShowConnect(false)
+      })
+      .catch(() => undefined)
+  }, [])
 
   React.useEffect(() => {
     Promise.all([
@@ -107,15 +126,26 @@ export function WhatsAppSettings() {
         {/* Status indicator */}
         <WhatsAppStatusIndicator completedSteps={status?.connected ? 1 : 0} />
 
-        {/* Reconnect button */}
-        <div className="mt-4 flex justify-end">
-          <a
-            href="/onboarding/step-4"
-            className="rounded-lg border border-border px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted"
-          >
-            {status?.connected ? 'Reconnect WhatsApp' : 'Connect WhatsApp'}
-          </a>
-        </div>
+        {/* Connect panel — inline for unconnected clinics, toggled for reconnect */}
+        {!status?.connected || showConnect ? (
+          <div className="mt-5 border-t border-border pt-5">
+            <NotifyConnectPanel
+              metaAppId={notifyMetaAppId}
+              esConfigId={notifyEsConfigId}
+              onConnected={refreshStatus}
+            />
+          </div>
+        ) : (
+          <div className="mt-4 flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowConnect(true)}
+              className="rounded-lg border border-border px-4 py-2 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted"
+            >
+              Reconnect WhatsApp
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Template status */}

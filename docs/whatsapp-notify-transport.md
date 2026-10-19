@@ -98,10 +98,23 @@ sequence, retry semantics) is documented in the Notify repo:
 Clinics on `direct` need none of these. The legacy `META_*` vars remain
 required while any clinic is on `direct`.
 
-## Connecting a clinic (until the UI ships, via API)
+## Connecting a clinic
 
-`POST /api/v1/clinics/whatsapp/connect-notify` (authenticated clinic session).
-Two methods, one destination:
+**Via the UI (since 2026-10-19):** onboarding step 4 and Settings → WhatsApp
+both render `NotifyConnectPanel` (`src/components/whatsapp/NotifyConnectPanel.tsx`):
+
+- **Managed (Embedded Signup)** — needs `NEXT_PUBLIC_NOTIFY_META_APP_ID` +
+  `NEXT_PUBLIC_NOTIFY_ES_CONFIG_ID` in the Cliniqly env (same values as
+  notify-sdk's `NEXT_PUBLIC_META_APP_ID` / `NEXT_PUBLIC_META_ES_CONFIG_ID`).
+  Without them the UI shows a "not configured in this environment" note.
+- **BYO (manual credentials)** — always available, no Meta SDK needed.
+
+The legacy direct-Meta connect UI (old step 4, `NEXT_PUBLIC_FACEBOOK_APP_ID`)
+was removed from the UI on 2026-10-19; the `/clinics/whatsapp/connect` route
+itself is untouched for existing direct-transport clinics.
+
+**Via the API** — `POST /api/v1/clinics/whatsapp/connect-notify`
+(authenticated clinic session). Two methods, one destination:
 
 ```jsonc
 // Managed — Embedded Signup (code from Meta's popup, ~30s TTL)

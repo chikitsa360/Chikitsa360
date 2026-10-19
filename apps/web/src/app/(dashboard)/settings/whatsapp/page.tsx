@@ -7,5 +7,10 @@ export default async function WhatsAppSettingsPage() {
   if (!session?.user) redirect('/login')
   if (!session.user.clinicId) redirect('/onboarding')
 
-  return <WhatsAppSettings />
+  return (
+    <WhatsAppSettings
+      notifyMetaAppId={process.env.NEXT_PUBLIC_NOTIFY_META_APP_ID}
+      notifyEsConfigId={process.env.NEXT_PUBLIC_NOTIFY_ES_CONFIG_ID}
+    />
+  )
 }

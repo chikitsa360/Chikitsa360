@@ -33,6 +33,19 @@ test.describe('dashboard (owner)', () => {
     await expect(page.locator('aside a[aria-current="page"]')).toHaveAttribute('href', '/doctors')
   })
 
+  test('WhatsApp settings offers the Notify connect panel', async ({ page }) => {
+    await page.goto('/settings/whatsapp')
+    await expect(page.getByRole('heading', { name: 'WhatsApp Business' })).toBeVisible()
+    // Seeded clinic is unconnected → the connect panel renders inline with the
+    // BYO path always available (managed path depends on env config).
+    await expect(page.getByText('Not Connected')).toBeVisible()
+    const byoToggle = page.getByRole('button', { name: 'I already have Meta API credentials' })
+    await expect(byoToggle).toBeVisible()
+    await byoToggle.click()
+    await expect(page.getByLabel(/Permanent Access Token/)).toBeVisible()
+    await expect(page.getByLabel(/Phone Number ID/)).toBeVisible()
+  })
+
   test('appointments calendar loads for today', async ({ page }) => {
     await page.goto('/appointments')
     // Either today's appointments render or the explicit empty state does —
