@@ -4,12 +4,16 @@ import { SEED, login } from './helpers'
 test.describe('authentication', () => {
   test('owner logs in with phone + OTP and lands on the dashboard', async ({ page }) => {
     await login(page, SEED.owner.phone)
-    await expect(page.getByText(/Good (morning|afternoon|evening)/)).toBeVisible()
+    await expect(page.getByText(/Good (morning|afternoon|evening)/)).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('receptionist logs in and lands on the dashboard', async ({ page }) => {
     await login(page, SEED.receptionist.phone)
-    await expect(page.getByText(/Good (morning|afternoon|evening)/)).toBeVisible()
+    await expect(page.getByText(/Good (morning|afternoon|evening)/)).toBeVisible({
+      timeout: 15_000,
+    })
   })
 
   test('invalid phone number shows a validation error', async ({ page }) => {

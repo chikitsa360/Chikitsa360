@@ -70,8 +70,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },
           })
 
-          // Auto-create an OWNER user when DEV_OTP_BYPASS is set (dev or demo deployments)
-          if (!user && process.env.DEV_OTP_BYPASS) {
+          // Auto-create an OWNER user for unknown phones — demo environments only.
+          // Requires BOTH flags: the bypass OTP alone must not turn a leaked URL
+          // into open registration on production.
+          if (!user && process.env.DEV_OTP_BYPASS && process.env.DEMO_AUTO_CREATE_USERS === 'true') {
             user = await db.user.create({
               data: { phone, name: 'Demo User', role: 'OWNER' },
               include: { clinic: { select: { id: true, onboardingComplete: true, planExpiresAt: true } } },

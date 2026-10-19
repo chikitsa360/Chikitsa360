@@ -1,4 +1,5 @@
 import { redis } from './redis'
+import { sendLoginOtp } from './otp-delivery'
 
 const OTP_TTL_SECONDS = 600 // 10 minutes
 const MAX_ATTEMPTS = 3
@@ -63,37 +64,14 @@ function generateOtp(): string {
   return String(100000 + (array[0]! % 900000))
 }
 
-async function sendViaMSG91(phone: string, otp: string): Promise<void> {
-  const apiKey = process.env.MSG91_API_KEY
-  const templateId = process.env.MSG91_TEMPLATE_ID
-
-  if (!apiKey || !templateId) {
-    console.log(`[DEV] OTP for +91${phone}: ${otp}`)
-    return
-  }
-
-  const res = await fetch('https://api.msg91.com/api/v5/otp', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', authkey: apiKey },
-    body: JSON.stringify({
-      template_id: templateId,
-      mobile: `91${phone}`,
-      otp,
-    }),
-  })
-
-  if (!res.ok) {
-    throw new OtpError('Failed to send OTP via SMS', 'OTP_SEND_FAILED')
-  }
-}
-
 // ── Public API ────────────────────────────────────────────────────────────
 
 /**
- * Generate a 6-digit OTP and send it to the given phone via MSG91.
+ * Generate a 6-digit OTP and send it to the given phone — WhatsApp
+ * authentication template first, MSG91 SMS fallback (see lib/otp-delivery.ts).
  * Returns a nonce to be stored client-side for the verify step.
  *
- * In dev mode without Redis, uses an in-memory store and logs the OTP.
+ * In dev mode without Redis, uses the bypass OTP and logs it.
  */
 export async function sendOtp(phone: string): Promise<{ nonce: string }> {
   const bypassOtp = getBypassOtp()
@@ -111,7 +89,12 @@ export async function sendOtp(phone: string): Promise<{ nonce: string }> {
   const otp = generateOtp()
 
   await redis.set(`otp:${phone}:${nonce}`, otp, { ex: OTP_TTL_SECONDS })
-  await sendViaMSG91(phone, otp)
+
+  try {
+    await sendLoginOtp(phone, otp)
+  } catch {
+    throw new OtpError('Failed to send OTP', 'OTP_SEND_FAILED')
+  }
 
   return { nonce }
 }
