@@ -66,7 +66,7 @@ async function main() {
 
   // ── 1. Clean up previous seed ──────────────────────────────────────────
 
-  const seedPhones = ['9999999999', '9888888888', '9777777777', '9666666666']
+  const seedPhones = ['9999999999', '9888888888', '9777777777', '9666666666', '9000000001']
 
   // Find existing seed users to get their clinic IDs
   const existingUsers = await prisma.user.findMany({ where: { phone: { in: seedPhones } } })
@@ -115,6 +115,10 @@ async function main() {
   })
   await prisma.user.create({
     data: { phone: '9666666666', name: 'Sneha Patel', role: 'RECEPTIONIST', clinicId: clinic.id },
+  })
+  // Owner with NO clinic — lands on /onboarding (used by onboarding e2e specs)
+  await prisma.user.create({
+    data: { phone: '9000000001', name: 'E2E Onboarding Owner', role: 'OWNER' },
   })
 
   console.log(`✓ Created clinic "${clinic.name}" (id: ${clinic.id})`)

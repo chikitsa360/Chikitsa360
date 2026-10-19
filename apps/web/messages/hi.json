@@ -128,9 +128,9 @@
       "slug-locked": "Pehli save ke baad slug nahi badal sakte.",
       "slug-use-suggestion": "{suggestion} use karein",
       "legal-intro": "Shuru karne se pehle, please inhe padh kar accept karein. Yeh aapki aur aapke patients ki suraksha karte hain.",
-      "legal-tos": "Maine padha aur accept karta hoon <a href='/legal/terms' target='_blank'>Terms of Service</a>",
-      "legal-privacy": "Maine padha aur accept karta hoon <a href='/legal/privacy' target='_blank'>Privacy Policy</a>",
-      "legal-dpa": "Main DPDP Act 2023 ke antargat Data Fiduciary ke roop mein <a href='/legal/dpa' target='_blank'>Data Processing Agreement</a> accept karta hoon",
+      "legal-tos": "Maine padha aur accept karta hoon <link>Terms of Service</link>",
+      "legal-privacy": "Maine padha aur accept karta hoon <link>Privacy Policy</link>",
+      "legal-dpa": "Main DPDP Act 2023 ke antargat Data Fiduciary ke roop mein <link>Data Processing Agreement</link> accept karta hoon",
       "save-later": "Baad mein poora karoonga",
       "submit": "Save karein & Aage badhein"
     },

@@ -331,26 +331,18 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
             {t('step1.legal-intro')}
           </p>
 
-          {[
-            {
-              key: 'tos',
-              checked: tosAccepted,
-              set: setTosAccepted,
-              label: t('step1.legal-tos'),
-            },
-            {
-              key: 'privacy',
-              checked: privacyAccepted,
-              set: setPrivacyAccepted,
-              label: t('step1.legal-privacy'),
-            },
-            {
-              key: 'dpa',
-              checked: dpaAccepted,
-              set: setDpaAccepted,
-              label: t('step1.legal-dpa'),
-            },
-          ].map(({ key, checked, set, label }) => (
+          {(
+            [
+              { key: 'tos', checked: tosAccepted, set: setTosAccepted, href: '/legal/terms' },
+              {
+                key: 'privacy',
+                checked: privacyAccepted,
+                set: setPrivacyAccepted,
+                href: '/legal/privacy',
+              },
+              { key: 'dpa', checked: dpaAccepted, set: setDpaAccepted, href: '/legal/dpa' },
+            ] as const
+          ).map(({ key, checked, set, href }) => (
             <label key={key} className="mb-3 flex cursor-pointer items-start gap-3 last:mb-0">
               <input
                 type="checkbox"
@@ -358,10 +350,21 @@ export function ClinicProfileForm({ prefill = {} }: ClinicProfileFormProps) {
                 onChange={(e) => set(e.target.checked)}
                 className="mt-0.5 h-4 w-4 shrink-0 accent-primary"
               />
-              <span
-                className="text-[13px] text-foreground [&_a]:font-medium [&_a]:text-primary [&_a]:hover:underline"
-                dangerouslySetInnerHTML={{ __html: label }}
-              />
+              <span className="text-[13px] text-foreground">
+                {t.rich(`step1.legal-${key}`, {
+                  link: (chunks) => (
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="font-medium text-primary hover:underline"
+                    >
+                      {chunks}
+                    </a>
+                  ),
+                })}
+              </span>
             </label>
           ))}
 

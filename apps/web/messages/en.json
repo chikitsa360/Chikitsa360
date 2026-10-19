@@ -128,9 +128,9 @@
       "slug-locked": "Slug cannot be changed after first save.",
       "slug-use-suggestion": "Use {suggestion}",
       "legal-intro": "Before we start, please review and accept these agreements. They protect both you and your patients.",
-      "legal-tos": "I have read and accept the <a href='/legal/terms' target='_blank'>Terms of Service</a>",
-      "legal-privacy": "I have read and accept the <a href='/legal/privacy' target='_blank'>Privacy Policy</a>",
-      "legal-dpa": "I accept the <a href='/legal/dpa' target='_blank'>Data Processing Agreement</a> as a Data Fiduciary under the DPDP Act 2023",
+      "legal-tos": "I have read and accept the <link>Terms of Service</link>",
+      "legal-privacy": "I have read and accept the <link>Privacy Policy</link>",
+      "legal-dpa": "I accept the <link>Data Processing Agreement</link> as a Data Fiduciary under the DPDP Act 2023",
       "save-later": "I'll finish this later",
       "submit": "Save & Continue"
     },
